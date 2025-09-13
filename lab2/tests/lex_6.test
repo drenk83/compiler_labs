@@ -1,0 +1,2 @@
+$A = xx + 1  # xx as x x — second x after x without op, but lex sees two VAR, no error? Wait, for lex no error (two VAR), but for syntax yes. To force lex error: use ! 
+$A = x! + 1  # ! unknown

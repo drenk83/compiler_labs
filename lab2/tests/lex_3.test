@@ -1,0 +1,2 @@
+$A = 2A + 1  # A как var — error (ожидается a-z)
+print $A

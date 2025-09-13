@@ -1,0 +1,7 @@
+
+   print x;
+
+   $A = x + 1;
+   print $A;
+   
+   print 2x + 3;
