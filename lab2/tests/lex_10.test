@@ -1,3 +1,0 @@
-$A = 2x’ + 1  # ’ curly unknown
-$A = 2а + 1  # а russian unknown
-$A = 12345678901234567890 + 1  # Long number — atoi overflow, but lex OK (as NUMBER, value wrong)

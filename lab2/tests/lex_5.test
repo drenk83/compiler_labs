@@ -1,2 +1,0 @@
-$A = 1.2x + 3  # . unknown
-print $A

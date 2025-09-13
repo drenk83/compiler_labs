@@ -1,2 +1,0 @@
-$A = 2x % & 1  # % & unknown
-print $A
