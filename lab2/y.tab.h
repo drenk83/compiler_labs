@@ -69,7 +69,8 @@ extern int yydebug;
     COMMENT = 270,                 /* COMMENT  */
     EOL = 271,                     /* EOL  */
     IMPLICIT_MUL = 272,            /* IMPLICIT_MUL  */
-    UMINUS = 273                   /* UMINUS  */
+    NEG = 273,                     /* NEG  */
+    UMINUS = 274                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -93,18 +94,20 @@ extern int yydebug;
 #define COMMENT 270
 #define EOL 271
 #define IMPLICIT_MUL 272
-#define UMINUS 273
+#define NEG 273
+#define UMINUS 274
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 42 "poly.y"
+#line 14 "poly.y"
 
     double num;
     char var;
+    AST ast;
 
-#line 108 "y.tab.h"
+#line 111 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

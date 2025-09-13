@@ -71,44 +71,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
-
-#define MAX_POLYNOMIALS 100
-
-typedef struct {
-    double *coeffs;    // Массив коэффициентов: coeffs[0] = свободный член, coeffs[1] = x, coeffs[2] = x^2 и т.д.
-    int degree;        // Максимальная степень
-    int capacity;      // Размер выделенной памяти
-} Polynomial;
-
-typedef struct {
-    char name;                    // Имя полинома (a-z)
-    Polynomial *poly;            // Указатель на полином
-    int is_defined;              // Флаг, определен ли полином
-} NamedPolynomial;
-
-typedef struct {
-    char name;           // Имя переменной ('x', 'y', 'z' и т.д.)
-} Variable;
-
-NamedPolynomial poly_vars[MAX_POLYNOMIALS];  // Глобальный массив для простоты
-
+#include "poly.h"
+NamedPolynomial poly_vars[MAX_POLYNOMIALS];
 extern int yylex();
 extern int yyerror(char *s);
 extern FILE *yyin;
 extern int yylineno;
+// Прототипы (уже в poly.h, но для ясности)
 
-// Прототипы функций
-Polynomial* poly_from_number(double num);
-Polynomial* poly_from_var_power(int power);
-Polynomial* poly_add(Polynomial *a, Polynomial *b);
-Polynomial* poly_subtract(Polynomial *a, Polynomial *b);
-Polynomial* poly_multiply(Polynomial *a, Polynomial *b);
-Polynomial* poly_multiply_scalar(Polynomial *p, double scalar);
-void poly_free(Polynomial *p);
-void poly_print(Polynomial *p);
-
-#line 112 "y.tab.c"
+#line 85 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -167,7 +140,8 @@ extern int yydebug;
     COMMENT = 270,                 /* COMMENT  */
     EOL = 271,                     /* EOL  */
     IMPLICIT_MUL = 272,            /* IMPLICIT_MUL  */
-    UMINUS = 273                   /* UMINUS  */
+    NEG = 273,                     /* NEG  */
+    UMINUS = 274                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -191,18 +165,20 @@ extern int yydebug;
 #define COMMENT 270
 #define EOL 271
 #define IMPLICIT_MUL 272
-#define UMINUS 273
+#define NEG 273
+#define UMINUS 274
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 42 "poly.y"
+#line 14 "poly.y"
 
     double num;
     char var;
+    AST ast;
 
-#line 206 "y.tab.c"
+#line 182 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -240,13 +216,19 @@ enum yysymbol_kind_t
   YYSYMBOL_COMMENT = 15,                   /* COMMENT  */
   YYSYMBOL_EOL = 16,                       /* EOL  */
   YYSYMBOL_IMPLICIT_MUL = 17,              /* IMPLICIT_MUL  */
-  YYSYMBOL_UMINUS = 18,                    /* UMINUS  */
-  YYSYMBOL_YYACCEPT = 19,                  /* $accept  */
-  YYSYMBOL_program = 20,                   /* program  */
-  YYSYMBOL_statement = 21,                 /* statement  */
-  YYSYMBOL_assignment = 22,                /* assignment  */
-  YYSYMBOL_print_stmt = 23,                /* print_stmt  */
-  YYSYMBOL_expr = 24                       /* expr  */
+  YYSYMBOL_NEG = 18,                       /* NEG  */
+  YYSYMBOL_UMINUS = 19,                    /* UMINUS  */
+  YYSYMBOL_YYACCEPT = 20,                  /* $accept  */
+  YYSYMBOL_program = 21,                   /* program  */
+  YYSYMBOL_statement = 22,                 /* statement  */
+  YYSYMBOL_assignment = 23,                /* assignment  */
+  YYSYMBOL_print_stmt = 24,                /* print_stmt  */
+  YYSYMBOL_expr = 25,                      /* expr  */
+  YYSYMBOL_addexpr = 26,                   /* addexpr  */
+  YYSYMBOL_mulexpr = 27,                   /* mulexpr  */
+  YYSYMBOL_power = 28,                     /* power  */
+  YYSYMBOL_unary = 29,                     /* unary  */
+  YYSYMBOL_primary = 30                    /* primary  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -574,19 +556,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   67
+#define YYLAST   37
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  19
+#define YYNTOKENS  20
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  6
+#define YYNNTS  11
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  25
+#define YYNRULES  28
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  40
+#define YYNSTATES  39
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   273
+#define YYMAXUTOK   274
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -627,16 +609,16 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18
+      15,    16,    17,    18,    19
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    59,    59,    60,    61,    62,    65,    66,    67,    68,
-      71,    72,    75,    76,    79,    80,    81,    82,    83,    84,
-      85,    86,    87,    88,    89,    90
+       0,    30,    30,    31,    32,    33,    35,    36,    37,    45,
+      47,    63,    80,    88,    97,    99,   100,   101,   103,   104,
+     105,   107,   108,   110,   111,   113,   114,   115,   116
 };
 #endif
 
@@ -654,8 +636,9 @@ static const char *const yytname[] =
 {
   "\"end of file\"", "error", "\"invalid token\"", "NUMBER", "VAR",
   "POLYVAR", "PLUS", "MINUS", "TIMES", "POWER", "LPAREN", "RPAREN",
-  "ASSIGN", "PRINT", "SEMI", "COMMENT", "EOL", "IMPLICIT_MUL", "UMINUS",
-  "$accept", "program", "statement", "assignment", "print_stmt", "expr", YY_NULLPTR
+  "ASSIGN", "PRINT", "SEMI", "COMMENT", "EOL", "IMPLICIT_MUL", "NEG",
+  "UMINUS", "$accept", "program", "statement", "assignment", "print_stmt",
+  "expr", "addexpr", "mulexpr", "power", "unary", "primary", YY_NULLPTR
 };
 
 static const char *
@@ -665,7 +648,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-7)
+#define YYPACT_NINF (-10)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -679,10 +662,10 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -7,    21,    -7,    19,    17,    -3,    35,    35,    35,    -7,
-      -7,    14,    -7,    -7,    58,    -7,    35,    35,    35,    -7,
-      -7,    40,    -1,    -7,    35,    35,    35,    29,    46,    52,
-       8,    -7,    -7,    -5,    -5,    24,    -7,    -7,    -7,    -7
+     -10,     1,   -10,   -10,   -10,    -3,    16,    16,    16,   -10,
+     -10,    -9,   -10,   -10,   -10,     6,    27,   -10,     9,   -10,
+      16,   -10,   -10,    14,    13,   -10,    16,    16,    16,   -10,
+      16,    22,   -10,   -10,    27,    27,   -10,   -10,   -10
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -690,22 +673,24 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       2,     0,     1,    20,    21,    22,     0,     0,     0,     9,
-       5,     3,     6,     7,     8,    23,     0,     0,     0,    22,
-      19,     0,    13,     4,     0,     0,     0,     0,     0,     0,
-      11,    18,    12,    14,    15,    16,    17,    24,    25,    10
+       2,     0,     1,    25,    26,    27,     0,     0,     0,     9,
+       5,     3,     6,     7,     8,    14,    15,    18,    21,    23,
+       0,    27,    24,     0,    13,     4,     0,     0,     0,    20,
+       0,    11,    28,    12,    16,    17,    19,    22,    10
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -7,    -7,    -7,    -7,    -7,    -6
+     -10,   -10,   -10,   -10,   -10,    -5,   -10,     7,    -6,   -10,
+     -10
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     1,    11,    12,    13,    14
+       0,     1,    11,    12,    13,    14,    15,    16,    17,    18,
+      19
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -713,50 +698,44 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      20,    21,    22,    26,    27,    24,    25,    26,    27,    18,
-      28,    29,    30,    32,    24,    25,    26,    27,    33,    34,
-      35,     2,    39,    15,     3,     4,     5,    17,     6,    16,
-      23,     7,    36,    27,     8,     0,     9,    10,     3,     4,
-      19,     0,     6,     0,     0,     7,    24,    25,    26,    27,
-       0,    31,    24,    25,    26,    27,     0,    37,    24,    25,
-      26,    27,     0,    38,    24,    25,    26,    27
+      22,     2,    23,    24,     3,     4,     5,    25,     6,    20,
+      29,     7,    26,    27,     8,    31,     9,    10,    30,     3,
+       4,    21,    36,     6,    37,    32,     7,    33,    29,    29,
+       3,     4,    21,    34,    35,    28,    38,     7
 };
 
 static const yytype_int8 yycheck[] =
 {
-       6,     7,     8,     8,     9,     6,     7,     8,     9,    12,
-      16,    17,    18,    14,     6,     7,     8,     9,    24,    25,
-      26,     0,    14,     4,     3,     4,     5,    10,     7,    10,
-      16,    10,     3,     9,    13,    -1,    15,    16,     3,     4,
-       5,    -1,     7,    -1,    -1,    10,     6,     7,     8,     9,
-      -1,    11,     6,     7,     8,     9,    -1,    11,     6,     7,
-       8,     9,    -1,    11,     6,     7,     8,     9
+       6,     0,     7,     8,     3,     4,     5,    16,     7,    12,
+      16,    10,     6,     7,    13,    20,    15,    16,     9,     3,
+       4,     5,    28,     7,    30,    11,    10,    14,    34,    35,
+       3,     4,     5,    26,    27,     8,    14,    10
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    20,     0,     3,     4,     5,     7,    10,    13,    15,
-      16,    21,    22,    23,    24,     4,    10,    10,    12,     5,
-      24,    24,    24,    16,     6,     7,     8,     9,    24,    24,
-      24,    11,    14,    24,    24,    24,     3,    11,    11,    14
+       0,    21,     0,     3,     4,     5,     7,    10,    13,    15,
+      16,    22,    23,    24,    25,    26,    27,    28,    29,    30,
+      12,     5,    28,    25,    25,    16,     6,     7,     8,    28,
+       9,    25,    11,    14,    27,    27,    28,    28,    14
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    19,    20,    20,    20,    20,    21,    21,    21,    21,
-      22,    22,    23,    23,    24,    24,    24,    24,    24,    24,
-      24,    24,    24,    24,    24,    24
+       0,    20,    21,    21,    21,    21,    22,    22,    22,    22,
+      23,    23,    24,    24,    25,    26,    26,    26,    27,    27,
+      27,    28,    28,    29,    29,    30,    30,    30,    30
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     0,     2,     3,     2,     1,     1,     1,     1,
-       4,     3,     3,     2,     3,     3,     3,     3,     3,     2,
-       1,     1,     1,     2,     4,     4
+       4,     3,     3,     2,     1,     1,     3,     3,     1,     3,
+       2,     1,     3,     1,     2,     1,     1,     1,     3
 };
 
 
@@ -1219,8 +1198,185 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
+  case 8: /* statement: expr  */
+#line 37 "poly.y"
+                {
+             Polynomial *p = eval_ast((yyvsp[0].ast));
+             if (p) {
+                 poly_print(p);
+                 poly_free(p);
+             }
+             ast_free((yyvsp[0].ast));
+           }
+#line 1212 "y.tab.c"
+    break;
 
-#line 1224 "y.tab.c"
+  case 9: /* statement: COMMENT  */
+#line 45 "poly.y"
+                   { /* ignore */ }
+#line 1218 "y.tab.c"
+    break;
+
+  case 10: /* assignment: POLYVAR ASSIGN expr SEMI  */
+#line 47 "poly.y"
+                                     {
+             char name = (yyvsp[-3].var);
+             int idx = name - 'a';
+             if (idx < 0 || idx >= MAX_POLYNOMIALS) {
+                 fprintf(stderr, "Line %d: Semantic error: Invalid polyvar '%c'\n", yylineno, name);
+             } else {
+                 Polynomial *newp = eval_ast((yyvsp[-1].ast));
+                 if (newp) {
+                     if (poly_vars[idx].poly) poly_free(poly_vars[idx].poly);
+                     poly_vars[idx].poly = newp;
+                     poly_vars[idx].is_defined = 1;
+                     poly_vars[idx].name = name;
+                 }
+                 ast_free((yyvsp[-1].ast));
+             }
+           }
+#line 1239 "y.tab.c"
+    break;
+
+  case 11: /* assignment: POLYVAR ASSIGN expr  */
+#line 63 "poly.y"
+                               {
+             char name = (yyvsp[-2].var);
+             int idx = name - 'a';
+             if (idx < 0 || idx >= MAX_POLYNOMIALS) {
+                 fprintf(stderr, "Line %d: Semantic error: Invalid polyvar '%c'\n", yylineno, name);
+             } else {
+                 Polynomial *newp = eval_ast((yyvsp[0].ast));
+                 if (newp) {
+                     if (poly_vars[idx].poly) poly_free(poly_vars[idx].poly);
+                     poly_vars[idx].poly = newp;
+                     poly_vars[idx].is_defined = 1;
+                     poly_vars[idx].name = name;
+                 }
+                 ast_free((yyvsp[0].ast));
+             }
+           }
+#line 1260 "y.tab.c"
+    break;
+
+  case 12: /* print_stmt: PRINT expr SEMI  */
+#line 80 "poly.y"
+                            {
+             Polynomial *p = eval_ast((yyvsp[-1].ast));
+             if (p) {
+                 poly_print(p);
+                 poly_free(p);
+             }
+             ast_free((yyvsp[-1].ast));
+           }
+#line 1273 "y.tab.c"
+    break;
+
+  case 13: /* print_stmt: PRINT expr  */
+#line 88 "poly.y"
+                       {
+             Polynomial *p = eval_ast((yyvsp[0].ast));
+             if (p) {
+                 poly_print(p);
+                 poly_free(p);
+             }
+             ast_free((yyvsp[0].ast));
+           }
+#line 1286 "y.tab.c"
+    break;
+
+  case 14: /* expr: addexpr  */
+#line 97 "poly.y"
+              { (yyval.ast) = (yyvsp[0].ast); }
+#line 1292 "y.tab.c"
+    break;
+
+  case 15: /* addexpr: mulexpr  */
+#line 99 "poly.y"
+                           { (yyval.ast) = (yyvsp[0].ast); }
+#line 1298 "y.tab.c"
+    break;
+
+  case 16: /* addexpr: addexpr PLUS mulexpr  */
+#line 100 "poly.y"
+                              { (yyval.ast) = ast_create_binop(AST_ADD, (yyvsp[-2].ast), (yyvsp[0].ast)); }
+#line 1304 "y.tab.c"
+    break;
+
+  case 17: /* addexpr: addexpr MINUS mulexpr  */
+#line 101 "poly.y"
+                               { (yyval.ast) = ast_create_binop(AST_SUB, (yyvsp[-2].ast), (yyvsp[0].ast)); }
+#line 1310 "y.tab.c"
+    break;
+
+  case 18: /* mulexpr: power  */
+#line 103 "poly.y"
+               { (yyval.ast) = (yyvsp[0].ast); }
+#line 1316 "y.tab.c"
+    break;
+
+  case 19: /* mulexpr: mulexpr TIMES power  */
+#line 104 "poly.y"
+                             { (yyval.ast) = ast_create_binop(AST_MUL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
+#line 1322 "y.tab.c"
+    break;
+
+  case 20: /* mulexpr: mulexpr power  */
+#line 105 "poly.y"
+                                          { (yyval.ast) = ast_create_binop(AST_MUL, (yyvsp[-1].ast), (yyvsp[0].ast)); }
+#line 1328 "y.tab.c"
+    break;
+
+  case 21: /* power: unary  */
+#line 107 "poly.y"
+                         { (yyval.ast) = (yyvsp[0].ast); }
+#line 1334 "y.tab.c"
+    break;
+
+  case 22: /* power: unary POWER power  */
+#line 108 "poly.y"
+                         { (yyval.ast) = ast_create_binop(AST_POW, (yyvsp[-2].ast), (yyvsp[0].ast)); }
+#line 1340 "y.tab.c"
+    break;
+
+  case 23: /* unary: primary  */
+#line 110 "poly.y"
+               { (yyval.ast) = (yyvsp[0].ast); }
+#line 1346 "y.tab.c"
+    break;
+
+  case 24: /* unary: MINUS power  */
+#line 111 "poly.y"
+                                { (yyval.ast) = ast_create_unop(AST_UMINUS, (yyvsp[0].ast)); }
+#line 1352 "y.tab.c"
+    break;
+
+  case 25: /* primary: NUMBER  */
+#line 113 "poly.y"
+                { (yyval.ast) = ast_create_num((yyvsp[0].num)); }
+#line 1358 "y.tab.c"
+    break;
+
+  case 26: /* primary: VAR  */
+#line 114 "poly.y"
+             { (yyval.ast) = ast_create_var((yyvsp[0].var)); }
+#line 1364 "y.tab.c"
+    break;
+
+  case 27: /* primary: POLYVAR  */
+#line 115 "poly.y"
+                 { (yyval.ast) = ast_create_polyvar((yyvsp[0].var)); }
+#line 1370 "y.tab.c"
+    break;
+
+  case 28: /* primary: LPAREN expr RPAREN  */
+#line 116 "poly.y"
+                            { (yyval.ast) = (yyvsp[-1].ast); }
+#line 1376 "y.tab.c"
+    break;
+
+
+#line 1380 "y.tab.c"
 
       default: break;
     }
@@ -1413,131 +1569,283 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 93 "poly.y"
-
+#line 118 "poly.y"
 
 int yyerror(char *s) {
-    fprintf(stderr, "Line %d: %s\n", yylineno, s);
+    fprintf(stderr, "Line %d: Syntax error: %s\n", yylineno, s);
     return 0;
 }
-
 int main(int argc, char **argv) {
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
         return 1;
     }
-    
     yyin = fopen(argv[1], "r");
     if (!yyin) {
         perror("fopen");
         return 1;
     }
-    
+    for (int i = 0; i < MAX_POLYNOMIALS; i++) {
+        poly_vars[i].name = 0;
+        poly_vars[i].poly = NULL;
+        poly_vars[i].is_defined = 0;
+    }
     yyparse();
     fclose(yyin);
+    /* Cleanup */
+    for (int i = 0; i < MAX_POLYNOMIALS; i++) {
+        if (poly_vars[i].poly) poly_free(poly_vars[i].poly);
+    }
     return 0;
 }
-
-/* Создание полинома из числа */
+/* AST functions */
+AST ast_create_num(double n) {
+    AST node = (AST)malloc(sizeof(struct ASTNode));
+    node->type = AST_NUM;
+    node->line = yylineno;
+    node->left = node->right = NULL;
+    node->u.num = n;
+    return node;
+}
+AST ast_create_var(char v) {
+    AST node = (AST)malloc(sizeof(struct ASTNode));
+    node->type = AST_VAR;
+    node->line = yylineno;
+    node->left = node->right = NULL;
+    node->u.var_name = v;
+    return node;
+}
+AST ast_create_polyvar(char p) {
+    AST node = (AST)malloc(sizeof(struct ASTNode));
+    node->type = AST_POLYVAR;
+    node->line = yylineno;
+    node->left = node->right = NULL;
+    node->u.poly_name = p;
+    return node;
+}
+AST ast_create_binop(ASTType op, AST l, AST r) {
+    AST node = (AST)malloc(sizeof(struct ASTNode));
+    node->type = op;
+    node->line = yylineno;
+    node->left = l;
+    node->right = r;
+    return node;
+}
+AST ast_create_unop(ASTType op, AST c) {
+    return ast_create_binop(op, c, NULL);
+}
+void ast_free(AST node) {
+    if (!node) return;
+    ast_free(node->left);
+    ast_free(node->right);
+    free(node);
+}
+void trim_poly(Polynomial *p) {
+    if (!p || p->degree < 0) return;
+    while (p->degree > 0 && p->coeffs[p->degree] == 0.0) {
+        p->degree--;
+    }
+    if (p->degree == 0 && p->coeffs[0] == 0.0) {
+        p->degree = -1;
+    }
+}
+/* Eval AST to Polynomial */
+Polynomial* eval_ast(AST node) {
+    if (!node) return NULL;
+    switch (node->type) {
+        case AST_NUM:
+            return poly_from_number(node->u.num);
+        case AST_VAR:
+            return poly_from_var_power(1);
+        case AST_POLYVAR: {
+            char name = node->u.poly_name;
+            int idx = name - 'a';
+            if (idx < 0 || idx >= MAX_POLYNOMIALS || !poly_vars[idx].is_defined || poly_vars[idx].name != name) {
+                fprintf(stderr, "Line %d: Semantic error: Undefined polynomial '%c'\n", node->line, name);
+                return poly_from_number(0.0);
+            }
+            return copy_poly(poly_vars[idx].poly);
+        }
+        case AST_ADD: {
+            Polynomial *a = eval_ast(node->left);
+            Polynomial *b = eval_ast(node->right);
+            Polynomial *res = poly_add(a, b);
+            poly_free(a);
+            poly_free(b);
+            trim_poly(res);
+            return res;
+        }
+        case AST_SUB: {
+            Polynomial *a = eval_ast(node->left);
+            Polynomial *b = eval_ast(node->right);
+            Polynomial *res = poly_subtract(a, b);
+            poly_free(a);
+            poly_free(b);
+            trim_poly(res);
+            return res;
+        }
+        case AST_MUL: {
+            Polynomial *a = eval_ast(node->left);
+            Polynomial *b = eval_ast(node->right);
+            Polynomial *res = poly_multiply(a, b);
+            poly_free(a);
+            poly_free(b);
+            trim_poly(res);
+            return res;
+        }
+        case AST_POW: {
+            Polynomial *base = eval_ast(node->left);
+            if (!base) return NULL;
+            Polynomial *exp_poly = eval_ast(node->right);
+            if (!exp_poly) {
+                poly_free(base);
+                return NULL;
+            }
+            if (exp_poly->degree != 0) {
+                fprintf(stderr, "Line %d: Semantic error: Exponent must be constant polynomial\n", node->line);
+                poly_free(base);
+                poly_free(exp_poly);
+                return poly_from_number(0.0);
+            }
+            double pd = exp_poly->coeffs[0];
+            poly_free(exp_poly);
+            int exp = (int)pd;
+            if (floor(pd) != pd || exp < 0) {
+                fprintf(stderr, "Line %d: Semantic error: Power must be non-negative integer, got %g\n",
+                        node->line, pd);
+                poly_free(base);
+                return poly_from_number(0.0);
+            }
+            Polynomial *res = poly_pow(base, exp);
+            poly_free(base);
+            trim_poly(res);
+            return res;
+        }
+        case AST_UMINUS: {
+            Polynomial *c = eval_ast(node->left);
+            Polynomial *res = poly_multiply_scalar(c, -1.0);
+            poly_free(c);
+            trim_poly(res);
+            return res;
+        }
+        default:
+            fprintf(stderr, "Line %d: Semantic error: Unknown AST type\n", node->line);
+            return poly_from_number(0.0);
+    }
+}
+/* Poly functions (updated with trim) */
 Polynomial* poly_from_number(double num) {
-    Polynomial *p = malloc(sizeof(Polynomial));
-    p->coeffs = calloc(1, sizeof(double));  // Начинаем с степени 0
+    Polynomial *p = (Polynomial *)malloc(sizeof(Polynomial));
+    p->coeffs = (double*)calloc(1, sizeof(double));
     p->coeffs[0] = num;
-    p->degree = 0;
+    p->degree = (num != 0.0) ? 0 : -1;
     p->capacity = 1;
     return p;
 }
-
-/* Создание полинома из переменной со степенью */
 Polynomial* poly_from_var_power(int power) {
-    Polynomial *p = malloc(sizeof(Polynomial));
+    Polynomial *p = (Polynomial *)malloc(sizeof(Polynomial));
     p->capacity = power + 1;
-    p->coeffs = calloc(p->capacity, sizeof(double));
-    p->coeffs[power] = 1.0;  // Коэффициент при x^power = 1
+    p->coeffs = (double*)calloc(p->capacity, sizeof(double));
+    p->coeffs[power] = 1.0;
     p->degree = power;
     return p;
 }
-
-/* Сложение полиномов (основная операция упрощения) */
 Polynomial* poly_add(Polynomial *a, Polynomial *b) {
-    int max_degree = (a->degree > b->degree) ? a->degree : b->degree;
-    Polynomial *result = malloc(sizeof(Polynomial));
+    int adeg = a->degree < 0 ? -1 : a->degree;
+    int bdeg = b->degree < 0 ? -1 : b->degree;
+    int max_degree = (adeg > bdeg) ? adeg : bdeg;
+    if (max_degree < 0) {
+        return poly_from_number(0.0);
+    }
+    Polynomial *result = (Polynomial *)malloc(sizeof(Polynomial));
     result->capacity = max_degree + 1;
-    result->coeffs = calloc(result->capacity, sizeof(double));
-    result->degree = 0;
-    
-    // Складываем коэффициенты
+    result->coeffs = (double*)calloc(result->capacity, sizeof(double));
+    result->degree = -1;
     for (int i = 0; i <= max_degree; i++) {
-        double coeff_a = (i <= a->degree) ? a->coeffs[i] : 0.0;
-        double coeff_b = (i <= b->degree) ? b->coeffs[i] : 0.0;
-        result->coeffs[i] = coeff_a + coeff_b;
+        double ca = (adeg >= 0 && i <= adeg) ? a->coeffs[i] : 0.0;
+        double cb = (bdeg >= 0 && i <= bdeg) ? b->coeffs[i] : 0.0;
+        result->coeffs[i] = ca + cb;
         if (result->coeffs[i] != 0.0) {
-            result->degree = i;  // Обновляем максимальную степень
+            result->degree = i;
         }
     }
-    
+    trim_poly(result);
     return result;
 }
-
-/* Вычитание полиномов */
 Polynomial* poly_subtract(Polynomial *a, Polynomial *b) {
-    // Аналогично сложению, но с отрицанием b
     Polynomial *neg_b = poly_multiply_scalar(b, -1.0);
     Polynomial *result = poly_add(a, neg_b);
     poly_free(neg_b);
     return result;
 }
-
-/* Умножение полиномов */
 Polynomial* poly_multiply(Polynomial *a, Polynomial *b) {
+    if (a->degree < 0 || b->degree < 0) {
+        return poly_from_number(0.0);
+    }
     int new_degree = a->degree + b->degree;
-    Polynomial *result = malloc(sizeof(Polynomial));
+    Polynomial *result = (Polynomial *)malloc(sizeof(Polynomial));
     result->capacity = new_degree + 1;
-    result->coeffs = calloc(result->capacity, sizeof(double));
-    result->degree = 0;
-    
-    // Умножение по схеме свертки
+    result->coeffs = (double*)calloc(result->capacity, sizeof(double));
     for (int i = 0; i <= a->degree; i++) {
         for (int j = 0; j <= b->degree; j++) {
             result->coeffs[i + j] += a->coeffs[i] * b->coeffs[j];
         }
     }
-    
-    // Находим новую максимальную степень
+    result->degree = -1;
     for (int i = new_degree; i >= 0; i--) {
         if (result->coeffs[i] != 0.0) {
             result->degree = i;
             break;
         }
     }
-    
+    trim_poly(result);
     return result;
 }
-
-/* Умножение полинома на скаляр */
 Polynomial* poly_multiply_scalar(Polynomial *p, double scalar) {
-    Polynomial *result = malloc(sizeof(Polynomial));
+    if (p->degree < 0) {
+        return poly_from_number(0.0);
+    }
+    Polynomial *result = (Polynomial *)malloc(sizeof(Polynomial));
     result->capacity = p->capacity;
-    result->coeffs = calloc(result->capacity, sizeof(double));
+    result->coeffs = (double*)calloc(result->capacity, sizeof(double));
     result->degree = p->degree;
-
     for (int i = 0; i <= p->degree; i++) {
         result->coeffs[i] = p->coeffs[i] * scalar;
     }
-
+    trim_poly(result);
     return result;
 }
-
-/* Освобождение памяти полинома */
+Polynomial* poly_pow(Polynomial *base, int exp) {
+    if (exp == 0) return poly_from_number(1.0);
+    Polynomial *res = poly_from_number(1.0);
+    for (int i = 0; i < exp; i++) {
+        Polynomial *tmp = poly_multiply(res, base);
+        poly_free(res);
+        res = tmp;
+    }
+    trim_poly(res);
+    return res;
+}
+Polynomial* copy_poly(const Polynomial *p) {
+    if (!p || p->degree < 0) return poly_from_number(0.0);
+    Polynomial *c = (Polynomial *)malloc(sizeof(Polynomial));
+    c->degree = p->degree;
+    c->capacity = p->capacity;
+    c->coeffs = (double*)malloc(p->capacity * sizeof(double));
+    memcpy(c->coeffs, p->coeffs, p->capacity * sizeof(double));
+    return c;
+}
 void poly_free(Polynomial *p) {
     if (p) {
         free(p->coeffs);
         free(p);
     }
 }
-
-/* Вывод полинома */
 void poly_print(Polynomial *p) {
+    if (!p || p->degree < 0) {
+        printf("0\n");
+        return;
+    }
     int first = 1;
     for (int i = p->degree; i >= 0; i--) {
         if (p->coeffs[i] != 0.0) {
@@ -1546,22 +1854,15 @@ void poly_print(Polynomial *p) {
             } else if (p->coeffs[i] < 0) {
                 printf("-");
             }
-
             double abs_coeff = fabs(p->coeffs[i]);
             if (i == 0) {
-                printf("%.2f", abs_coeff);
+                printf("%.0f", abs_coeff);
             } else if (i == 1) {
-                if (abs_coeff != 1.0) {
-                    printf("%.2fx", abs_coeff);
-                } else {
-                    printf("x");
-                }
+                if (fabs(abs_coeff - 1.0) > 1e-9) printf("%.0fx", abs_coeff);
+                else printf("x");
             } else {
-                if (abs_coeff != 1.0) {
-                    printf("%.2fx^%d", abs_coeff, i);
-                } else {
-                    printf("x^%d", i);
-                }
+                if (fabs(abs_coeff - 1.0) > 1e-9) printf("%.0fx^%d", abs_coeff, i);
+                else printf("x^%d", i);
             }
             first = 0;
         }
