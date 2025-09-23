@@ -4,12 +4,11 @@
 #include <string.h>
 #include <math.h>
 #include "poly.h"
-NamedPolynomial poly_vars[MAX_POLYNOMIALS];
+NamedPolynomial poly_vars[MAX_POLYNOMIALS] = {0};
 extern int yylex();
 extern int yyerror(char *s);
 extern FILE *yyin;
 extern int yylineno;
-
 %}
 %union {
     double num;
@@ -45,7 +44,7 @@ statement: assignment
          ;
 assignment: POLYVAR ASSIGN expr {
              char name = $1;
-             int idx = name - 'a';            
+             int idx = name - 'a';
              Polynomial *newp = eval_ast($3);
              if (newp) {
                  if (poly_vars[idx].poly) poly_free(poly_vars[idx].poly);
@@ -68,22 +67,22 @@ print_stmt: PRINT expr {
 expr: addexpr { $$ = $1; }
     ;
 addexpr: mulexpr %prec NEG { $$ = $1; }
-       | addexpr PLUS mulexpr { $$ = ast_create_binop(AST_ADD, $1, $3); }
-       | addexpr MINUS mulexpr { $$ = ast_create_binop(AST_SUB, $1, $3); }
+       | addexpr PLUS mulexpr { $$ = ast_create(AST_ADD, $1, $3, 0.0, '\0'); }
+       | addexpr MINUS mulexpr { $$ = ast_create(AST_SUB, $1, $3, 0.0, '\0'); }
        ;
 mulexpr: power { $$ = $1; }
-       | mulexpr TIMES power { $$ = ast_create_binop(AST_MUL, $1, $3); }
-       | mulexpr power %prec IMPLICIT_MUL { $$ = ast_create_binop(AST_MUL, $1, $2); }
+       | mulexpr TIMES power { $$ = ast_create(AST_MUL, $1, $3, 0.0, '\0'); }
+       | mulexpr power %prec IMPLICIT_MUL { $$ = ast_create(AST_MUL, $1, $2, 0.0, '\0'); }
        ;
 power: unary %prec POWER { $$ = $1; }
-     | unary POWER power { $$ = ast_create_binop(AST_POW, $1, $3); }
+     | unary POWER power { $$ = ast_create(AST_POW, $1, $3, 0.0, '\0'); }
      ;
 unary: primary { $$ = $1; }
-     | MINUS power %prec UMINUS { $$ = ast_create_unop(AST_UMINUS, $2); }
+     | MINUS power %prec UMINUS { $$ = ast_create(AST_UMINUS, $2, NULL, 0.0, '\0'); }
      ;
-primary: NUMBER { $$ = ast_create_num($1); }
-       | VAR { $$ = ast_create_var($1); }
-       | POLYVAR { $$ = ast_create_polyvar($1); }
+primary: NUMBER { $$ = ast_create(AST_NUM, NULL, NULL, $1, '\0'); }
+       | VAR { $$ = ast_create(AST_VAR, NULL, NULL, 0.0, $1); }
+       | POLYVAR { $$ = ast_create(AST_POLYVAR, NULL, NULL, 0.0, $1); }
        | LPAREN expr RPAREN { $$ = $2; }
        ;
 %%
@@ -101,11 +100,7 @@ int main(int argc, char **argv) {
         perror("fopen");
         return 1;
     }
-    for (int i = 0; i < MAX_POLYNOMIALS; i++) {
-        poly_vars[i].name = 0;
-        poly_vars[i].poly = NULL;
-        poly_vars[i].is_defined = 0;
-    }
+   
     yyparse();
     fclose(yyin);
     /* Cleanup */
@@ -115,40 +110,19 @@ int main(int argc, char **argv) {
     return 0;
 }
 /* AST functions */
-AST ast_create_num(double n) {
-    AST node = (AST)malloc(sizeof(struct ASTNode));
-    node->type = AST_NUM;
+AST ast_create(ASTType type, AST left, AST right, double num, char var) {
+    AST node = malloc(sizeof(struct ASTNode));
+    node->type = type;
     node->line = yylineno;
-    node->left = node->right = NULL;
-    node->u.num = n;
+    node->left = left;
+    node->right = right;
+  
+    switch(type) {
+        case AST_NUM: node->u.num = num; break;
+        case AST_VAR: node->u.var_name = var; break;
+        case AST_POLYVAR: node->u.poly_name = var; break;
+    }
     return node;
-}
-AST ast_create_var(char v) {
-    AST node = (AST)malloc(sizeof(struct ASTNode));
-    node->type = AST_VAR;
-    node->line = yylineno;
-    node->left = node->right = NULL;
-    node->u.var_name = v;
-    return node;
-}
-AST ast_create_polyvar(char p) {
-    AST node = (AST)malloc(sizeof(struct ASTNode));
-    node->type = AST_POLYVAR;
-    node->line = yylineno;
-    node->left = node->right = NULL;
-    node->u.poly_name = p;
-    return node;
-}
-AST ast_create_binop(ASTType op, AST l, AST r) {
-    AST node = (AST)malloc(sizeof(struct ASTNode));
-    node->type = op;
-    node->line = yylineno;
-    node->left = l;
-    node->right = r;
-    return node;
-}
-AST ast_create_unop(ASTType op, AST c) {
-    return ast_create_binop(op, c, NULL);
 }
 void ast_free(AST node) {
     if (!node) return;
@@ -164,6 +138,18 @@ void trim_poly(Polynomial *p) {
     if (p->degree == 0 && p->coeffs[0] == 0.0) {
         p->degree = -1;
     }
+}
+/* Helper for binary operations */
+static Polynomial* eval_binary_op(AST node, Polynomial* (*op)(Polynomial*, Polynomial*)) {
+    Polynomial *a = eval_ast(node->left);
+    if (!a) a = poly_from_number(0.0);
+    Polynomial *b = eval_ast(node->right);
+    if (!b) b = poly_from_number(0.0);
+    Polynomial *res = op(a, b);
+    poly_free(a);
+    poly_free(b);
+    trim_poly(res);
+    return res;
 }
 /* Eval AST to Polynomial */
 Polynomial* eval_ast(AST node) {
@@ -182,33 +168,12 @@ Polynomial* eval_ast(AST node) {
             }
             return copy_poly(poly_vars[idx].poly);
         }
-        case AST_ADD: {
-            Polynomial *a = eval_ast(node->left);
-            Polynomial *b = eval_ast(node->right);
-            Polynomial *res = poly_add(a, b);
-            poly_free(a);
-            poly_free(b);
-            trim_poly(res);
-            return res;
-        }
-        case AST_SUB: {
-            Polynomial *a = eval_ast(node->left);
-            Polynomial *b = eval_ast(node->right);
-            Polynomial *res = poly_subtract(a, b);
-            poly_free(a);
-            poly_free(b);
-            trim_poly(res);
-            return res;
-        }
-        case AST_MUL: {
-            Polynomial *a = eval_ast(node->left);
-            Polynomial *b = eval_ast(node->right);
-            Polynomial *res = poly_multiply(a, b);
-            poly_free(a);
-            poly_free(b);
-            trim_poly(res);
-            return res;
-        }
+        case AST_ADD:
+            return eval_binary_op(node, poly_add);
+        case AST_SUB:
+            return eval_binary_op(node, poly_subtract);
+        case AST_MUL:
+            return eval_binary_op(node, poly_multiply);
         case AST_POW: {
             Polynomial *base = eval_ast(node->left);
             if (!base) return NULL;
@@ -344,10 +309,9 @@ Polynomial* poly_pow(Polynomial *base, int exp) {
 }
 Polynomial* copy_poly(const Polynomial *p) {
     if (!p || p->degree < 0) return poly_from_number(0.0);
-    Polynomial *c = (Polynomial *)malloc(sizeof(Polynomial));
-    c->degree = p->degree;
-    c->capacity = p->capacity;
-    c->coeffs = (double*)malloc(p->capacity * sizeof(double));
+    Polynomial *c = malloc(sizeof(Polynomial));
+    *c = *p;
+    c->coeffs = malloc(p->capacity * sizeof(double));
     memcpy(c->coeffs, p->coeffs, p->capacity * sizeof(double));
     return c;
 }
@@ -359,16 +323,16 @@ void poly_free(Polynomial *p) {
 }
 void poly_print(Polynomial *p) {
     if (!p || p->degree < 0) { printf("0\n"); return; }
-    
+  
     for (int i = p->degree; i >= 0; i--) {
         double c = p->coeffs[i];
         if (c == 0) continue;
-        
+      
         if (i != p->degree) printf(c > 0 ? " + " : " - ");
         else if (c < 0) printf("-");
-        
+      
         c = fabs(c);
-        
+      
         if (i == 0 || c != 1.0) printf("%.0f", c);
         if (i > 0) printf("x");
         if (i > 1) printf("^%d", i);

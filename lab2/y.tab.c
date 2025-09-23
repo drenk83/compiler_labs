@@ -74,14 +74,13 @@
 #include <string.h>
 #include <math.h>
 #include "poly.h"
-NamedPolynomial poly_vars[MAX_POLYNOMIALS];
+NamedPolynomial poly_vars[MAX_POLYNOMIALS] = {0};
 extern int yylex();
 extern int yyerror(char *s);
 extern FILE *yyin;
 extern int yylineno;
 
-
-#line 85 "y.tab.c"
+#line 84 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -168,13 +167,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 14 "poly.y"
+#line 13 "poly.y"
 
     double num;
     char var;
     AST ast;
 
-#line 178 "y.tab.c"
+#line 177 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -610,9 +609,9 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    30,    30,    31,    32,    33,    35,    36,    37,    46,
-      59,    68,    70,    71,    72,    74,    75,    76,    78,    79,
-      81,    82,    84,    85,    86,    87
+       0,    29,    29,    30,    31,    32,    34,    35,    36,    45,
+      58,    67,    69,    70,    71,    73,    74,    75,    77,    78,
+      80,    81,    83,    84,    85,    86
 };
 #endif
 
@@ -1193,7 +1192,7 @@ yyreduce:
   switch (yyn)
     {
   case 8: /* statement: expr  */
-#line 37 "poly.y"
+#line 36 "poly.y"
                 {
              Polynomial *p = eval_ast((yyvsp[0].ast));
              if (p) {
@@ -1202,14 +1201,14 @@ yyreduce:
              }
              ast_free((yyvsp[0].ast));
            }
-#line 1206 "y.tab.c"
+#line 1205 "y.tab.c"
     break;
 
   case 9: /* assignment: POLYVAR ASSIGN expr  */
-#line 46 "poly.y"
+#line 45 "poly.y"
                                 {
              char name = (yyvsp[-2].var);
-             int idx = name - 'a';            
+             int idx = name - 'a';
              Polynomial *newp = eval_ast((yyvsp[0].ast));
              if (newp) {
                  if (poly_vars[idx].poly) poly_free(poly_vars[idx].poly);
@@ -1219,11 +1218,11 @@ yyreduce:
              }
              ast_free((yyvsp[0].ast));
            }
-#line 1223 "y.tab.c"
+#line 1222 "y.tab.c"
     break;
 
   case 10: /* print_stmt: PRINT expr  */
-#line 59 "poly.y"
+#line 58 "poly.y"
                        {
              Polynomial *p = eval_ast((yyvsp[0].ast));
              if (p) {
@@ -1232,101 +1231,101 @@ yyreduce:
              }
              ast_free((yyvsp[0].ast));
            }
-#line 1236 "y.tab.c"
+#line 1235 "y.tab.c"
     break;
 
   case 11: /* expr: addexpr  */
-#line 68 "poly.y"
+#line 67 "poly.y"
               { (yyval.ast) = (yyvsp[0].ast); }
-#line 1242 "y.tab.c"
+#line 1241 "y.tab.c"
     break;
 
   case 12: /* addexpr: mulexpr  */
-#line 70 "poly.y"
+#line 69 "poly.y"
                            { (yyval.ast) = (yyvsp[0].ast); }
-#line 1248 "y.tab.c"
+#line 1247 "y.tab.c"
     break;
 
   case 13: /* addexpr: addexpr PLUS mulexpr  */
-#line 71 "poly.y"
-                              { (yyval.ast) = ast_create_binop(AST_ADD, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-#line 1254 "y.tab.c"
+#line 70 "poly.y"
+                              { (yyval.ast) = ast_create(AST_ADD, (yyvsp[-2].ast), (yyvsp[0].ast), 0.0, '\0'); }
+#line 1253 "y.tab.c"
     break;
 
   case 14: /* addexpr: addexpr MINUS mulexpr  */
-#line 72 "poly.y"
-                               { (yyval.ast) = ast_create_binop(AST_SUB, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-#line 1260 "y.tab.c"
+#line 71 "poly.y"
+                               { (yyval.ast) = ast_create(AST_SUB, (yyvsp[-2].ast), (yyvsp[0].ast), 0.0, '\0'); }
+#line 1259 "y.tab.c"
     break;
 
   case 15: /* mulexpr: power  */
-#line 74 "poly.y"
+#line 73 "poly.y"
                { (yyval.ast) = (yyvsp[0].ast); }
-#line 1266 "y.tab.c"
+#line 1265 "y.tab.c"
     break;
 
   case 16: /* mulexpr: mulexpr TIMES power  */
-#line 75 "poly.y"
-                             { (yyval.ast) = ast_create_binop(AST_MUL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-#line 1272 "y.tab.c"
+#line 74 "poly.y"
+                             { (yyval.ast) = ast_create(AST_MUL, (yyvsp[-2].ast), (yyvsp[0].ast), 0.0, '\0'); }
+#line 1271 "y.tab.c"
     break;
 
   case 17: /* mulexpr: mulexpr power  */
-#line 76 "poly.y"
-                                          { (yyval.ast) = ast_create_binop(AST_MUL, (yyvsp[-1].ast), (yyvsp[0].ast)); }
-#line 1278 "y.tab.c"
+#line 75 "poly.y"
+                                          { (yyval.ast) = ast_create(AST_MUL, (yyvsp[-1].ast), (yyvsp[0].ast), 0.0, '\0'); }
+#line 1277 "y.tab.c"
     break;
 
   case 18: /* power: unary  */
-#line 78 "poly.y"
+#line 77 "poly.y"
                          { (yyval.ast) = (yyvsp[0].ast); }
-#line 1284 "y.tab.c"
+#line 1283 "y.tab.c"
     break;
 
   case 19: /* power: unary POWER power  */
-#line 79 "poly.y"
-                         { (yyval.ast) = ast_create_binop(AST_POW, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-#line 1290 "y.tab.c"
+#line 78 "poly.y"
+                         { (yyval.ast) = ast_create(AST_POW, (yyvsp[-2].ast), (yyvsp[0].ast), 0.0, '\0'); }
+#line 1289 "y.tab.c"
     break;
 
   case 20: /* unary: primary  */
-#line 81 "poly.y"
+#line 80 "poly.y"
                { (yyval.ast) = (yyvsp[0].ast); }
-#line 1296 "y.tab.c"
+#line 1295 "y.tab.c"
     break;
 
   case 21: /* unary: MINUS power  */
-#line 82 "poly.y"
-                                { (yyval.ast) = ast_create_unop(AST_UMINUS, (yyvsp[0].ast)); }
-#line 1302 "y.tab.c"
+#line 81 "poly.y"
+                                { (yyval.ast) = ast_create(AST_UMINUS, (yyvsp[0].ast), NULL, 0.0, '\0'); }
+#line 1301 "y.tab.c"
     break;
 
   case 22: /* primary: NUMBER  */
-#line 84 "poly.y"
-                { (yyval.ast) = ast_create_num((yyvsp[0].num)); }
-#line 1308 "y.tab.c"
+#line 83 "poly.y"
+                { (yyval.ast) = ast_create(AST_NUM, NULL, NULL, (yyvsp[0].num), '\0'); }
+#line 1307 "y.tab.c"
     break;
 
   case 23: /* primary: VAR  */
-#line 85 "poly.y"
-             { (yyval.ast) = ast_create_var((yyvsp[0].var)); }
-#line 1314 "y.tab.c"
+#line 84 "poly.y"
+             { (yyval.ast) = ast_create(AST_VAR, NULL, NULL, 0.0, (yyvsp[0].var)); }
+#line 1313 "y.tab.c"
     break;
 
   case 24: /* primary: POLYVAR  */
-#line 86 "poly.y"
-                 { (yyval.ast) = ast_create_polyvar((yyvsp[0].var)); }
-#line 1320 "y.tab.c"
+#line 85 "poly.y"
+                 { (yyval.ast) = ast_create(AST_POLYVAR, NULL, NULL, 0.0, (yyvsp[0].var)); }
+#line 1319 "y.tab.c"
     break;
 
   case 25: /* primary: LPAREN expr RPAREN  */
-#line 87 "poly.y"
+#line 86 "poly.y"
                             { (yyval.ast) = (yyvsp[-1].ast); }
-#line 1326 "y.tab.c"
+#line 1325 "y.tab.c"
     break;
 
 
-#line 1330 "y.tab.c"
+#line 1329 "y.tab.c"
 
       default: break;
     }
@@ -1519,7 +1518,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 89 "poly.y"
+#line 88 "poly.y"
 
 int yyerror(char *s) {
     fprintf(stderr, "Line %d: Syntax error: %s\n", yylineno, s);
@@ -1535,11 +1534,7 @@ int main(int argc, char **argv) {
         perror("fopen");
         return 1;
     }
-    for (int i = 0; i < MAX_POLYNOMIALS; i++) {
-        poly_vars[i].name = 0;
-        poly_vars[i].poly = NULL;
-        poly_vars[i].is_defined = 0;
-    }
+   
     yyparse();
     fclose(yyin);
     /* Cleanup */
@@ -1549,40 +1544,19 @@ int main(int argc, char **argv) {
     return 0;
 }
 /* AST functions */
-AST ast_create_num(double n) {
-    AST node = (AST)malloc(sizeof(struct ASTNode));
-    node->type = AST_NUM;
+AST ast_create(ASTType type, AST left, AST right, double num, char var) {
+    AST node = malloc(sizeof(struct ASTNode));
+    node->type = type;
     node->line = yylineno;
-    node->left = node->right = NULL;
-    node->u.num = n;
+    node->left = left;
+    node->right = right;
+  
+    switch(type) {
+        case AST_NUM: node->u.num = num; break;
+        case AST_VAR: node->u.var_name = var; break;
+        case AST_POLYVAR: node->u.poly_name = var; break;
+    }
     return node;
-}
-AST ast_create_var(char v) {
-    AST node = (AST)malloc(sizeof(struct ASTNode));
-    node->type = AST_VAR;
-    node->line = yylineno;
-    node->left = node->right = NULL;
-    node->u.var_name = v;
-    return node;
-}
-AST ast_create_polyvar(char p) {
-    AST node = (AST)malloc(sizeof(struct ASTNode));
-    node->type = AST_POLYVAR;
-    node->line = yylineno;
-    node->left = node->right = NULL;
-    node->u.poly_name = p;
-    return node;
-}
-AST ast_create_binop(ASTType op, AST l, AST r) {
-    AST node = (AST)malloc(sizeof(struct ASTNode));
-    node->type = op;
-    node->line = yylineno;
-    node->left = l;
-    node->right = r;
-    return node;
-}
-AST ast_create_unop(ASTType op, AST c) {
-    return ast_create_binop(op, c, NULL);
 }
 void ast_free(AST node) {
     if (!node) return;
@@ -1598,6 +1572,18 @@ void trim_poly(Polynomial *p) {
     if (p->degree == 0 && p->coeffs[0] == 0.0) {
         p->degree = -1;
     }
+}
+/* Helper for binary operations */
+static Polynomial* eval_binary_op(AST node, Polynomial* (*op)(Polynomial*, Polynomial*)) {
+    Polynomial *a = eval_ast(node->left);
+    if (!a) a = poly_from_number(0.0);
+    Polynomial *b = eval_ast(node->right);
+    if (!b) b = poly_from_number(0.0);
+    Polynomial *res = op(a, b);
+    poly_free(a);
+    poly_free(b);
+    trim_poly(res);
+    return res;
 }
 /* Eval AST to Polynomial */
 Polynomial* eval_ast(AST node) {
@@ -1616,33 +1602,12 @@ Polynomial* eval_ast(AST node) {
             }
             return copy_poly(poly_vars[idx].poly);
         }
-        case AST_ADD: {
-            Polynomial *a = eval_ast(node->left);
-            Polynomial *b = eval_ast(node->right);
-            Polynomial *res = poly_add(a, b);
-            poly_free(a);
-            poly_free(b);
-            trim_poly(res);
-            return res;
-        }
-        case AST_SUB: {
-            Polynomial *a = eval_ast(node->left);
-            Polynomial *b = eval_ast(node->right);
-            Polynomial *res = poly_subtract(a, b);
-            poly_free(a);
-            poly_free(b);
-            trim_poly(res);
-            return res;
-        }
-        case AST_MUL: {
-            Polynomial *a = eval_ast(node->left);
-            Polynomial *b = eval_ast(node->right);
-            Polynomial *res = poly_multiply(a, b);
-            poly_free(a);
-            poly_free(b);
-            trim_poly(res);
-            return res;
-        }
+        case AST_ADD:
+            return eval_binary_op(node, poly_add);
+        case AST_SUB:
+            return eval_binary_op(node, poly_subtract);
+        case AST_MUL:
+            return eval_binary_op(node, poly_multiply);
         case AST_POW: {
             Polynomial *base = eval_ast(node->left);
             if (!base) return NULL;
@@ -1778,10 +1743,9 @@ Polynomial* poly_pow(Polynomial *base, int exp) {
 }
 Polynomial* copy_poly(const Polynomial *p) {
     if (!p || p->degree < 0) return poly_from_number(0.0);
-    Polynomial *c = (Polynomial *)malloc(sizeof(Polynomial));
-    c->degree = p->degree;
-    c->capacity = p->capacity;
-    c->coeffs = (double*)malloc(p->capacity * sizeof(double));
+    Polynomial *c = malloc(sizeof(Polynomial));
+    *c = *p;
+    c->coeffs = malloc(p->capacity * sizeof(double));
     memcpy(c->coeffs, p->coeffs, p->capacity * sizeof(double));
     return c;
 }
@@ -1793,16 +1757,16 @@ void poly_free(Polynomial *p) {
 }
 void poly_print(Polynomial *p) {
     if (!p || p->degree < 0) { printf("0\n"); return; }
-    
+  
     for (int i = p->degree; i >= 0; i--) {
         double c = p->coeffs[i];
         if (c == 0) continue;
-        
+      
         if (i != p->degree) printf(c > 0 ? " + " : " - ");
         else if (c < 0) printf("-");
-        
+      
         c = fabs(c);
-        
+      
         if (i == 0 || c != 1.0) printf("%.0f", c);
         if (i > 0) printf("x");
         if (i > 1) printf("^%d", i);
