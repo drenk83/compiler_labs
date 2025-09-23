@@ -18,10 +18,9 @@ NUMBER {DIGIT}+(\.{DIGIT}+)?
 "(" { return LPAREN; }
 ")" { return RPAREN; }
 "=" { return ASSIGN; }
-";" { return SEMI; }
 
 "print" { return PRINT; }
-"//"[^\n\r]* { return COMMENT; }
+"//"[^\n\r]* { }
 \n { yylineno++; return EOL; }
 \r\n { yylineno++; return EOL; } /* Windows */
 [ \t\r]+ { } /* Spaces */

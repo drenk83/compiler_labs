@@ -79,7 +79,7 @@ extern int yylex();
 extern int yyerror(char *s);
 extern FILE *yyin;
 extern int yylineno;
-// Прототипы (уже в poly.h, но для ясности)
+
 
 #line 85 "y.tab.c"
 
@@ -136,12 +136,10 @@ extern int yydebug;
     RPAREN = 266,                  /* RPAREN  */
     ASSIGN = 267,                  /* ASSIGN  */
     PRINT = 268,                   /* PRINT  */
-    SEMI = 269,                    /* SEMI  */
-    COMMENT = 270,                 /* COMMENT  */
-    EOL = 271,                     /* EOL  */
-    IMPLICIT_MUL = 272,            /* IMPLICIT_MUL  */
-    NEG = 273,                     /* NEG  */
-    UMINUS = 274                   /* UMINUS  */
+    EOL = 269,                     /* EOL  */
+    IMPLICIT_MUL = 270,            /* IMPLICIT_MUL  */
+    NEG = 271,                     /* NEG  */
+    UMINUS = 272                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -161,12 +159,10 @@ extern int yydebug;
 #define RPAREN 266
 #define ASSIGN 267
 #define PRINT 268
-#define SEMI 269
-#define COMMENT 270
-#define EOL 271
-#define IMPLICIT_MUL 272
-#define NEG 273
-#define UMINUS 274
+#define EOL 269
+#define IMPLICIT_MUL 270
+#define NEG 271
+#define UMINUS 272
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -178,7 +174,7 @@ union YYSTYPE
     char var;
     AST ast;
 
-#line 182 "y.tab.c"
+#line 178 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -212,23 +208,21 @@ enum yysymbol_kind_t
   YYSYMBOL_RPAREN = 11,                    /* RPAREN  */
   YYSYMBOL_ASSIGN = 12,                    /* ASSIGN  */
   YYSYMBOL_PRINT = 13,                     /* PRINT  */
-  YYSYMBOL_SEMI = 14,                      /* SEMI  */
-  YYSYMBOL_COMMENT = 15,                   /* COMMENT  */
-  YYSYMBOL_EOL = 16,                       /* EOL  */
-  YYSYMBOL_IMPLICIT_MUL = 17,              /* IMPLICIT_MUL  */
-  YYSYMBOL_NEG = 18,                       /* NEG  */
-  YYSYMBOL_UMINUS = 19,                    /* UMINUS  */
-  YYSYMBOL_YYACCEPT = 20,                  /* $accept  */
-  YYSYMBOL_program = 21,                   /* program  */
-  YYSYMBOL_statement = 22,                 /* statement  */
-  YYSYMBOL_assignment = 23,                /* assignment  */
-  YYSYMBOL_print_stmt = 24,                /* print_stmt  */
-  YYSYMBOL_expr = 25,                      /* expr  */
-  YYSYMBOL_addexpr = 26,                   /* addexpr  */
-  YYSYMBOL_mulexpr = 27,                   /* mulexpr  */
-  YYSYMBOL_power = 28,                     /* power  */
-  YYSYMBOL_unary = 29,                     /* unary  */
-  YYSYMBOL_primary = 30                    /* primary  */
+  YYSYMBOL_EOL = 14,                       /* EOL  */
+  YYSYMBOL_IMPLICIT_MUL = 15,              /* IMPLICIT_MUL  */
+  YYSYMBOL_NEG = 16,                       /* NEG  */
+  YYSYMBOL_UMINUS = 17,                    /* UMINUS  */
+  YYSYMBOL_YYACCEPT = 18,                  /* $accept  */
+  YYSYMBOL_program = 19,                   /* program  */
+  YYSYMBOL_statement = 20,                 /* statement  */
+  YYSYMBOL_assignment = 21,                /* assignment  */
+  YYSYMBOL_print_stmt = 22,                /* print_stmt  */
+  YYSYMBOL_expr = 23,                      /* expr  */
+  YYSYMBOL_addexpr = 24,                   /* addexpr  */
+  YYSYMBOL_mulexpr = 25,                   /* mulexpr  */
+  YYSYMBOL_power = 26,                     /* power  */
+  YYSYMBOL_unary = 27,                     /* unary  */
+  YYSYMBOL_primary = 28                    /* primary  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -556,19 +550,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   37
+#define YYLAST   35
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  20
+#define YYNTOKENS  18
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  11
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  28
+#define YYNRULES  25
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  39
+#define YYNSTATES  36
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   274
+#define YYMAXUTOK   272
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -609,16 +603,16 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    19
+      15,    16,    17
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    30,    30,    31,    32,    33,    35,    36,    37,    45,
-      47,    63,    80,    88,    97,    99,   100,   101,   103,   104,
-     105,   107,   108,   110,   111,   113,   114,   115,   116
+       0,    30,    30,    31,    32,    33,    35,    36,    37,    46,
+      59,    68,    70,    71,    72,    74,    75,    76,    78,    79,
+      81,    82,    84,    85,    86,    87
 };
 #endif
 
@@ -636,9 +630,9 @@ static const char *const yytname[] =
 {
   "\"end of file\"", "error", "\"invalid token\"", "NUMBER", "VAR",
   "POLYVAR", "PLUS", "MINUS", "TIMES", "POWER", "LPAREN", "RPAREN",
-  "ASSIGN", "PRINT", "SEMI", "COMMENT", "EOL", "IMPLICIT_MUL", "NEG",
-  "UMINUS", "$accept", "program", "statement", "assignment", "print_stmt",
-  "expr", "addexpr", "mulexpr", "power", "unary", "primary", YY_NULLPTR
+  "ASSIGN", "PRINT", "EOL", "IMPLICIT_MUL", "NEG", "UMINUS", "$accept",
+  "program", "statement", "assignment", "print_stmt", "expr", "addexpr",
+  "mulexpr", "power", "unary", "primary", YY_NULLPTR
 };
 
 static const char *
@@ -662,10 +656,10 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -10,     1,   -10,   -10,   -10,    -3,    16,    16,    16,   -10,
-     -10,    -9,   -10,   -10,   -10,     6,    27,   -10,     9,   -10,
-      16,   -10,   -10,    14,    13,   -10,    16,    16,    16,   -10,
-      16,    22,   -10,   -10,    27,    27,   -10,   -10,   -10
+     -10,     1,   -10,   -10,   -10,    -5,    15,    15,    15,   -10,
+      17,   -10,   -10,   -10,    -4,    25,   -10,    23,   -10,    15,
+     -10,   -10,    -1,   -10,   -10,    15,    15,    15,   -10,    15,
+     -10,   -10,    25,    25,   -10,   -10
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -673,24 +667,24 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       2,     0,     1,    25,    26,    27,     0,     0,     0,     9,
-       5,     3,     6,     7,     8,    14,    15,    18,    21,    23,
-       0,    27,    24,     0,    13,     4,     0,     0,     0,    20,
-       0,    11,    28,    12,    16,    17,    19,    22,    10
+       2,     0,     1,    22,    23,    24,     0,     0,     0,     5,
+       3,     6,     7,     8,    11,    12,    15,    18,    20,     0,
+      24,    21,     0,    10,     4,     0,     0,     0,    17,     0,
+       9,    25,    13,    14,    16,    19
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -10,   -10,   -10,   -10,   -10,    -5,   -10,     7,    -6,   -10,
+     -10,   -10,   -10,   -10,   -10,     5,   -10,    -9,    -6,   -10,
      -10
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     1,    11,    12,    13,    14,    15,    16,    17,    18,
-      19
+       0,     1,    10,    11,    12,    13,    14,    15,    16,    17,
+      18
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -698,44 +692,44 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      22,     2,    23,    24,     3,     4,     5,    25,     6,    20,
-      29,     7,    26,    27,     8,    31,     9,    10,    30,     3,
-       4,    21,    36,     6,    37,    32,     7,    33,    29,    29,
-       3,     4,    21,    34,    35,    28,    38,     7
+      21,     2,    25,    26,     3,     4,     5,    19,     6,    28,
+      31,     7,    22,    23,     8,     9,    32,    33,     3,     4,
+      20,    34,     6,    35,    30,     7,    28,    28,     3,     4,
+      20,    24,    29,    27,     0,     7
 };
 
 static const yytype_int8 yycheck[] =
 {
-       6,     0,     7,     8,     3,     4,     5,    16,     7,    12,
-      16,    10,     6,     7,    13,    20,    15,    16,     9,     3,
-       4,     5,    28,     7,    30,    11,    10,    14,    34,    35,
-       3,     4,     5,    26,    27,     8,    14,    10
+       6,     0,     6,     7,     3,     4,     5,    12,     7,    15,
+      11,    10,     7,     8,    13,    14,    25,    26,     3,     4,
+       5,    27,     7,    29,    19,    10,    32,    33,     3,     4,
+       5,    14,     9,     8,    -1,    10
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    21,     0,     3,     4,     5,     7,    10,    13,    15,
-      16,    22,    23,    24,    25,    26,    27,    28,    29,    30,
-      12,     5,    28,    25,    25,    16,     6,     7,     8,    28,
-       9,    25,    11,    14,    27,    27,    28,    28,    14
+       0,    19,     0,     3,     4,     5,     7,    10,    13,    14,
+      20,    21,    22,    23,    24,    25,    26,    27,    28,    12,
+       5,    26,    23,    23,    14,     6,     7,     8,    26,     9,
+      23,    11,    25,    25,    26,    26
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    20,    21,    21,    21,    21,    22,    22,    22,    22,
-      23,    23,    24,    24,    25,    26,    26,    26,    27,    27,
-      27,    28,    28,    29,    29,    30,    30,    30,    30
+       0,    18,    19,    19,    19,    19,    20,    20,    20,    21,
+      22,    23,    24,    24,    24,    25,    25,    25,    26,    26,
+      27,    27,    28,    28,    28,    28
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     0,     2,     3,     2,     1,     1,     1,     1,
-       4,     3,     3,     2,     1,     1,     3,     3,     1,     3,
-       2,     1,     3,     1,     2,     1,     1,     1,     3
+       0,     2,     0,     2,     3,     2,     1,     1,     1,     3,
+       2,     1,     1,     3,     3,     1,     3,     2,     1,     3,
+       1,     2,     1,     1,     1,     3
 };
 
 
@@ -1208,72 +1202,28 @@ yyreduce:
              }
              ast_free((yyvsp[0].ast));
            }
-#line 1212 "y.tab.c"
+#line 1206 "y.tab.c"
     break;
 
-  case 9: /* statement: COMMENT  */
-#line 45 "poly.y"
-                   { /* ignore */ }
-#line 1218 "y.tab.c"
-    break;
-
-  case 10: /* assignment: POLYVAR ASSIGN expr SEMI  */
-#line 47 "poly.y"
-                                     {
-             char name = (yyvsp[-3].var);
-             int idx = name - 'a';
-             if (idx < 0 || idx >= MAX_POLYNOMIALS) {
-                 fprintf(stderr, "Line %d: Semantic error: Invalid polyvar '%c'\n", yylineno, name);
-             } else {
-                 Polynomial *newp = eval_ast((yyvsp[-1].ast));
-                 if (newp) {
-                     if (poly_vars[idx].poly) poly_free(poly_vars[idx].poly);
-                     poly_vars[idx].poly = newp;
-                     poly_vars[idx].is_defined = 1;
-                     poly_vars[idx].name = name;
-                 }
-                 ast_free((yyvsp[-1].ast));
-             }
-           }
-#line 1239 "y.tab.c"
-    break;
-
-  case 11: /* assignment: POLYVAR ASSIGN expr  */
-#line 63 "poly.y"
-                               {
+  case 9: /* assignment: POLYVAR ASSIGN expr  */
+#line 46 "poly.y"
+                                {
              char name = (yyvsp[-2].var);
-             int idx = name - 'a';
-             if (idx < 0 || idx >= MAX_POLYNOMIALS) {
-                 fprintf(stderr, "Line %d: Semantic error: Invalid polyvar '%c'\n", yylineno, name);
-             } else {
-                 Polynomial *newp = eval_ast((yyvsp[0].ast));
-                 if (newp) {
-                     if (poly_vars[idx].poly) poly_free(poly_vars[idx].poly);
-                     poly_vars[idx].poly = newp;
-                     poly_vars[idx].is_defined = 1;
-                     poly_vars[idx].name = name;
-                 }
-                 ast_free((yyvsp[0].ast));
+             int idx = name - 'a';            
+             Polynomial *newp = eval_ast((yyvsp[0].ast));
+             if (newp) {
+                 if (poly_vars[idx].poly) poly_free(poly_vars[idx].poly);
+                 poly_vars[idx].poly = newp;
+                 poly_vars[idx].is_defined = 1;
+                 poly_vars[idx].name = name;
              }
+             ast_free((yyvsp[0].ast));
            }
-#line 1260 "y.tab.c"
+#line 1223 "y.tab.c"
     break;
 
-  case 12: /* print_stmt: PRINT expr SEMI  */
-#line 80 "poly.y"
-                            {
-             Polynomial *p = eval_ast((yyvsp[-1].ast));
-             if (p) {
-                 poly_print(p);
-                 poly_free(p);
-             }
-             ast_free((yyvsp[-1].ast));
-           }
-#line 1273 "y.tab.c"
-    break;
-
-  case 13: /* print_stmt: PRINT expr  */
-#line 88 "poly.y"
+  case 10: /* print_stmt: PRINT expr  */
+#line 59 "poly.y"
                        {
              Polynomial *p = eval_ast((yyvsp[0].ast));
              if (p) {
@@ -1282,101 +1232,101 @@ yyreduce:
              }
              ast_free((yyvsp[0].ast));
            }
-#line 1286 "y.tab.c"
+#line 1236 "y.tab.c"
     break;
 
-  case 14: /* expr: addexpr  */
-#line 97 "poly.y"
+  case 11: /* expr: addexpr  */
+#line 68 "poly.y"
               { (yyval.ast) = (yyvsp[0].ast); }
-#line 1292 "y.tab.c"
+#line 1242 "y.tab.c"
     break;
 
-  case 15: /* addexpr: mulexpr  */
-#line 99 "poly.y"
+  case 12: /* addexpr: mulexpr  */
+#line 70 "poly.y"
                            { (yyval.ast) = (yyvsp[0].ast); }
-#line 1298 "y.tab.c"
+#line 1248 "y.tab.c"
     break;
 
-  case 16: /* addexpr: addexpr PLUS mulexpr  */
-#line 100 "poly.y"
+  case 13: /* addexpr: addexpr PLUS mulexpr  */
+#line 71 "poly.y"
                               { (yyval.ast) = ast_create_binop(AST_ADD, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-#line 1304 "y.tab.c"
+#line 1254 "y.tab.c"
     break;
 
-  case 17: /* addexpr: addexpr MINUS mulexpr  */
-#line 101 "poly.y"
+  case 14: /* addexpr: addexpr MINUS mulexpr  */
+#line 72 "poly.y"
                                { (yyval.ast) = ast_create_binop(AST_SUB, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-#line 1310 "y.tab.c"
+#line 1260 "y.tab.c"
     break;
 
-  case 18: /* mulexpr: power  */
-#line 103 "poly.y"
+  case 15: /* mulexpr: power  */
+#line 74 "poly.y"
                { (yyval.ast) = (yyvsp[0].ast); }
-#line 1316 "y.tab.c"
+#line 1266 "y.tab.c"
     break;
 
-  case 19: /* mulexpr: mulexpr TIMES power  */
-#line 104 "poly.y"
+  case 16: /* mulexpr: mulexpr TIMES power  */
+#line 75 "poly.y"
                              { (yyval.ast) = ast_create_binop(AST_MUL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-#line 1322 "y.tab.c"
+#line 1272 "y.tab.c"
     break;
 
-  case 20: /* mulexpr: mulexpr power  */
-#line 105 "poly.y"
+  case 17: /* mulexpr: mulexpr power  */
+#line 76 "poly.y"
                                           { (yyval.ast) = ast_create_binop(AST_MUL, (yyvsp[-1].ast), (yyvsp[0].ast)); }
-#line 1328 "y.tab.c"
+#line 1278 "y.tab.c"
     break;
 
-  case 21: /* power: unary  */
-#line 107 "poly.y"
+  case 18: /* power: unary  */
+#line 78 "poly.y"
                          { (yyval.ast) = (yyvsp[0].ast); }
-#line 1334 "y.tab.c"
+#line 1284 "y.tab.c"
     break;
 
-  case 22: /* power: unary POWER power  */
-#line 108 "poly.y"
+  case 19: /* power: unary POWER power  */
+#line 79 "poly.y"
                          { (yyval.ast) = ast_create_binop(AST_POW, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-#line 1340 "y.tab.c"
+#line 1290 "y.tab.c"
     break;
 
-  case 23: /* unary: primary  */
-#line 110 "poly.y"
+  case 20: /* unary: primary  */
+#line 81 "poly.y"
                { (yyval.ast) = (yyvsp[0].ast); }
-#line 1346 "y.tab.c"
+#line 1296 "y.tab.c"
     break;
 
-  case 24: /* unary: MINUS power  */
-#line 111 "poly.y"
+  case 21: /* unary: MINUS power  */
+#line 82 "poly.y"
                                 { (yyval.ast) = ast_create_unop(AST_UMINUS, (yyvsp[0].ast)); }
-#line 1352 "y.tab.c"
+#line 1302 "y.tab.c"
     break;
 
-  case 25: /* primary: NUMBER  */
-#line 113 "poly.y"
+  case 22: /* primary: NUMBER  */
+#line 84 "poly.y"
                 { (yyval.ast) = ast_create_num((yyvsp[0].num)); }
-#line 1358 "y.tab.c"
+#line 1308 "y.tab.c"
     break;
 
-  case 26: /* primary: VAR  */
-#line 114 "poly.y"
+  case 23: /* primary: VAR  */
+#line 85 "poly.y"
              { (yyval.ast) = ast_create_var((yyvsp[0].var)); }
-#line 1364 "y.tab.c"
+#line 1314 "y.tab.c"
     break;
 
-  case 27: /* primary: POLYVAR  */
-#line 115 "poly.y"
+  case 24: /* primary: POLYVAR  */
+#line 86 "poly.y"
                  { (yyval.ast) = ast_create_polyvar((yyvsp[0].var)); }
-#line 1370 "y.tab.c"
+#line 1320 "y.tab.c"
     break;
 
-  case 28: /* primary: LPAREN expr RPAREN  */
-#line 116 "poly.y"
+  case 25: /* primary: LPAREN expr RPAREN  */
+#line 87 "poly.y"
                             { (yyval.ast) = (yyvsp[-1].ast); }
-#line 1376 "y.tab.c"
+#line 1326 "y.tab.c"
     break;
 
 
-#line 1380 "y.tab.c"
+#line 1330 "y.tab.c"
 
       default: break;
     }
@@ -1569,7 +1519,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 118 "poly.y"
+#line 89 "poly.y"
 
 int yyerror(char *s) {
     fprintf(stderr, "Line %d: Syntax error: %s\n", yylineno, s);
@@ -1842,31 +1792,20 @@ void poly_free(Polynomial *p) {
     }
 }
 void poly_print(Polynomial *p) {
-    if (!p || p->degree < 0) {
-        printf("0\n");
-        return;
-    }
-    int first = 1;
+    if (!p || p->degree < 0) { printf("0\n"); return; }
+    
     for (int i = p->degree; i >= 0; i--) {
-        if (p->coeffs[i] != 0.0) {
-            if (!first) {
-                printf(p->coeffs[i] > 0 ? " + " : " - ");
-            } else if (p->coeffs[i] < 0) {
-                printf("-");
-            }
-            double abs_coeff = fabs(p->coeffs[i]);
-            if (i == 0) {
-                printf("%.0f", abs_coeff);
-            } else if (i == 1) {
-                if (fabs(abs_coeff - 1.0) > 1e-9) printf("%.0fx", abs_coeff);
-                else printf("x");
-            } else {
-                if (fabs(abs_coeff - 1.0) > 1e-9) printf("%.0fx^%d", abs_coeff, i);
-                else printf("x^%d", i);
-            }
-            first = 0;
-        }
+        double c = p->coeffs[i];
+        if (c == 0) continue;
+        
+        if (i != p->degree) printf(c > 0 ? " + " : " - ");
+        else if (c < 0) printf("-");
+        
+        c = fabs(c);
+        
+        if (i == 0 || c != 1.0) printf("%.0f", c);
+        if (i > 0) printf("x");
+        if (i > 1) printf("^%d", i);
     }
-    if (first) printf("0");
     printf("\n");
 }

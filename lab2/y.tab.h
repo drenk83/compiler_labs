@@ -65,12 +65,10 @@ extern int yydebug;
     RPAREN = 266,                  /* RPAREN  */
     ASSIGN = 267,                  /* ASSIGN  */
     PRINT = 268,                   /* PRINT  */
-    SEMI = 269,                    /* SEMI  */
-    COMMENT = 270,                 /* COMMENT  */
-    EOL = 271,                     /* EOL  */
-    IMPLICIT_MUL = 272,            /* IMPLICIT_MUL  */
-    NEG = 273,                     /* NEG  */
-    UMINUS = 274                   /* UMINUS  */
+    EOL = 269,                     /* EOL  */
+    IMPLICIT_MUL = 270,            /* IMPLICIT_MUL  */
+    NEG = 271,                     /* NEG  */
+    UMINUS = 272                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -90,12 +88,10 @@ extern int yydebug;
 #define RPAREN 266
 #define ASSIGN 267
 #define PRINT 268
-#define SEMI 269
-#define COMMENT 270
-#define EOL 271
-#define IMPLICIT_MUL 272
-#define NEG 273
-#define UMINUS 274
+#define EOL 269
+#define IMPLICIT_MUL 270
+#define NEG 271
+#define UMINUS 272
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -107,7 +103,7 @@ union YYSTYPE
     char var;
     AST ast;
 
-#line 111 "y.tab.h"
+#line 107 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

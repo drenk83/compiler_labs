@@ -9,7 +9,7 @@ extern int yylex();
 extern int yyerror(char *s);
 extern FILE *yyin;
 extern int yylineno;
-// Прототипы (уже в poly.h, но для ясности)
+
 %}
 %union {
     double num;
@@ -19,7 +19,7 @@ extern int yylineno;
 %type <ast> expr addexpr mulexpr power unary primary
 %token <num> NUMBER
 %token <var> VAR POLYVAR
-%token PLUS MINUS TIMES POWER LPAREN RPAREN ASSIGN PRINT SEMI COMMENT EOL IMPLICIT_MUL NEG
+%token PLUS MINUS TIMES POWER LPAREN RPAREN ASSIGN PRINT EOL IMPLICIT_MUL NEG
 %left PLUS MINUS
 %right NEG
 %left TIMES IMPLICIT_MUL
@@ -42,50 +42,21 @@ statement: assignment
              }
              ast_free($1);
            }
-         | COMMENT { /* ignore */ }
          ;
-assignment: POLYVAR ASSIGN expr SEMI {
+assignment: POLYVAR ASSIGN expr {
              char name = $1;
-             int idx = name - 'a';
-             if (idx < 0 || idx >= MAX_POLYNOMIALS) {
-                 fprintf(stderr, "Line %d: Semantic error: Invalid polyvar '%c'\n", yylineno, name);
-             } else {
-                 Polynomial *newp = eval_ast($3);
-                 if (newp) {
-                     if (poly_vars[idx].poly) poly_free(poly_vars[idx].poly);
-                     poly_vars[idx].poly = newp;
-                     poly_vars[idx].is_defined = 1;
-                     poly_vars[idx].name = name;
-                 }
-                 ast_free($3);
+             int idx = name - 'a';            
+             Polynomial *newp = eval_ast($3);
+             if (newp) {
+                 if (poly_vars[idx].poly) poly_free(poly_vars[idx].poly);
+                 poly_vars[idx].poly = newp;
+                 poly_vars[idx].is_defined = 1;
+                 poly_vars[idx].name = name;
              }
-           }
-         | POLYVAR ASSIGN expr {
-             char name = $1;
-             int idx = name - 'a';
-             if (idx < 0 || idx >= MAX_POLYNOMIALS) {
-                 fprintf(stderr, "Line %d: Semantic error: Invalid polyvar '%c'\n", yylineno, name);
-             } else {
-                 Polynomial *newp = eval_ast($3);
-                 if (newp) {
-                     if (poly_vars[idx].poly) poly_free(poly_vars[idx].poly);
-                     poly_vars[idx].poly = newp;
-                     poly_vars[idx].is_defined = 1;
-                     poly_vars[idx].name = name;
-                 }
-                 ast_free($3);
-             }
+             ast_free($3);
            }
          ;
-print_stmt: PRINT expr SEMI {
-             Polynomial *p = eval_ast($2);
-             if (p) {
-                 poly_print(p);
-                 poly_free(p);
-             }
-             ast_free($2);
-           }
-          | PRINT expr {
+print_stmt: PRINT expr {
              Polynomial *p = eval_ast($2);
              if (p) {
                  poly_print(p);
@@ -387,31 +358,20 @@ void poly_free(Polynomial *p) {
     }
 }
 void poly_print(Polynomial *p) {
-    if (!p || p->degree < 0) {
-        printf("0\n");
-        return;
-    }
-    int first = 1;
+    if (!p || p->degree < 0) { printf("0\n"); return; }
+    
     for (int i = p->degree; i >= 0; i--) {
-        if (p->coeffs[i] != 0.0) {
-            if (!first) {
-                printf(p->coeffs[i] > 0 ? " + " : " - ");
-            } else if (p->coeffs[i] < 0) {
-                printf("-");
-            }
-            double abs_coeff = fabs(p->coeffs[i]);
-            if (i == 0) {
-                printf("%.0f", abs_coeff);
-            } else if (i == 1) {
-                if (fabs(abs_coeff - 1.0) > 1e-9) printf("%.0fx", abs_coeff);
-                else printf("x");
-            } else {
-                if (fabs(abs_coeff - 1.0) > 1e-9) printf("%.0fx^%d", abs_coeff, i);
-                else printf("x^%d", i);
-            }
-            first = 0;
-        }
+        double c = p->coeffs[i];
+        if (c == 0) continue;
+        
+        if (i != p->degree) printf(c > 0 ? " + " : " - ");
+        else if (c < 0) printf("-");
+        
+        c = fabs(c);
+        
+        if (i == 0 || c != 1.0) printf("%.0f", c);
+        if (i > 0) printf("x");
+        if (i > 1) printf("^%d", i);
     }
-    if (first) printf("0");
     printf("\n");
 }
