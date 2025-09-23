@@ -99,7 +99,7 @@ union YYSTYPE
 {
 #line 12 "poly.y"
 
-    int num;  
+    int num;
     char var;
     AST ast;
 
