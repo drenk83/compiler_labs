@@ -7,9 +7,10 @@
 DIGIT [0-9]
 NUMBER {DIGIT}+(\.{DIGIT}+)?
 %%
+
 {NUMBER} { yylval.num = atof(yytext); return NUMBER; }
 "x" { yylval.var = 'x'; return VAR; }
-\$[a-z] { yylval.var = yytext[1]; return POLYVAR; }
+\$[a-z]{1} { yylval.var = yytext[1]; return POLYVAR; }
 "+" { return PLUS; }
 "-" { return MINUS; }
 "*" { return TIMES; }
@@ -17,14 +18,32 @@ NUMBER {DIGIT}+(\.{DIGIT}+)?
 "(" { return LPAREN; }
 ")" { return RPAREN; }
 "=" { return ASSIGN; }
-"print" { return PRINT; }
 ";" { return SEMI; }
-"//"[^\n\r]* { return COMMENT; } /* Комментарий */
+
+"print" { return PRINT; }
+"//"[^\n\r]* { return COMMENT; }
 \n { yylineno++; return EOL; }
 \r\n { yylineno++; return EOL; } /* Windows */
-[ \t\r]+ { /* Пробелы */ }
+[ \t\r]+ { } /* Spaces */
+
+[A-Z]+ {
+    fprintf(stderr, "[LEX] Line %d: Uppercase var not supported: '%c'\n", yylineno, yytext[0]);
+    return -1;
+}
+\$[A-Z]+ {
+    fprintf(stderr, "[LEX] Line %d: Uppercase polyvar not allowed: '%s'\n", yylineno, yytext);
+    return -1;
+}
+\$[a-z]+ {
+    fprintf(stderr, "[LEX] Line %d: Multi-character polyvar not allowed: '%s'\n", yylineno, yytext);
+    return -1;
+}
+({DIGIT}*\.?{DIGIT}*) {
+    fprintf(stderr, "[LEX] Line %d: Invalid number '%s'\n", yylineno, yytext);
+    return -1;
+}
 . {
-    fprintf(stderr, "Line %d: Lexical error: Unexpected character '%s'\n",
+    fprintf(stderr, "[LEX] Line %d: Lexical error: Unexpected character '%s'\n",
             yylineno, yytext);
     return -1;
 }
