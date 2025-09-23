@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include "poly.h"
 NamedPolynomial poly_vars[MAX_POLYNOMIALS] = {0};
 extern int yylex();
@@ -11,7 +10,7 @@ extern FILE *yyin;
 extern int yylineno;
 %}
 %union {
-    double num;
+    int num;  
     char var;
     AST ast;
 }
@@ -67,22 +66,22 @@ print_stmt: PRINT expr {
 expr: addexpr { $$ = $1; }
     ;
 addexpr: mulexpr %prec NEG { $$ = $1; }
-       | addexpr PLUS mulexpr { $$ = ast_create(AST_ADD, $1, $3, 0.0, '\0'); }
-       | addexpr MINUS mulexpr { $$ = ast_create(AST_SUB, $1, $3, 0.0, '\0'); }
+       | addexpr PLUS mulexpr { $$ = ast_create(AST_ADD, $1, $3, 0, '\0'); }  /* 0.0 -> 0 */
+       | addexpr MINUS mulexpr { $$ = ast_create(AST_SUB, $1, $3, 0, '\0'); }
        ;
 mulexpr: power { $$ = $1; }
-       | mulexpr TIMES power { $$ = ast_create(AST_MUL, $1, $3, 0.0, '\0'); }
-       | mulexpr power %prec IMPLICIT_MUL { $$ = ast_create(AST_MUL, $1, $2, 0.0, '\0'); }
+       | mulexpr TIMES power { $$ = ast_create(AST_MUL, $1, $3, 0, '\0'); }
+       | mulexpr power %prec IMPLICIT_MUL { $$ = ast_create(AST_MUL, $1, $2, 0, '\0'); }
        ;
 power: unary %prec POWER { $$ = $1; }
-     | unary POWER power { $$ = ast_create(AST_POW, $1, $3, 0.0, '\0'); }
+     | unary POWER power { $$ = ast_create(AST_POW, $1, $3, 0, '\0'); }
      ;
 unary: primary { $$ = $1; }
-     | MINUS power %prec UMINUS { $$ = ast_create(AST_UMINUS, $2, NULL, 0.0, '\0'); }
+     | MINUS power %prec UMINUS { $$ = ast_create(AST_UMINUS, $2, NULL, 0, '\0'); }
      ;
 primary: NUMBER { $$ = ast_create(AST_NUM, NULL, NULL, $1, '\0'); }
-       | VAR { $$ = ast_create(AST_VAR, NULL, NULL, 0.0, $1); }
-       | POLYVAR { $$ = ast_create(AST_POLYVAR, NULL, NULL, 0.0, $1); }
+       | VAR { $$ = ast_create(AST_VAR, NULL, NULL, 0, $1); }
+       | POLYVAR { $$ = ast_create(AST_POLYVAR, NULL, NULL, 0, $1); }
        | LPAREN expr RPAREN { $$ = $2; }
        ;
 %%
@@ -110,7 +109,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 /* AST functions */
-AST ast_create(ASTType type, AST left, AST right, double num, char var) {
+AST ast_create(ASTType type, AST left, AST right, int num, char var) {  /* double -> int */
     AST node = malloc(sizeof(struct ASTNode));
     node->type = type;
     node->line = yylineno;
@@ -132,19 +131,19 @@ void ast_free(AST node) {
 }
 void trim_poly(Polynomial *p) {
     if (!p || p->degree < 0) return;
-    while (p->degree > 0 && p->coeffs[p->degree] == 0.0) {
+    while (p->degree > 0 && p->coeffs[p->degree] == 0) {  /* 0.0 -> 0 */
         p->degree--;
     }
-    if (p->degree == 0 && p->coeffs[0] == 0.0) {
+    if (p->degree == 0 && p->coeffs[0] == 0) {  /* 0.0 -> 0 */
         p->degree = -1;
     }
 }
 /* Helper for binary operations */
 static Polynomial* eval_binary_op(AST node, Polynomial* (*op)(Polynomial*, Polynomial*)) {
     Polynomial *a = eval_ast(node->left);
-    if (!a) a = poly_from_number(0.0);
+    if (!a) a = poly_from_number(0);  /* 0.0 -> 0 */
     Polynomial *b = eval_ast(node->right);
-    if (!b) b = poly_from_number(0.0);
+    if (!b) b = poly_from_number(0);  /* 0.0 -> 0 */
     Polynomial *res = op(a, b);
     poly_free(a);
     poly_free(b);
@@ -164,7 +163,7 @@ Polynomial* eval_ast(AST node) {
             int idx = name - 'a';
             if (idx < 0 || idx >= MAX_POLYNOMIALS || !poly_vars[idx].is_defined || poly_vars[idx].name != name) {
                 fprintf(stderr, "Line %d: Semantic error: Undefined polynomial '%c'\n", node->line, name);
-                return poly_from_number(0.0);
+                return poly_from_number(0);  /* 0.0 -> 0 */
             }
             return copy_poly(poly_vars[idx].poly);
         }
@@ -186,16 +185,15 @@ Polynomial* eval_ast(AST node) {
                 fprintf(stderr, "Line %d: Semantic error: Exponent must be constant polynomial\n", node->line);
                 poly_free(base);
                 poly_free(exp_poly);
-                return poly_from_number(0.0);
+                return poly_from_number(0);  /* 0.0 -> 0 */
             }
-            double pd = exp_poly->coeffs[0];
+            int exp = exp_poly->coeffs[0];  /* Упрощено - уже int */
             poly_free(exp_poly);
-            int exp = (int)pd;
-            if (floor(pd) != pd || exp < 0) {
-                fprintf(stderr, "Line %d: Semantic error: Power must be non-negative integer, got %g\n",
-                        node->line, pd);
+            if (exp < 0) {
+                fprintf(stderr, "Line %d: Semantic error: Power must be non-negative integer, got %d\n",
+                        node->line, exp);  /* %g -> %d */
                 poly_free(base);
-                return poly_from_number(0.0);
+                return poly_from_number(0);  /* 0.0 -> 0 */
             }
             Polynomial *res = poly_pow(base, exp);
             poly_free(base);
@@ -204,30 +202,30 @@ Polynomial* eval_ast(AST node) {
         }
         case AST_UMINUS: {
             Polynomial *c = eval_ast(node->left);
-            Polynomial *res = poly_multiply_scalar(c, -1.0);
+            Polynomial *res = poly_multiply_scalar(c, -1);  /* -1.0 -> -1 */
             poly_free(c);
             trim_poly(res);
             return res;
         }
         default:
             fprintf(stderr, "Line %d: Semantic error: Unknown AST type\n", node->line);
-            return poly_from_number(0.0);
+            return poly_from_number(0);  /* 0.0 -> 0 */
     }
 }
 /* Poly functions (updated with trim) */
-Polynomial* poly_from_number(double num) {
+Polynomial* poly_from_number(int num) {  /* double -> int */
     Polynomial *p = (Polynomial *)malloc(sizeof(Polynomial));
-    p->coeffs = (double*)calloc(1, sizeof(double));
+    p->coeffs = (int*)calloc(1, sizeof(int));  /* double -> int */
     p->coeffs[0] = num;
-    p->degree = (num != 0.0) ? 0 : -1;
+    p->degree = (num != 0) ? 0 : -1;  /* 0.0 -> 0 */
     p->capacity = 1;
     return p;
 }
 Polynomial* poly_from_var_power(int power) {
     Polynomial *p = (Polynomial *)malloc(sizeof(Polynomial));
     p->capacity = power + 1;
-    p->coeffs = (double*)calloc(p->capacity, sizeof(double));
-    p->coeffs[power] = 1.0;
+    p->coeffs = (int*)calloc(p->capacity, sizeof(int));  /* double -> int */
+    p->coeffs[power] = 1;  /* 1.0 -> 1 */
     p->degree = power;
     return p;
 }
@@ -236,17 +234,17 @@ Polynomial* poly_add(Polynomial *a, Polynomial *b) {
     int bdeg = b->degree < 0 ? -1 : b->degree;
     int max_degree = (adeg > bdeg) ? adeg : bdeg;
     if (max_degree < 0) {
-        return poly_from_number(0.0);
+        return poly_from_number(0);  /* 0.0 -> 0 */
     }
     Polynomial *result = (Polynomial *)malloc(sizeof(Polynomial));
     result->capacity = max_degree + 1;
-    result->coeffs = (double*)calloc(result->capacity, sizeof(double));
+    result->coeffs = (int*)calloc(result->capacity, sizeof(int));  /* double -> int */
     result->degree = -1;
     for (int i = 0; i <= max_degree; i++) {
-        double ca = (adeg >= 0 && i <= adeg) ? a->coeffs[i] : 0.0;
-        double cb = (bdeg >= 0 && i <= bdeg) ? b->coeffs[i] : 0.0;
+        int ca = (adeg >= 0 && i <= adeg) ? a->coeffs[i] : 0;  /* double -> int, 0.0 -> 0 */
+        int cb = (bdeg >= 0 && i <= bdeg) ? b->coeffs[i] : 0;  /* double -> int, 0.0 -> 0 */
         result->coeffs[i] = ca + cb;
-        if (result->coeffs[i] != 0.0) {
+        if (result->coeffs[i] != 0) {  /* 0.0 -> 0 */
             result->degree = i;
         }
     }
@@ -254,19 +252,19 @@ Polynomial* poly_add(Polynomial *a, Polynomial *b) {
     return result;
 }
 Polynomial* poly_subtract(Polynomial *a, Polynomial *b) {
-    Polynomial *neg_b = poly_multiply_scalar(b, -1.0);
+    Polynomial *neg_b = poly_multiply_scalar(b, -1);  /* -1.0 -> -1 */
     Polynomial *result = poly_add(a, neg_b);
     poly_free(neg_b);
     return result;
 }
 Polynomial* poly_multiply(Polynomial *a, Polynomial *b) {
     if (a->degree < 0 || b->degree < 0) {
-        return poly_from_number(0.0);
+        return poly_from_number(0);  /* 0.0 -> 0 */
     }
     int new_degree = a->degree + b->degree;
     Polynomial *result = (Polynomial *)malloc(sizeof(Polynomial));
     result->capacity = new_degree + 1;
-    result->coeffs = (double*)calloc(result->capacity, sizeof(double));
+    result->coeffs = (int*)calloc(result->capacity, sizeof(int));  /* double -> int */
     for (int i = 0; i <= a->degree; i++) {
         for (int j = 0; j <= b->degree; j++) {
             result->coeffs[i + j] += a->coeffs[i] * b->coeffs[j];
@@ -274,7 +272,7 @@ Polynomial* poly_multiply(Polynomial *a, Polynomial *b) {
     }
     result->degree = -1;
     for (int i = new_degree; i >= 0; i--) {
-        if (result->coeffs[i] != 0.0) {
+        if (result->coeffs[i] != 0) {  /* 0.0 -> 0 */
             result->degree = i;
             break;
         }
@@ -282,13 +280,13 @@ Polynomial* poly_multiply(Polynomial *a, Polynomial *b) {
     trim_poly(result);
     return result;
 }
-Polynomial* poly_multiply_scalar(Polynomial *p, double scalar) {
+Polynomial* poly_multiply_scalar(Polynomial *p, int scalar) {  /* double -> int */
     if (p->degree < 0) {
-        return poly_from_number(0.0);
+        return poly_from_number(0);  /* 0.0 -> 0 */
     }
     Polynomial *result = (Polynomial *)malloc(sizeof(Polynomial));
     result->capacity = p->capacity;
-    result->coeffs = (double*)calloc(result->capacity, sizeof(double));
+    result->coeffs = (int*)calloc(result->capacity, sizeof(int));  /* double -> int */
     result->degree = p->degree;
     for (int i = 0; i <= p->degree; i++) {
         result->coeffs[i] = p->coeffs[i] * scalar;
@@ -297,8 +295,8 @@ Polynomial* poly_multiply_scalar(Polynomial *p, double scalar) {
     return result;
 }
 Polynomial* poly_pow(Polynomial *base, int exp) {
-    if (exp == 0) return poly_from_number(1.0);
-    Polynomial *res = poly_from_number(1.0);
+    if (exp == 0) return poly_from_number(1);  /* 1.0 -> 1 */
+    Polynomial *res = poly_from_number(1);  /* 1.0 -> 1 */
     for (int i = 0; i < exp; i++) {
         Polynomial *tmp = poly_multiply(res, base);
         poly_free(res);
@@ -308,11 +306,11 @@ Polynomial* poly_pow(Polynomial *base, int exp) {
     return res;
 }
 Polynomial* copy_poly(const Polynomial *p) {
-    if (!p || p->degree < 0) return poly_from_number(0.0);
+    if (!p || p->degree < 0) return poly_from_number(0);  /* 0.0 -> 0 */
     Polynomial *c = malloc(sizeof(Polynomial));
     *c = *p;
-    c->coeffs = malloc(p->capacity * sizeof(double));
-    memcpy(c->coeffs, p->coeffs, p->capacity * sizeof(double));
+    c->coeffs = malloc(p->capacity * sizeof(int));  /* double -> int */
+    memcpy(c->coeffs, p->coeffs, p->capacity * sizeof(int));  /* double -> int */
     return c;
 }
 void poly_free(Polynomial *p) {
@@ -325,15 +323,15 @@ void poly_print(Polynomial *p) {
     if (!p || p->degree < 0) { printf("0\n"); return; }
   
     for (int i = p->degree; i >= 0; i--) {
-        double c = p->coeffs[i];
+        int c = p->coeffs[i];  /* double -> int */
         if (c == 0) continue;
       
         if (i != p->degree) printf(c > 0 ? " + " : " - ");
         else if (c < 0) printf("-");
       
-        c = fabs(c);
+        c = (c < 0) ? -c : c;  /* Замена fabs() на тернарный оператор */
       
-        if (i == 0 || c != 1.0) printf("%.0f", c);
+        if (i == 0 || c != 1) printf("%d", c);  /* %.0f -> %d, 1.0 -> 1 */
         if (i > 0) printf("x");
         if (i > 1) printf("^%d", i);
     }

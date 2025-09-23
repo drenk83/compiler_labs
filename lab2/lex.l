@@ -4,11 +4,12 @@
 #include "poly.h"
 #include "y.tab.h"
 %}
+
 DIGIT [0-9]
-NUMBER {DIGIT}+(\.{DIGIT}+)?
+NUMBER {DIGIT}+
 %%
 
-{NUMBER} { yylval.num = atof(yytext); return NUMBER; }
+{NUMBER} { yylval.num = atoi(yytext); return NUMBER; }  /* atof -> atoi */
 "x" { yylval.var = 'x'; return VAR; }
 \$[a-z]{1} { yylval.var = yytext[1]; return POLYVAR; }
 "+" { return PLUS; }
@@ -18,12 +19,11 @@ NUMBER {DIGIT}+(\.{DIGIT}+)?
 "(" { return LPAREN; }
 ")" { return RPAREN; }
 "=" { return ASSIGN; }
-
 "print" { return PRINT; }
 "//"[^\n\r]* { }
 \n { yylineno++; return EOL; }
-\r\n { yylineno++; return EOL; } /* Windows */
-[ \t\r]+ { } /* Spaces */
+\r\n { yylineno++; return EOL; }  /* Windows */
+[ \t\r]+ { }
 
 [A-Z]+ {
     fprintf(stderr, "[LEX] Line %d: Uppercase var not supported: '%c'\n", yylineno, yytext[0]);
@@ -37,8 +37,8 @@ NUMBER {DIGIT}+(\.{DIGIT}+)?
     fprintf(stderr, "[LEX] Line %d: Multi-character polyvar not allowed: '%s'\n", yylineno, yytext);
     return -1;
 }
-({DIGIT}*\.?{DIGIT}*) {
-    fprintf(stderr, "[LEX] Line %d: Invalid number '%s'\n", yylineno, yytext);
+{DIGIT}+\.{DIGIT}+ {  
+    fprintf(stderr, "[LEX] Line %d: Floating point numbers not supported: '%s'\n", yylineno, yytext);
     return -1;
 }
 . {

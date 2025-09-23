@@ -97,9 +97,9 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 13 "poly.y"
+#line 12 "poly.y"
 
-    double num;
+    int num;  
     char var;
     AST ast;
 
