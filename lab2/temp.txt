@@ -2,15 +2,15 @@ $a = x^1*0-1
 print $a
 $a = xx
 print $a  $a
-$a = -(x-1)^2-1;
-print $a;
+$a = -(x-1)^2-1
+print $a
 $a = (x-1)^2*(x+1)^2
 print $a
 $a = -(x-1)^2(x+1)^2
 print $a
 //$a = (x-1)^2*--(x+1)^2
 //print $a
-$a = x(x)
+$a = y(y)
 print $a
 $a = (x+1)^2((x-1)^2)
 print $a
@@ -24,6 +24,12 @@ print $a
 $a = (72x^6+12x^3+4x^2+x-123)*(12x^2-7)^2+4x^4-2x^3-7
 print $a
 
+
+$b = 2*x^2 - 2*x^2
+print $b
+print $b
+print $b
+print $b
 
 $a = (x^2 + 3x + 2)(x^2 - 3x + 2)
 print $a
