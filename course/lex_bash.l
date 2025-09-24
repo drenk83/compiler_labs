@@ -38,6 +38,17 @@ LOCAL   "local"
 EXIT    "exit"
 READ    "read"
 
+/* Reserved commands */
+LS      "ls"
+PWD     "pwd"
+CD      "cd"
+MKDIR   "mkdir"
+TOUCH   "touch"
+CP      "cp"
+MV      "mv"
+RM      "rm"
+CAT     "cat"
+
 /* Test operators */
 GE      "-ge"
 GT      "-gt"
@@ -64,14 +75,11 @@ ASSIGN  "="
 PLUS    "+"
 MINUS   "-"
 MULT    "\*"
-SLASH   "/"
+DIV     "/"
 DOTDOT  ".."
 DBL_LPAREN  "(("
 DBL_RPAREN  "))"
 
-/* New for this script */
-OPTION  "-[a-z]+"
-COMMAND [a-zA-Z_][a-zA-Z0-9_-]*
 /* Case-specific */
 DOUBLE_SEMI ";;"
 
@@ -81,6 +89,15 @@ VAR_ASSIGN [a-zA-Z_][a-zA-Z0-9_]*=
 VAR_ASSIGN_ZERO [a-zA-Z_][a-zA-Z0-9_]*=0
 /* Function definition: name() { (no spaces) */
 FUNC_DEF [a-zA-Z_][a-zA-Z0-9_]*\(\)
+
+/* Paths */
+PATH    "/?[a-zA-Z0-9_/.-]+"
+
+/* Options */
+OPTION  "-[a-z]+"
+
+/* Commands */
+COMMAND [a-zA-Z_][a-zA-Z0-9_-]*
 
 /* Shebang */
 SHEBANG "#!/bin/bash"
@@ -126,6 +143,15 @@ OTHER .
 {GE} { printf("TOKEN: GE\n"); }
 {GT} { printf("TOKEN: GT\n"); }
 {LT} { printf("TOKEN: LT\n"); }
+{LS} { printf("TOKEN: LS\n"); }
+{PWD} { printf("TOKEN: PWD\n"); }
+{CD} { printf("TOKEN: CD\n"); }
+{MKDIR} { printf("TOKEN: MKDIR\n"); }
+{TOUCH} { printf("TOKEN: TOUCH\n"); }
+{CP} { printf("TOKEN: CP\n"); }
+{MV} { printf("TOKEN: MV\n"); }
+{RM} { printf("TOKEN: RM\n"); }
+{CAT} { printf("TOKEN: CAT\n"); }
 {LBRACE} { printf("TOKEN: LBRACE\n"); }
 {RBRACE} { printf("TOKEN: RBRACE\n"); }
 {LBRACK} { printf("TOKEN: LBRACK\n"); }
@@ -146,7 +172,7 @@ OTHER .
 {PLUS} { printf("TOKEN: PLUS\n"); }
 {MINUS} { printf("TOKEN: MINUS\n"); }
 {MULT} { printf("TOKEN: MULT\n"); }
-{SLASH} { printf("TOKEN: SLASH\n"); }
+{DIV} { printf("TOKEN: DIV\n"); }
 {DOTDOT} { printf("TOKEN: DOTDOT\n"); }
 {DBL_LPAREN} { printf("TOKEN: DBL_LPAREN\n"); }
 {DBL_RPAREN} { printf("TOKEN: DBL_RPAREN\n"); }
@@ -161,9 +187,8 @@ OTHER .
 {OTHER} { printf("TOKEN: OTHER (%s)\n", yytext); }
 {OPTION} { printf("TOKEN: OPTION (%s)\n", yytext); }
 {COMMAND} { printf("TOKEN: COMMAND (%s)\n", yytext); }
-
+{PATH} { printf("TOKEN: PATH (%s)\n", yytext); }
 %%
-
 int main(int argc, char **argv) {
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
