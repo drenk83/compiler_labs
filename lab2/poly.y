@@ -86,7 +86,7 @@ primary: NUMBER { $$ = ast_create(AST_NUM, NULL, NULL, $1, '\0'); }
        ;
 %%
 int yyerror(char *s) {
-    fprintf(stderr, "Line %d: Syntax error: %s\n", yylineno, s);
+    fprintf(stderr, "[SYN] Line %d: %s\n", yylineno, s);
     return 0;
 }
 int main(int argc, char **argv) {
@@ -145,7 +145,7 @@ static Polynomial* eval_binary_op(AST node, Polynomial* (*op)(Polynomial*, Polyn
     Polynomial *b = eval_ast(node->right);
     if (!b) b = poly_from_number(0);
     if (a->var != '\0' && b->var != '\0' && a->var != b->var) {
-        fprintf(stderr, "Line %d: Semantic error: Cannot perform operation on polynomials with different variables '%c' and '%c'\n", node->line, a->var, b->var);
+        fprintf(stderr, "[SEM] Line %d: Cannot perform operation on polynomials with different variables '%c' and '%c'\n", node->line, a->var, b->var);
         poly_free(a);
         poly_free(b);
         return poly_from_number(0);
@@ -169,7 +169,7 @@ Polynomial* eval_ast(AST node) {
             char name = node->u.poly_name;
             int idx = name - 'a';
             if (idx < 0 || idx >= MAX_POLYNOMIALS || !poly_vars[idx].is_defined || poly_vars[idx].name != name) {
-                fprintf(stderr, "Line %d: Semantic error: Undefined polynomial '%c'\n", node->line, name);
+                fprintf(stderr, "[SEM] Line %d: Undefined polynomial '%c'\n", node->line, name);
                 return poly_from_number(0);
             }
             return copy_poly(poly_vars[idx].poly);
@@ -189,7 +189,7 @@ Polynomial* eval_ast(AST node) {
                 return NULL;
             }
             if (exp_poly->degree != 0 || exp_poly->var != '\0') {
-                fprintf(stderr, "Line %d: Semantic error: Exponent must be constant polynomial\n", node->line);
+                fprintf(stderr, "[SEM] Line %d: Exponent must be constant polynomial\n", node->line);
                 poly_free(base);
                 poly_free(exp_poly);
                 return poly_from_number(0);
@@ -197,7 +197,7 @@ Polynomial* eval_ast(AST node) {
             int exp = exp_poly->coeffs[0];
             poly_free(exp_poly);
             if (exp < 0) {
-                fprintf(stderr, "Line %d: Semantic error: Power must be non-negative integer, got %d\n",
+                fprintf(stderr, "[SEM] Line %d: Power must be non-negative integer, got %d\n",
                         node->line, exp);
                 poly_free(base);
                 return poly_from_number(0);
@@ -215,7 +215,7 @@ Polynomial* eval_ast(AST node) {
             return res;
         }
         default:
-            fprintf(stderr, "Line %d: Semantic error: Unknown AST type\n", node->line);
+            fprintf(stderr, "[SEM] Line %d: Unknown AST type\n", node->line);
             return poly_from_number(0);
     }
 }

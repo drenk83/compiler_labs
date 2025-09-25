@@ -1,127 +1,22 @@
 #!/bin/bash
 
-# -------------------------------------------------
-# Пример скрипта, демонстрирующего базовые возможности Bash
-# Название: demo.sh
-# -------------------------------------------------
+# 1. Comments — everything after # is ignored
 
-# 1. Комментарии — всё после # игнорируется
-
-# 2. Переменные
-name="Алиса"
+# 2. Variables
+name="Alice"
 age=30
-readonly PI=3.1415  # константа (только для чтения)
-your_name="$USER"  # используем текущего пользователя, если не задано иное
+readonly PI=3.1415  # constant (read-only)
+your_name="$USER"  # use current user if not specified otherwise
 
-# 3. Вывод на экран
-echo "Привет, $name! Тебе $age лет."
-echo "Число Пи ≈ $PI"
+# 3. Output to screen
+echo "Hello, $name! You are $age years old."
+echo "Pi is approximately $PI"
 
-# 4. Условия (if-else)
+# 4. Conditional statements (if-else)
 if [ "$age" -ge 18 ]; then
-    echo "$name совершеннолетняя."
+    echo "$name is an adult."
 elif [ "$age" -gt 0 ]; then
-    echo "$name несовершеннолетняя."
+    echo "$name is a minor."
 else
-    echo "Возраст некорректен."
+    echo "Invalid age."
 fi
-
-# 5. Case-выбор
-read -p "Введите команду (start|stop|restart): " action
-
-case $action in
-    start)
-        echo "Запускаем сервис..."
-        ;;
-    stop)
-        echo "Останавливаем сервис..."
-        ;;
-    restart)
-        echo "Перезапускаем сервис..."
-        ;;
-    *)
-        echo "Неизвестная команда. Используйте: start, stop или restart."
-        ;;
-esac
-
-# 6. Циклы
-
-# Цикл for по диапазону
-echo "Считаем до 3:"
-for i in {1..3}; do
-    echo "  $i"
-done
-
-# Цикл while
-counter=0
-while [ $counter -lt 2 ]; do
-    echo "  while: итерация $((counter + 1))"
-    ((counter++))
-done
-
-# 7. Массивы
-fruits=("яблоко" "банан" "апельсин")
-echo "Фрукты: ${fruits[0]}, ${fruits[1]}, ${fruits[2]}"
-echo "Всего фруктов: ${#fruits[@]}"
-
-# Вывод всех элементов массива
-echo "Все фрукты: ${fruits[*]}"
-
-# 8. Функции
-greet() {
-    local user="$1"  # локальная переменная
-    echo "Привет из функции, $user!"
-}
-greet "$your_name"
-
-# 9. Арифметика
-result=$(( 10 + 5 * 2 ))
-echo "10 + 5 * 2 = $result"
-
-# 10. Проверка существования файла
-if [ -f "./demo.sh" ]; then
-    echo "Файл demo.sh существует."
-else
-    echo "Файл demo.sh не найден (возможно, запущен из другого каталога)."
-fi
-
-# 11. Проверка директории
-if [ -d "/tmp" ]; then
-    echo "Директория /tmp существует."
-fi
-
-# 12. Выход со статусом
-echo "Скрипт завершён успешно."
-exit 0
-
-#!/bin/bash
-
-# 1. Показать содержимое текущей директории в подробном формате
-ls -l
-
-# 2. Показать текущий рабочий каталог
-pwd
-
-# 4. Создать новую директорию
-mkdir -p test_dir
-
-# 5. Создать пустой файл
-touch file.txt
-
-# 6. Скопировать файл
-cp file.txt file_copy.txt
-
-# 7. Переименовать файл
-mv file_copy.txt new_name.txt
-
-# 8. Удалить оригинальный файл
-rm file.txt
-
-# 9. Вывести информацию о системе
-cat /etc/os-release
-
-# 10. Вывести сообщение
-echo "Hello, World!"
-
-# Опционально: убрать созданные файлы и папку после завершения
-# rm -rf test_dir new_name.txt

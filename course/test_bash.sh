@@ -1,127 +1,122 @@
 #!/bin/bash
 
-# -------------------------------------------------
-# Пример скрипта, демонстрирующего базовые возможности Bash
-# Название: demo.sh
-# -------------------------------------------------
+# 1. Comments — everything after # is ignored
 
-# 1. Комментарии — всё после # игнорируется
-
-# 2. Переменные
-name="Алиса"
+# 2. Variables
+name="Alice"
 age=30
-readonly PI=3.1415  # константа (только для чтения)
-your_name="$USER"  # используем текущего пользователя, если не задано иное
+readonly PI=3
+your_name="$USER"  # use current user if not specified otherwise
 
-# 3. Вывод на экран
-echo "Привет, $name! Тебе $age лет."
-echo "Число Пи ≈ $PI"
+# 3. Output to screen
+echo "Hello, $name! You are $age years old."
+echo "Pi is approximately $PI"
 
-# 4. Условия (if-else)
+# 4. Conditional statements (if-else)
 if [ "$age" -ge 18 ]; then
-    echo "$name совершеннолетняя."
+    echo "$name is an adult."
 elif [ "$age" -gt 0 ]; then
-    echo "$name несовершеннолетняя."
+    echo "$name is a minor."
 else
-    echo "Возраст некорректен."
+    echo "Invalid age."
 fi
 
-# 5. Case-выбор
-read -p "Введите команду (start|stop|restart): " action
+# 5. Case statement
+read -p "Enter command (start|stop|restart): " action
 
 case $action in
     start)
-        echo "Запускаем сервис..."
+        echo "Starting service..."
         ;;
     stop)
-        echo "Останавливаем сервис..."
+        echo "Stopping service..."
         ;;
     restart)
-        echo "Перезапускаем сервис..."
+        echo "Restarting service..."
         ;;
     *)
-        echo "Неизвестная команда. Используйте: start, stop или restart."
+        echo "Unknown command. Use: start, stop, or restart."
         ;;
 esac
 
-# 6. Циклы
+# 6. Loops
 
-# Цикл for по диапазону
-echo "Считаем до 3:"
+# For loop over a range
+echo "Counting to 3:"
 for i in {1..3}; do
     echo "  $i"
 done
 
-# Цикл while
+# While loop
 counter=0
 while [ $counter -lt 2 ]; do
-    echo "  while: итерация $((counter + 1))"
+    echo "  while: iteration $((counter + 1))"
     ((counter++))
 done
 
-# 7. Массивы
-fruits=("яблоко" "банан" "апельсин")
-echo "Фрукты: ${fruits[0]}, ${fruits[1]}, ${fruits[2]}"
-echo "Всего фруктов: ${#fruits[@]}"
+# 7. Arrays
+fruits=("apple" "banana" "orange")
+echo "Fruits: ${fruits[0]}, ${fruits[1]}, ${fruits[2]}"
+echo "Total fruits: ${#fruits[@]}"
 
-# Вывод всех элементов массива
-echo "Все фрукты: ${fruits[*]}"
+# Print all array elements
+echo "All fruits: ${fruits[*]}"
 
-# 8. Функции
+# 8. Functions
 greet() {
-    local user="$1"  # локальная переменная
-    echo "Привет из функции, $user!"
+    local user="$1"  # local variable
+    echo "Hello from function, $user!"
 }
 greet "$your_name"
 
-# 9. Арифметика
+# 9. Arithmetic
 result=$(( 10 + 5 * 2 ))
 echo "10 + 5 * 2 = $result"
 
-# 10. Проверка существования файла
+# 10. Check if file exists
 if [ -f "./demo.sh" ]; then
-    echo "Файл demo.sh существует."
+    echo "File demo.sh exists."
 else
-    echo "Файл demo.sh не найден (возможно, запущен из другого каталога)."
+    echo "File demo.sh not found (possibly run from a different directory)."
 fi
 
-# 11. Проверка директории
+# 11. Check if directory exists
 if [ -d "/tmp" ]; then
-    echo "Директория /tmp существует."
+    echo "Directory /tmp exists."
 fi
 
-# 12. Выход со статусом
-echo "Скрипт завершён успешно."
+# 12. Exit with status
+echo "Script completed successfully."
 exit 0
 
-#!/bin/bash
+# Additional basic commands section
 
-# 1. Показать содержимое текущей директории в подробном формате
+# 1. List directory contents in long format
 ls -l
 
-# 2. Показать текущий рабочий каталог
+# 2. Print working directory
 pwd
 
-# 4. Создать новую директорию
+# 4. Create a new directory
 mkdir -p test_dir
 
-# 5. Создать пустой файл
+# 5. Create an empty file
 touch file.txt
 
-# 6. Скопировать файл
+# 6. Copy a file
 cp file.txt file_copy.txt
 
-# 7. Переименовать файл
+# 7. Rename a file
 mv file_copy.txt new_name.txt
 
-# 8. Удалить оригинальный файл
+# 8. Remove original file
 rm file.txt
 
-# 9. Вывести информацию о системе
+# 9. Display system information
 cat /etc/os-release
 
-# 10. Вывести сообщение
+# 10. Print a message
 echo "Hello, World!"
 
-# Опционально: убрать созданные файлы и папку после завершения
+# Optional: clean up created files and directory
 # rm -rf test_dir new_name.txt

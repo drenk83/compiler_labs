@@ -8,7 +8,7 @@ typedef struct {
     char var;
 } Polynomial;
 typedef struct {
-    char name; /* 'a'..'z' */
+    char name;
     Polynomial *poly;
     int is_defined;
 } NamedPolynomial;
@@ -34,17 +34,17 @@ typedef struct ASTNode {
     } u;
 } *AST;
 #define MAX_POLYNOMIALS 26  /* a-z */
-Polynomial* poly_from_number(int num);  /* double -> int */
+Polynomial* poly_from_number(int num);
 Polynomial* poly_from_var_power(int power, char v);
 Polynomial* poly_add(Polynomial *a, Polynomial *b);
 Polynomial* poly_subtract(Polynomial *a, Polynomial *b);
 Polynomial* poly_multiply(Polynomial *a, Polynomial *b);
-Polynomial* poly_multiply_scalar(Polynomial *p, int scalar);  /* double -> int */
+Polynomial* poly_multiply_scalar(Polynomial *p, int scalar);
 Polynomial* poly_pow(Polynomial *base, int exp);
 Polynomial* copy_poly(const Polynomial *p);
 void poly_free(Polynomial *p);
 void poly_print(Polynomial *p);
-AST ast_create(ASTType type, AST left, AST right, int num, char var);  /* double -> int */
+AST ast_create(ASTType type, AST left, AST right, int num, char var);
 Polynomial* eval_ast(AST node);
 void ast_free(AST node);
 void trim_poly(Polynomial *p);

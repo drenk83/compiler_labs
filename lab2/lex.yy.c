@@ -747,7 +747,7 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 10 "lex.l"
-{ yylval.num = atoi(yytext); return NUMBER; } /* atof -> atoi */
+{ yylval.num = atoi(yytext); return NUMBER; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP

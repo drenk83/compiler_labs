@@ -7,7 +7,7 @@
 DIGIT [0-9]
 NUMBER {DIGIT}+
 %%
-{NUMBER} { yylval.num = atoi(yytext); return NUMBER; } /* atof -> atoi */
+{NUMBER} { yylval.num = atoi(yytext); return NUMBER; }
 [a-z] { yylval.var = yytext[0]; return VAR; }
 \$[a-z]{1} { yylval.var = yytext[1]; return POLYVAR; }
 "+" { return PLUS; }

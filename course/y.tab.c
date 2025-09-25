@@ -67,19 +67,16 @@
 
 
 /* First part of user prologue.  */
-#line 1 "poly.y"
+#line 1 "pars_bash.y"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "poly.h"
-NamedPolynomial poly_vars[MAX_POLYNOMIALS] = {0};
-extern int yylex();
-extern int yyerror(char *s);
+void yyerror(char *s);
+int yylex(void);
 extern FILE *yyin;
-extern int yylineno;
 
-#line 83 "y.tab.c"
+#line 80 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -123,21 +120,77 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    NUMBER = 258,                  /* NUMBER  */
-    VAR = 259,                     /* VAR  */
-    POLYVAR = 260,                 /* POLYVAR  */
-    PLUS = 261,                    /* PLUS  */
-    MINUS = 262,                   /* MINUS  */
-    TIMES = 263,                   /* TIMES  */
-    POWER = 264,                   /* POWER  */
-    LPAREN = 265,                  /* LPAREN  */
-    RPAREN = 266,                  /* RPAREN  */
-    ASSIGN = 267,                  /* ASSIGN  */
-    PRINT = 268,                   /* PRINT  */
-    EOL = 269,                     /* EOL  */
-    IMPLICIT_MUL = 270,            /* IMPLICIT_MUL  */
-    NEG = 271,                     /* NEG  */
-    UMINUS = 272                   /* UMINUS  */
+    FUNC_DEF = 258,                /* FUNC_DEF  */
+    VAR_ASSIGN_ZERO = 259,         /* VAR_ASSIGN_ZERO  */
+    NUMBER = 260,                  /* NUMBER  */
+    OPTION = 261,                  /* OPTION  */
+    VAR_ASSIGN = 262,              /* VAR_ASSIGN  */
+    STRING_CONTENT = 263,          /* STRING_CONTENT  */
+    IDENT = 264,                   /* IDENT  */
+    GE = 265,                      /* GE  */
+    GT = 266,                      /* GT  */
+    LT = 267,                      /* LT  */
+    IF = 268,                      /* IF  */
+    THEN = 269,                    /* THEN  */
+    ELIF = 270,                    /* ELIF  */
+    ELSE = 271,                    /* ELSE  */
+    FI = 272,                      /* FI  */
+    TIME = 273,                    /* TIME  */
+    FOR = 274,                     /* FOR  */
+    IN = 275,                      /* IN  */
+    UNTIL = 276,                   /* UNTIL  */
+    WHILE = 277,                   /* WHILE  */
+    DO = 278,                      /* DO  */
+    DONE = 279,                    /* DONE  */
+    CASE = 280,                    /* CASE  */
+    ESAC = 281,                    /* ESAC  */
+    COPROC = 282,                  /* COPROC  */
+    SELECT = 283,                  /* SELECT  */
+    FUNCTION = 284,                /* FUNCTION  */
+    READONLY = 285,                /* READONLY  */
+    ECHO = 286,                    /* ECHO  */
+    LOCAL = 287,                   /* LOCAL  */
+    EXIT = 288,                    /* EXIT  */
+    READ = 289,                    /* READ  */
+    DOUBLE_SEMI = 290,             /* DOUBLE_SEMI  */
+    LS = 291,                      /* LS  */
+    PWD = 292,                     /* PWD  */
+    CD = 293,                      /* CD  */
+    MKDIR = 294,                   /* MKDIR  */
+    TOUCH = 295,                   /* TOUCH  */
+    CP = 296,                      /* CP  */
+    MV = 297,                      /* MV  */
+    RM = 298,                      /* RM  */
+    CAT = 299,                     /* CAT  */
+    LBRACE = 300,                  /* LBRACE  */
+    RBRACE = 301,                  /* RBRACE  */
+    LBRACK = 302,                  /* LBRACK  */
+    RBRACK = 303,                  /* RBRACK  */
+    DBL_LBRACK = 304,              /* DBL_LBRACK  */
+    DBL_RBRACK = 305,              /* DBL_RBRACK  */
+    BANG = 306,                    /* BANG  */
+    PIPE = 307,                    /* PIPE  */
+    AMPERSAND = 308,               /* AMPERSAND  */
+    SEMICOLON = 309,               /* SEMICOLON  */
+    LPAREN = 310,                  /* LPAREN  */
+    RPAREN = 311,                  /* RPAREN  */
+    LT_SYM = 312,                  /* LT_SYM  */
+    GT_SYM = 313,                  /* GT_SYM  */
+    DOLLAR = 314,                  /* DOLLAR  */
+    QUOTE = 315,                   /* QUOTE  */
+    ASSIGN = 316,                  /* ASSIGN  */
+    PLUS = 317,                    /* PLUS  */
+    MINUS = 318,                   /* MINUS  */
+    MULT = 319,                    /* MULT  */
+    DIV = 320,                     /* DIV  */
+    DOTDOT = 321,                  /* DOTDOT  */
+    DBL_LPAREN = 322,              /* DBL_LPAREN  */
+    DBL_RPAREN = 323,              /* DBL_RPAREN  */
+    SHEBANG = 324,                 /* SHEBANG  */
+    COMMENT = 325,                 /* COMMENT  */
+    STRING_UNTERMINATED = 326,     /* STRING_UNTERMINATED  */
+    OTHER = 327,                   /* OTHER  */
+    NEWLINE = 328                  /* NEWLINE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -146,33 +199,87 @@ extern int yydebug;
 #define YYEOF 0
 #define YYerror 256
 #define YYUNDEF 257
-#define NUMBER 258
-#define VAR 259
-#define POLYVAR 260
-#define PLUS 261
-#define MINUS 262
-#define TIMES 263
-#define POWER 264
-#define LPAREN 265
-#define RPAREN 266
-#define ASSIGN 267
-#define PRINT 268
-#define EOL 269
-#define IMPLICIT_MUL 270
-#define NEG 271
-#define UMINUS 272
+#define FUNC_DEF 258
+#define VAR_ASSIGN_ZERO 259
+#define NUMBER 260
+#define OPTION 261
+#define VAR_ASSIGN 262
+#define STRING_CONTENT 263
+#define IDENT 264
+#define GE 265
+#define GT 266
+#define LT 267
+#define IF 268
+#define THEN 269
+#define ELIF 270
+#define ELSE 271
+#define FI 272
+#define TIME 273
+#define FOR 274
+#define IN 275
+#define UNTIL 276
+#define WHILE 277
+#define DO 278
+#define DONE 279
+#define CASE 280
+#define ESAC 281
+#define COPROC 282
+#define SELECT 283
+#define FUNCTION 284
+#define READONLY 285
+#define ECHO 286
+#define LOCAL 287
+#define EXIT 288
+#define READ 289
+#define DOUBLE_SEMI 290
+#define LS 291
+#define PWD 292
+#define CD 293
+#define MKDIR 294
+#define TOUCH 295
+#define CP 296
+#define MV 297
+#define RM 298
+#define CAT 299
+#define LBRACE 300
+#define RBRACE 301
+#define LBRACK 302
+#define RBRACK 303
+#define DBL_LBRACK 304
+#define DBL_RBRACK 305
+#define BANG 306
+#define PIPE 307
+#define AMPERSAND 308
+#define SEMICOLON 309
+#define LPAREN 310
+#define RPAREN 311
+#define LT_SYM 312
+#define GT_SYM 313
+#define DOLLAR 314
+#define QUOTE 315
+#define ASSIGN 316
+#define PLUS 317
+#define MINUS 318
+#define MULT 319
+#define DIV 320
+#define DOTDOT 321
+#define DBL_LPAREN 322
+#define DBL_RPAREN 323
+#define SHEBANG 324
+#define COMMENT 325
+#define STRING_UNTERMINATED 326
+#define OTHER 327
+#define NEWLINE 328
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 12 "poly.y"
+#line 9 "pars_bash.y"
 
-    int num;
-    char var;
-    AST ast;
+    char *str;
 
-#line 176 "y.tab.c"
+#line 283 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -195,32 +302,91 @@ enum yysymbol_kind_t
   YYSYMBOL_YYEOF = 0,                      /* "end of file"  */
   YYSYMBOL_YYerror = 1,                    /* error  */
   YYSYMBOL_YYUNDEF = 2,                    /* "invalid token"  */
-  YYSYMBOL_NUMBER = 3,                     /* NUMBER  */
-  YYSYMBOL_VAR = 4,                        /* VAR  */
-  YYSYMBOL_POLYVAR = 5,                    /* POLYVAR  */
-  YYSYMBOL_PLUS = 6,                       /* PLUS  */
-  YYSYMBOL_MINUS = 7,                      /* MINUS  */
-  YYSYMBOL_TIMES = 8,                      /* TIMES  */
-  YYSYMBOL_POWER = 9,                      /* POWER  */
-  YYSYMBOL_LPAREN = 10,                    /* LPAREN  */
-  YYSYMBOL_RPAREN = 11,                    /* RPAREN  */
-  YYSYMBOL_ASSIGN = 12,                    /* ASSIGN  */
-  YYSYMBOL_PRINT = 13,                     /* PRINT  */
-  YYSYMBOL_EOL = 14,                       /* EOL  */
-  YYSYMBOL_IMPLICIT_MUL = 15,              /* IMPLICIT_MUL  */
-  YYSYMBOL_NEG = 16,                       /* NEG  */
-  YYSYMBOL_UMINUS = 17,                    /* UMINUS  */
-  YYSYMBOL_YYACCEPT = 18,                  /* $accept  */
-  YYSYMBOL_program = 19,                   /* program  */
-  YYSYMBOL_statement = 20,                 /* statement  */
-  YYSYMBOL_assignment = 21,                /* assignment  */
-  YYSYMBOL_print_stmt = 22,                /* print_stmt  */
-  YYSYMBOL_expr = 23,                      /* expr  */
-  YYSYMBOL_addexpr = 24,                   /* addexpr  */
-  YYSYMBOL_mulexpr = 25,                   /* mulexpr  */
-  YYSYMBOL_power = 26,                     /* power  */
-  YYSYMBOL_unary = 27,                     /* unary  */
-  YYSYMBOL_primary = 28                    /* primary  */
+  YYSYMBOL_FUNC_DEF = 3,                   /* FUNC_DEF  */
+  YYSYMBOL_VAR_ASSIGN_ZERO = 4,            /* VAR_ASSIGN_ZERO  */
+  YYSYMBOL_NUMBER = 5,                     /* NUMBER  */
+  YYSYMBOL_OPTION = 6,                     /* OPTION  */
+  YYSYMBOL_VAR_ASSIGN = 7,                 /* VAR_ASSIGN  */
+  YYSYMBOL_STRING_CONTENT = 8,             /* STRING_CONTENT  */
+  YYSYMBOL_IDENT = 9,                      /* IDENT  */
+  YYSYMBOL_GE = 10,                        /* GE  */
+  YYSYMBOL_GT = 11,                        /* GT  */
+  YYSYMBOL_LT = 12,                        /* LT  */
+  YYSYMBOL_IF = 13,                        /* IF  */
+  YYSYMBOL_THEN = 14,                      /* THEN  */
+  YYSYMBOL_ELIF = 15,                      /* ELIF  */
+  YYSYMBOL_ELSE = 16,                      /* ELSE  */
+  YYSYMBOL_FI = 17,                        /* FI  */
+  YYSYMBOL_TIME = 18,                      /* TIME  */
+  YYSYMBOL_FOR = 19,                       /* FOR  */
+  YYSYMBOL_IN = 20,                        /* IN  */
+  YYSYMBOL_UNTIL = 21,                     /* UNTIL  */
+  YYSYMBOL_WHILE = 22,                     /* WHILE  */
+  YYSYMBOL_DO = 23,                        /* DO  */
+  YYSYMBOL_DONE = 24,                      /* DONE  */
+  YYSYMBOL_CASE = 25,                      /* CASE  */
+  YYSYMBOL_ESAC = 26,                      /* ESAC  */
+  YYSYMBOL_COPROC = 27,                    /* COPROC  */
+  YYSYMBOL_SELECT = 28,                    /* SELECT  */
+  YYSYMBOL_FUNCTION = 29,                  /* FUNCTION  */
+  YYSYMBOL_READONLY = 30,                  /* READONLY  */
+  YYSYMBOL_ECHO = 31,                      /* ECHO  */
+  YYSYMBOL_LOCAL = 32,                     /* LOCAL  */
+  YYSYMBOL_EXIT = 33,                      /* EXIT  */
+  YYSYMBOL_READ = 34,                      /* READ  */
+  YYSYMBOL_DOUBLE_SEMI = 35,               /* DOUBLE_SEMI  */
+  YYSYMBOL_LS = 36,                        /* LS  */
+  YYSYMBOL_PWD = 37,                       /* PWD  */
+  YYSYMBOL_CD = 38,                        /* CD  */
+  YYSYMBOL_MKDIR = 39,                     /* MKDIR  */
+  YYSYMBOL_TOUCH = 40,                     /* TOUCH  */
+  YYSYMBOL_CP = 41,                        /* CP  */
+  YYSYMBOL_MV = 42,                        /* MV  */
+  YYSYMBOL_RM = 43,                        /* RM  */
+  YYSYMBOL_CAT = 44,                       /* CAT  */
+  YYSYMBOL_LBRACE = 45,                    /* LBRACE  */
+  YYSYMBOL_RBRACE = 46,                    /* RBRACE  */
+  YYSYMBOL_LBRACK = 47,                    /* LBRACK  */
+  YYSYMBOL_RBRACK = 48,                    /* RBRACK  */
+  YYSYMBOL_DBL_LBRACK = 49,                /* DBL_LBRACK  */
+  YYSYMBOL_DBL_RBRACK = 50,                /* DBL_RBRACK  */
+  YYSYMBOL_BANG = 51,                      /* BANG  */
+  YYSYMBOL_PIPE = 52,                      /* PIPE  */
+  YYSYMBOL_AMPERSAND = 53,                 /* AMPERSAND  */
+  YYSYMBOL_SEMICOLON = 54,                 /* SEMICOLON  */
+  YYSYMBOL_LPAREN = 55,                    /* LPAREN  */
+  YYSYMBOL_RPAREN = 56,                    /* RPAREN  */
+  YYSYMBOL_LT_SYM = 57,                    /* LT_SYM  */
+  YYSYMBOL_GT_SYM = 58,                    /* GT_SYM  */
+  YYSYMBOL_DOLLAR = 59,                    /* DOLLAR  */
+  YYSYMBOL_QUOTE = 60,                     /* QUOTE  */
+  YYSYMBOL_ASSIGN = 61,                    /* ASSIGN  */
+  YYSYMBOL_PLUS = 62,                      /* PLUS  */
+  YYSYMBOL_MINUS = 63,                     /* MINUS  */
+  YYSYMBOL_MULT = 64,                      /* MULT  */
+  YYSYMBOL_DIV = 65,                       /* DIV  */
+  YYSYMBOL_DOTDOT = 66,                    /* DOTDOT  */
+  YYSYMBOL_DBL_LPAREN = 67,                /* DBL_LPAREN  */
+  YYSYMBOL_DBL_RPAREN = 68,                /* DBL_RPAREN  */
+  YYSYMBOL_SHEBANG = 69,                   /* SHEBANG  */
+  YYSYMBOL_COMMENT = 70,                   /* COMMENT  */
+  YYSYMBOL_STRING_UNTERMINATED = 71,       /* STRING_UNTERMINATED  */
+  YYSYMBOL_OTHER = 72,                     /* OTHER  */
+  YYSYMBOL_NEWLINE = 73,                   /* NEWLINE  */
+  YYSYMBOL_YYACCEPT = 74,                  /* $accept  */
+  YYSYMBOL_script = 75,                    /* script  */
+  YYSYMBOL_opt_sep = 76,                   /* opt_sep  */
+  YYSYMBOL_sep = 77,                       /* sep  */
+  YYSYMBOL_commands = 78,                  /* commands  */
+  YYSYMBOL_command = 79,                   /* command  */
+  YYSYMBOL_simple_command = 80,            /* simple_command  */
+  YYSYMBOL_assignment = 81,                /* assignment  */
+  YYSYMBOL_value = 82,                     /* value  */
+  YYSYMBOL_string = 83,                    /* string  */
+  YYSYMBOL_var_ref = 84,                   /* var_ref  */
+  YYSYMBOL_if_stmt = 85,                   /* if_stmt  */
+  YYSYMBOL_condition = 86,                 /* condition  */
+  YYSYMBOL_op = 87                         /* op  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -546,21 +712,21 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  2
+#define YYFINAL  5
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   35
+#define YYLAST   104
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  18
+#define YYNTOKENS  74
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  11
+#define YYNNTS  14
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  25
+#define YYNRULES  28
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  36
+#define YYNSTATES  73
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   272
+#define YYMAXUTOK   328
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -601,16 +767,21 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+      25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
+      55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
+      65,    66,    67,    68,    69,    70,    71,    72,    73
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_int8 yyrline[] =
+static const yytype_uint8 yyrline[] =
 {
-       0,    28,    28,    29,    30,    31,    33,    34,    35,    44,
-      57,    66,    68,    69,    70,    72,    73,    74,    76,    77,
-      79,    80,    82,    83,    84,    85
+       0,    88,    88,    90,    91,    93,    95,    96,    98,    99,
+     100,   101,   102,   104,   106,   107,   108,   109,   111,   112,
+     113,   115,   116,   118,   120,   125,   127,   128,   129
 };
 #endif
 
@@ -626,11 +797,19 @@ static const char *yysymbol_name (yysymbol_kind_t yysymbol) YY_ATTRIBUTE_UNUSED;
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "\"end of file\"", "error", "\"invalid token\"", "NUMBER", "VAR",
-  "POLYVAR", "PLUS", "MINUS", "TIMES", "POWER", "LPAREN", "RPAREN",
-  "ASSIGN", "PRINT", "EOL", "IMPLICIT_MUL", "NEG", "UMINUS", "$accept",
-  "program", "statement", "assignment", "print_stmt", "expr", "addexpr",
-  "mulexpr", "power", "unary", "primary", YY_NULLPTR
+  "\"end of file\"", "error", "\"invalid token\"", "FUNC_DEF",
+  "VAR_ASSIGN_ZERO", "NUMBER", "OPTION", "VAR_ASSIGN", "STRING_CONTENT",
+  "IDENT", "GE", "GT", "LT", "IF", "THEN", "ELIF", "ELSE", "FI", "TIME",
+  "FOR", "IN", "UNTIL", "WHILE", "DO", "DONE", "CASE", "ESAC", "COPROC",
+  "SELECT", "FUNCTION", "READONLY", "ECHO", "LOCAL", "EXIT", "READ",
+  "DOUBLE_SEMI", "LS", "PWD", "CD", "MKDIR", "TOUCH", "CP", "MV", "RM",
+  "CAT", "LBRACE", "RBRACE", "LBRACK", "RBRACK", "DBL_LBRACK",
+  "DBL_RBRACK", "BANG", "PIPE", "AMPERSAND", "SEMICOLON", "LPAREN",
+  "RPAREN", "LT_SYM", "GT_SYM", "DOLLAR", "QUOTE", "ASSIGN", "PLUS",
+  "MINUS", "MULT", "DIV", "DOTDOT", "DBL_LPAREN", "DBL_RPAREN", "SHEBANG",
+  "COMMENT", "STRING_UNTERMINATED", "OTHER", "NEWLINE", "$accept",
+  "script", "opt_sep", "sep", "commands", "command", "simple_command",
+  "assignment", "value", "string", "var_ref", "if_stmt", "condition", "op", YY_NULLPTR
 };
 
 static const char *
@@ -640,12 +819,12 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-10)
+#define YYPACT_NINF (-69)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF (-1)
+#define YYTABLE_NINF (-7)
 
 #define yytable_value_is_error(Yyn) \
   0
@@ -654,10 +833,14 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -10,     1,   -10,   -10,   -10,    -5,    15,    15,    15,   -10,
-      17,   -10,   -10,   -10,    -4,    25,   -10,    23,   -10,    15,
-     -10,   -10,    -1,   -10,   -10,    15,    15,    15,   -10,    15,
-     -10,   -10,    25,    25,   -10,   -10
+     -68,   -69,     8,     0,   -68,   -69,   -68,   -69,     6,   -68,
+      10,    -7,    16,   -69,   -68,   -68,   -69,   -69,   -69,   -69,
+     -69,   -69,   -69,    17,    19,   -69,   -69,   -69,   -33,   -32,
+     -69,   -28,   -69,     0,   -69,   -26,    -7,   -68,     6,     6,
+     -69,   -69,    11,   -15,   -69,   -69,   -69,   -69,   -69,    36,
+     -68,    -6,    30,   -69,   -68,     5,   -68,    31,   -68,   -33,
+     -68,    -9,   -68,    33,   -68,     5,   -68,    35,   -68,     5,
+     -68,    37,   -69
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -665,24 +848,28 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       2,     0,     1,    22,    23,    24,     0,     0,     0,     5,
-       3,     6,     7,     8,    11,    12,    15,    18,    20,     0,
-      24,    21,     0,    10,     4,     0,     0,     0,    17,     0,
-       9,    25,    13,    14,    16,    19
+       3,     5,     0,     0,     3,     1,     3,    15,     0,     3,
+       0,     0,     0,    10,     3,     3,     8,     9,    11,     4,
+      12,    18,    22,     0,     0,    14,    19,    20,     0,     0,
+      13,     0,     2,     0,    23,     0,     0,     3,     0,     0,
+       7,    21,     0,     0,    16,    17,    26,    27,    28,     0,
+       3,     0,     0,    25,     3,     0,     3,     0,     3,     0,
+       3,     0,     3,     0,     3,     0,     3,     0,     3,     0,
+       3,     0,    24
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -10,   -10,   -10,   -10,   -10,     5,   -10,    -9,    -6,   -10,
-     -10
+     -69,   -69,    34,   -69,    22,   -45,   -69,   -69,   -22,    -8,
+     -69,   -69,    -3,   -69
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     1,    10,    11,    12,    13,    14,    15,    16,    17,
-      18
+       0,     2,     3,     4,    14,    15,    16,    17,    25,    26,
+      27,    18,    37,    49
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -690,44 +877,62 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      21,     2,    25,    26,     3,     4,     5,    19,     6,    28,
-      31,     7,    22,    23,     8,     9,    32,    33,     3,     4,
-      20,    34,     6,    35,    30,     7,    28,    28,     3,     4,
-      20,    24,    29,    27,     0,     7
+      -6,     6,    22,    30,     7,     1,     6,     8,     5,     7,
+      56,    21,     8,     9,    36,    22,    44,    45,     9,    29,
+      66,    46,    47,    48,    70,    31,    34,    35,    42,    38,
+      10,    11,    12,    39,    41,    10,    11,    12,    19,    50,
+      20,    51,    53,    28,    54,    62,    58,    64,    32,    33,
+       0,    68,     0,    24,    72,    40,    60,     0,     0,     0,
+       0,     0,     0,     0,     0,    23,    24,     0,     0,    13,
+       0,    43,     0,    -6,    13,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,    52,     0,     0,     0,    55,     0,
+      57,     0,    59,     0,    61,     0,    63,     0,    65,     0,
+      67,     0,    69,     0,    71
 };
 
 static const yytype_int8 yycheck[] =
 {
-       6,     0,     6,     7,     3,     4,     5,    12,     7,    15,
-      11,    10,     7,     8,    13,    14,    25,    26,     3,     4,
-       5,    27,     7,    29,    19,    10,    32,    33,     3,     4,
-       5,    14,     9,     8,    -1,    10
+       0,     1,     9,    11,     4,    73,     1,     7,     0,     4,
+      55,     5,     7,    13,    47,     9,    38,    39,    13,     9,
+      65,    10,    11,    12,    69,     9,     9,     8,    36,    61,
+      30,    31,    32,    61,    60,    30,    31,    32,     4,    54,
+       6,     5,    48,     9,    14,    54,    15,    14,    14,    15,
+      -1,    16,    -1,    60,    17,    33,    59,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    59,    60,    -1,    -1,    69,
+      -1,    37,    -1,    73,    69,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    50,    -1,    -1,    -1,    54,    -1,
+      56,    -1,    58,    -1,    60,    -1,    62,    -1,    64,    -1,
+      66,    -1,    68,    -1,    70
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    19,     0,     3,     4,     5,     7,    10,    13,    14,
-      20,    21,    22,    23,    24,    25,    26,    27,    28,    12,
-       5,    26,    23,    23,    14,     6,     7,     8,    26,     9,
-      23,    11,    25,    25,    26,    26
+       0,    73,    75,    76,    77,     0,     1,     4,     7,    13,
+      30,    31,    32,    69,    78,    79,    80,    81,    85,    76,
+      76,     5,     9,    59,    60,    82,    83,    84,    76,     9,
+      83,     9,    76,    76,     9,     8,    47,    86,    61,    61,
+      78,    60,    83,    76,    82,    82,    10,    11,    12,    87,
+      54,     5,    76,    48,    14,    76,    79,    76,    15,    76,
+      86,    76,    54,    76,    14,    76,    79,    76,    16,    76,
+      79,    76,    17
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    18,    19,    19,    19,    19,    20,    20,    20,    21,
-      22,    23,    24,    24,    24,    25,    25,    25,    26,    26,
-      27,    27,    28,    28,    28,    28
+       0,    74,    75,    76,    76,    77,    78,    78,    79,    79,
+      79,    79,    79,    80,    81,    81,    81,    81,    82,    82,
+      82,    83,    83,    84,    85,    86,    87,    87,    87
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     0,     2,     3,     2,     1,     1,     1,     3,
-       2,     1,     1,     3,     3,     1,     3,     2,     1,     3,
-       1,     2,     1,     1,     1,     3
+       0,     2,     3,     0,     2,     1,     0,     3,     1,     1,
+       1,     1,     2,     2,     2,     1,     4,     4,     1,     1,
+       1,     3,     1,     2,    25,     5,     1,     1,     1
 };
 
 
@@ -1190,141 +1395,134 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 8: /* statement: expr  */
-#line 35 "poly.y"
-                {
-             Polynomial *p = eval_ast((yyvsp[0].ast));
-             if (p) {
-                 poly_print(p);
-                 poly_free(p);
-             }
-             ast_free((yyvsp[0].ast));
-           }
-#line 1204 "y.tab.c"
+  case 8: /* command: simple_command  */
+#line 98 "pars_bash.y"
+                        { free((yyvsp[0].str)); }
+#line 1402 "y.tab.c"
     break;
 
-  case 9: /* assignment: POLYVAR ASSIGN expr  */
-#line 44 "poly.y"
-                                {
-             char name = (yyvsp[-2].var);
-             int idx = name - 'a';
-             Polynomial *newp = eval_ast((yyvsp[0].ast));
-             if (newp) {
-                 if (poly_vars[idx].poly) poly_free(poly_vars[idx].poly);
-                 poly_vars[idx].poly = newp;
-                 poly_vars[idx].is_defined = 1;
-                 poly_vars[idx].name = name;
-             }
-             ast_free((yyvsp[0].ast));
-           }
-#line 1221 "y.tab.c"
+  case 9: /* command: assignment  */
+#line 99 "pars_bash.y"
+                    { free((yyvsp[0].str)); }
+#line 1408 "y.tab.c"
     break;
 
-  case 10: /* print_stmt: PRINT expr  */
-#line 57 "poly.y"
-                       {
-             Polynomial *p = eval_ast((yyvsp[0].ast));
-             if (p) {
-                 poly_print(p);
-                 poly_free(p);
-             }
-             ast_free((yyvsp[0].ast));
-           }
-#line 1234 "y.tab.c"
+  case 10: /* command: SHEBANG  */
+#line 100 "pars_bash.y"
+                 { }
+#line 1414 "y.tab.c"
     break;
 
-  case 11: /* expr: addexpr  */
-#line 66 "poly.y"
-              { (yyval.ast) = (yyvsp[0].ast); }
-#line 1240 "y.tab.c"
+  case 11: /* command: if_stmt  */
+#line 101 "pars_bash.y"
+                 { free((yyvsp[0].str)); }
+#line 1420 "y.tab.c"
     break;
 
-  case 12: /* addexpr: mulexpr  */
-#line 68 "poly.y"
-                           { (yyval.ast) = (yyvsp[0].ast); }
-#line 1246 "y.tab.c"
+  case 12: /* command: error opt_sep  */
+#line 102 "pars_bash.y"
+                       { yyerrok; }
+#line 1426 "y.tab.c"
     break;
 
-  case 13: /* addexpr: addexpr PLUS mulexpr  */
-#line 69 "poly.y"
-                              { (yyval.ast) = ast_create(AST_ADD, (yyvsp[-2].ast), (yyvsp[0].ast), 0, '\0'); }
-#line 1252 "y.tab.c"
+  case 13: /* simple_command: ECHO string  */
+#line 104 "pars_bash.y"
+                            { (yyval.str) = strdup("echo"); free((yyvsp[0].str)); }
+#line 1432 "y.tab.c"
     break;
 
-  case 14: /* addexpr: addexpr MINUS mulexpr  */
-#line 70 "poly.y"
-                               { (yyval.ast) = ast_create(AST_SUB, (yyvsp[-2].ast), (yyvsp[0].ast), 0, '\0'); }
-#line 1258 "y.tab.c"
+  case 14: /* assignment: VAR_ASSIGN value  */
+#line 106 "pars_bash.y"
+                             { (yyval.str) = (yyvsp[-1].str); free((yyvsp[0].str)); }
+#line 1438 "y.tab.c"
     break;
 
-  case 15: /* mulexpr: power  */
-#line 72 "poly.y"
-               { (yyval.ast) = (yyvsp[0].ast); }
-#line 1264 "y.tab.c"
+  case 15: /* assignment: VAR_ASSIGN_ZERO  */
+#line 107 "pars_bash.y"
+                            { (yyval.str) = (yyvsp[0].str); }
+#line 1444 "y.tab.c"
     break;
 
-  case 16: /* mulexpr: mulexpr TIMES power  */
-#line 73 "poly.y"
-                             { (yyval.ast) = ast_create(AST_MUL, (yyvsp[-2].ast), (yyvsp[0].ast), 0, '\0'); }
-#line 1270 "y.tab.c"
+  case 16: /* assignment: READONLY IDENT ASSIGN value  */
+#line 108 "pars_bash.y"
+                                        { (yyval.str) = (yyvsp[-2].str); free((yyvsp[0].str)); }
+#line 1450 "y.tab.c"
     break;
 
-  case 17: /* mulexpr: mulexpr power  */
-#line 74 "poly.y"
-                                          { (yyval.ast) = ast_create(AST_MUL, (yyvsp[-1].ast), (yyvsp[0].ast), 0, '\0'); }
-#line 1276 "y.tab.c"
+  case 17: /* assignment: LOCAL IDENT ASSIGN value  */
+#line 109 "pars_bash.y"
+                                     { (yyval.str) = (yyvsp[-2].str); free((yyvsp[0].str)); }
+#line 1456 "y.tab.c"
     break;
 
-  case 18: /* power: unary  */
-#line 76 "poly.y"
-                         { (yyval.ast) = (yyvsp[0].ast); }
-#line 1282 "y.tab.c"
+  case 18: /* value: NUMBER  */
+#line 111 "pars_bash.y"
+              { (yyval.str) = (yyvsp[0].str); }
+#line 1462 "y.tab.c"
     break;
 
-  case 19: /* power: unary POWER power  */
-#line 77 "poly.y"
-                         { (yyval.ast) = ast_create(AST_POW, (yyvsp[-2].ast), (yyvsp[0].ast), 0, '\0'); }
-#line 1288 "y.tab.c"
+  case 19: /* value: string  */
+#line 112 "pars_bash.y"
+              { (yyval.str) = (yyvsp[0].str); }
+#line 1468 "y.tab.c"
     break;
 
-  case 20: /* unary: primary  */
-#line 79 "poly.y"
-               { (yyval.ast) = (yyvsp[0].ast); }
-#line 1294 "y.tab.c"
+  case 20: /* value: var_ref  */
+#line 113 "pars_bash.y"
+               { (yyval.str) = (yyvsp[0].str); }
+#line 1474 "y.tab.c"
     break;
 
-  case 21: /* unary: MINUS power  */
-#line 80 "poly.y"
-                                { (yyval.ast) = ast_create(AST_UMINUS, (yyvsp[0].ast), NULL, 0, '\0'); }
-#line 1300 "y.tab.c"
+  case 21: /* string: QUOTE STRING_CONTENT QUOTE  */
+#line 115 "pars_bash.y"
+                                   { (yyval.str) = (yyvsp[-1].str); }
+#line 1480 "y.tab.c"
     break;
 
-  case 22: /* primary: NUMBER  */
-#line 82 "poly.y"
-                { (yyval.ast) = ast_create(AST_NUM, NULL, NULL, (yyvsp[0].num), '\0'); }
-#line 1306 "y.tab.c"
+  case 22: /* string: IDENT  */
+#line 116 "pars_bash.y"
+              { (yyval.str) = (yyvsp[0].str); }
+#line 1486 "y.tab.c"
     break;
 
-  case 23: /* primary: VAR  */
-#line 83 "poly.y"
-             { (yyval.ast) = ast_create(AST_VAR, NULL, NULL, 0, (yyvsp[0].var)); }
-#line 1312 "y.tab.c"
+  case 23: /* var_ref: DOLLAR IDENT  */
+#line 118 "pars_bash.y"
+                      { char buf[256]; snprintf(buf, sizeof(buf), "$%s", (yyvsp[0].str)); (yyval.str) = strdup(buf); free((yyvsp[0].str)); }
+#line 1492 "y.tab.c"
     break;
 
-  case 24: /* primary: POLYVAR  */
-#line 84 "poly.y"
-                 { (yyval.ast) = ast_create(AST_POLYVAR, NULL, NULL, 0, (yyvsp[0].var)); }
-#line 1318 "y.tab.c"
+  case 24: /* if_stmt: IF opt_sep condition opt_sep SEMICOLON opt_sep THEN opt_sep command opt_sep ELIF opt_sep condition opt_sep SEMICOLON opt_sep THEN opt_sep command opt_sep ELSE opt_sep command opt_sep FI  */
+#line 123 "pars_bash.y"
+       { (yyval.str) = strdup("if"); }
+#line 1498 "y.tab.c"
     break;
 
-  case 25: /* primary: LPAREN expr RPAREN  */
-#line 85 "poly.y"
-                            { (yyval.ast) = (yyvsp[-1].ast); }
-#line 1324 "y.tab.c"
+  case 25: /* condition: LBRACK string op NUMBER RBRACK  */
+#line 125 "pars_bash.y"
+                                          { free((yyvsp[-3].str)); free((yyvsp[-2].str)); }
+#line 1504 "y.tab.c"
+    break;
+
+  case 26: /* op: GE  */
+#line 127 "pars_bash.y"
+       { (yyval.str) = (yyvsp[0].str); }
+#line 1510 "y.tab.c"
+    break;
+
+  case 27: /* op: GT  */
+#line 128 "pars_bash.y"
+       { (yyval.str) = (yyvsp[0].str); }
+#line 1516 "y.tab.c"
+    break;
+
+  case 28: /* op: LT  */
+#line 129 "pars_bash.y"
+       { (yyval.str) = (yyvsp[0].str); }
+#line 1522 "y.tab.c"
     break;
 
 
-#line 1328 "y.tab.c"
+#line 1526 "y.tab.c"
 
       default: break;
     }
@@ -1517,263 +1715,25 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 87 "poly.y"
+#line 131 "pars_bash.y"
 
-int yyerror(char *s) {
-    fprintf(stderr, "[SYN] Line %d: %s\n", yylineno, s);
-    return 0;
+void yyerror(char *s) {
+    fprintf(stderr, "Parse error: %s\n", s);
 }
 int main(int argc, char **argv) {
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
-        return 1;
+        exit(1);
     }
-    yyin = fopen(argv[1], "r");
-    if (!yyin) {
+    FILE *input_file = fopen(argv[1], "r");
+    if (!input_file) {
         perror("fopen");
-        return 1;
+        exit(1);
     }
- 
-    yyparse();
-    fclose(yyin);
-    /* Cleanup */
-    for (int i = 0; i < MAX_POLYNOMIALS; i++) {
-        if (poly_vars[i].poly) poly_free(poly_vars[i].poly);
+    yyin = input_file;
+    if (yyparse() == 0) {
+        printf("Syntax OK\n");
     }
+    fclose(input_file);
     return 0;
-}
-/* AST functions */
-AST ast_create(ASTType type, AST left, AST right, int num, char var) {
-    AST node = malloc(sizeof(struct ASTNode));
-    node->type = type;
-    node->line = yylineno;
-    node->left = left;
-    node->right = right;
-    switch(type) {
-        case AST_NUM: node->u.num = num; break;
-        case AST_VAR: node->u.var_name = var; break;
-        case AST_POLYVAR: node->u.poly_name = var; break;
-    }
-    return node;
-}
-void ast_free(AST node) {
-    if (!node) return;
-    ast_free(node->left);
-    ast_free(node->right);
-    free(node);
-}
-void trim_poly(Polynomial *p) {
-    if (!p || p->degree < 0) return;
-    while (p->degree > 0 && p->coeffs[p->degree] == 0) {
-        p->degree--;
-    }
-    if (p->degree == 0 && p->coeffs[0] == 0) {
-        p->degree = -1;
-    }
-    if (p->degree <= 0) p->var = '\0';
-}
-/* Helper for binary operations */
-static Polynomial* eval_binary_op(AST node, Polynomial* (*op)(Polynomial*, Polynomial*)) {
-    Polynomial *a = eval_ast(node->left);
-    if (!a) a = poly_from_number(0);
-    Polynomial *b = eval_ast(node->right);
-    if (!b) b = poly_from_number(0);
-    if (a->var != '\0' && b->var != '\0' && a->var != b->var) {
-        fprintf(stderr, "[SEM] Line %d: Cannot perform operation on polynomials with different variables '%c' and '%c'\n", node->line, a->var, b->var);
-        poly_free(a);
-        poly_free(b);
-        return poly_from_number(0);
-    }
-    Polynomial *res = op(a, b);
-    res->var = (a->var != '\0') ? a->var : b->var;
-    poly_free(a);
-    poly_free(b);
-    trim_poly(res);
-    return res;
-}
-/* Eval AST to Polynomial */
-Polynomial* eval_ast(AST node) {
-    if (!node) return NULL;
-    switch (node->type) {
-        case AST_NUM:
-            return poly_from_number(node->u.num);
-        case AST_VAR:
-            return poly_from_var_power(1, node->u.var_name);
-        case AST_POLYVAR: {
-            char name = node->u.poly_name;
-            int idx = name - 'a';
-            if (idx < 0 || idx >= MAX_POLYNOMIALS || !poly_vars[idx].is_defined || poly_vars[idx].name != name) {
-                fprintf(stderr, "[SEM] Line %d: Undefined polynomial '%c'\n", node->line, name);
-                return poly_from_number(0);
-            }
-            return copy_poly(poly_vars[idx].poly);
-        }
-        case AST_ADD:
-            return eval_binary_op(node, poly_add);
-        case AST_SUB:
-            return eval_binary_op(node, poly_subtract);
-        case AST_MUL:
-            return eval_binary_op(node, poly_multiply);
-        case AST_POW: {
-            Polynomial *base = eval_ast(node->left);
-            if (!base) return NULL;
-            Polynomial *exp_poly = eval_ast(node->right);
-            if (!exp_poly) {
-                poly_free(base);
-                return NULL;
-            }
-            if (exp_poly->degree != 0 || exp_poly->var != '\0') {
-                fprintf(stderr, "[SEM] Line %d: Exponent must be constant polynomial\n", node->line);
-                poly_free(base);
-                poly_free(exp_poly);
-                return poly_from_number(0);
-            }
-            int exp = exp_poly->coeffs[0];
-            poly_free(exp_poly);
-            if (exp < 0) {
-                fprintf(stderr, "[SEM] Line %d: Power must be non-negative integer, got %d\n",
-                        node->line, exp);
-                poly_free(base);
-                return poly_from_number(0);
-            }
-            Polynomial *res = poly_pow(base, exp);
-            poly_free(base);
-            trim_poly(res);
-            return res;
-        }
-        case AST_UMINUS: {
-            Polynomial *c = eval_ast(node->left);
-            Polynomial *res = poly_multiply_scalar(c, -1);
-            poly_free(c);
-            trim_poly(res);
-            return res;
-        }
-        default:
-            fprintf(stderr, "[SEM] Line %d: Unknown AST type\n", node->line);
-            return poly_from_number(0);
-    }
-}
-/* Poly functions (updated with trim) */
-Polynomial* poly_from_number(int num) {
-    Polynomial *p = (Polynomial *)malloc(sizeof(Polynomial));
-    p->coeffs = (int*)calloc(1, sizeof(int));
-    p->coeffs[0] = num;
-    p->degree = (num != 0) ? 0 : -1;
-    p->capacity = 1;
-    p->var = '\0';
-    return p;
-}
-Polynomial* poly_from_var_power(int power, char v) {
-    Polynomial *p = (Polynomial *)malloc(sizeof(Polynomial));
-    p->capacity = power + 1;
-    p->coeffs = (int*)calloc(p->capacity, sizeof(int));
-    p->coeffs[power] = 1;
-    p->degree = power;
-    p->var = v;
-    return p;
-}
-Polynomial* poly_add(Polynomial *a, Polynomial *b) {
-    int adeg = a->degree < 0 ? -1 : a->degree;
-    int bdeg = b->degree < 0 ? -1 : b->degree;
-    int max_degree = (adeg > bdeg) ? adeg : bdeg;
-    if (max_degree < 0) {
-        return poly_from_number(0);
-    }
-    Polynomial *result = malloc(sizeof(Polynomial));
-    result->capacity = max_degree + 1;
-    result->coeffs = calloc(result->capacity, sizeof(int));
-    result->degree = max_degree;
-    for (int i = 0; i <= max_degree; i++) {
-        int ca = (adeg >= 0 && i <= adeg) ? a->coeffs[i] : 0;
-        int cb = (bdeg >= 0 && i <= bdeg) ? b->coeffs[i] : 0;
-        result->coeffs[i] = ca + cb;
-    }
-    result->var = (a->var != '\0') ? a->var : b->var;
-    trim_poly(result);
-    return result;
-}
-Polynomial* poly_subtract(Polynomial *a, Polynomial *b) {
-    Polynomial *neg_b = poly_multiply_scalar(b, -1);
-    Polynomial *result = poly_add(a, neg_b);
-    result->var = (a->var != '\0') ? a->var : b->var;
-    poly_free(neg_b);
-    return result;
-}
-Polynomial* poly_multiply(Polynomial *a, Polynomial *b) {
-    if (a->degree < 0 || b->degree < 0) {
-        return poly_from_number(0);
-    }
-    int new_degree = a->degree + b->degree;
-    Polynomial *result = malloc(sizeof(Polynomial));
-    result->capacity = new_degree + 1;
-    result->coeffs = calloc(result->capacity, sizeof(int));
-    for (int i = 0; i <= a->degree; i++) {
-        for (int j = 0; j <= b->degree; j++) {
-            result->coeffs[i + j] += a->coeffs[i] * b->coeffs[j];
-        }
-    }
-    result->degree = new_degree;
-    result->var = (a->var != '\0') ? a->var : b->var;
-    trim_poly(result);
-    return result;
-}
-Polynomial* poly_multiply_scalar(Polynomial *p, int scalar) {
-    if (p->degree < 0) {
-        return poly_from_number(0);
-    }
-    Polynomial *result = (Polynomial *)malloc(sizeof(Polynomial));
-    result->capacity = p->capacity;
-    result->coeffs = (int*)calloc(result->capacity, sizeof(int));
-    result->degree = p->degree;
-    for (int i = 0; i <= p->degree; i++) {
-        result->coeffs[i] = p->coeffs[i] * scalar;
-    }
-    result->var = p->var;
-    trim_poly(result);
-    return result;
-}
-Polynomial* poly_pow(Polynomial *base, int exp) {
-    if (exp == 0) return poly_from_number(1);
-    Polynomial *res = poly_from_number(1);
-    for (int i = 0; i < exp; i++) {
-        Polynomial *tmp = poly_multiply(res, base);
-        poly_free(res);
-        res = tmp;
-    }
-    res->var = base->var;
-    trim_poly(res);
-    return res;
-}
-Polynomial* copy_poly(const Polynomial *p) {
-    if (!p || p->degree < 0) return poly_from_number(0);
-    Polynomial *c = malloc(sizeof(Polynomial));
-    c->degree = p->degree;
-    c->capacity = p->capacity;
-    c->var = p->var;
-    c->coeffs = malloc(p->capacity * sizeof(int));
-    memcpy(c->coeffs, p->coeffs, p->capacity * sizeof(int));
-    return c;
-}
-void poly_free(Polynomial *p) {
-    if (p) {
-        free(p->coeffs);
-        free(p);
-    }
-}
-void poly_print(Polynomial *p) {
-    if (!p || p->degree < 0) { printf("0\n"); return; }
-    int printed = 0;
-    for (int i = p->degree; i >= 0; i--) {
-        int coef = p->coeffs[i];
-        if (coef == 0) continue;
-        if (printed) printf(coef > 0 ? " + " : " - ");
-        else if (coef < 0) printf("-");
-        printed = 1;
-        int c = abs(coef);
-        if (i == 0 || c != 1) printf("%d", c);
-        if (i > 0 && p->var != '\0') printf("%c", p->var);
-        if (i > 1) printf("^%d", i);
-    }
-    if (!printed) printf("0");
-    printf("\n");
 }

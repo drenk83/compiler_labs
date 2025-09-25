@@ -2,103 +2,86 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "y.tab.h" /* Для токенов из Bison */
 int yylex(void);
 void yyerror(char *s);
-
 extern FILE *yyin;
 extern char *yytext;
 %}
-
 %option noyywrap
-
 %x STRING
-
 /* Reserved words */
-IF      "if"
-THEN    "then"
-ELIF    "elif"
-ELSE    "else"
-FI      "fi"
-TIME    "time"
-FOR     "for"
-IN      "in"
-UNTIL   "until"
-WHILE   "while"
-DO      "do"
-DONE    "done"
-CASE    "case"
-ESAC    "esac"
-COPROC  "coproc"
-SELECT  "select"
+IF "if"
+THEN "then"
+ELIF "elif"
+ELSE "else"
+FI "fi"
+TIME "time"
+FOR "for"
+IN "in"
+UNTIL "until"
+WHILE "while"
+DO "do"
+DONE "done"
+CASE "case"
+ESAC "esac"
+COPROC "coproc"
+SELECT "select"
 FUNCTION "function"
 READONLY "readonly"
-ECHO    "echo"
-LOCAL   "local"
-EXIT    "exit"
-READ    "read"
-
+ECHO "echo"
+LOCAL "local"
+EXIT "exit"
+READ "read"
 /* Reserved commands */
-LS      "ls"
-PWD     "pwd"
-CD      "cd"
-MKDIR   "mkdir"
-TOUCH   "touch"
-CP      "cp"
-MV      "mv"
-RM      "rm"
-CAT     "cat"
-
+LS "ls"
+PWD "pwd"
+CD "cd"
+MKDIR "mkdir"
+TOUCH "touch"
+CP "cp"
+MV "mv"
+RM "rm"
+CAT "cat"
 /* Test operators */
-GE      "-ge"
-GT      "-gt"
-LT      "-lt"
-
+GE "-ge"
+GT "-gt"
+LT "-lt"
 /* Symbols */
-LBRACE  "{"
-RBRACE  "}"
-LBRACK  "["
-RBRACK  "]"
-DBL_LBRACK  "[["
-DBL_RBRACK  "]]"
-BANG    "!"
-PIPE    "|"
+LBRACE "{"
+RBRACE "}"
+LBRACK "["
+RBRACK "]"
+DBL_LBRACK "[["
+DBL_RBRACK "]]"
+BANG "!"
+PIPE "|"
 AMPERSAND "&"
 SEMICOLON ";"
-LPAREN  "("
-RPAREN  ")"
-LT_SYM  "<"
-GT_SYM  ">"
-DOLLAR  "$"
-QUOTE   "\""
-ASSIGN  "="
-PLUS    "+"
-MINUS   "-"
-MULT    "\*"
-DIV     "/"
-DOTDOT  ".."
-DBL_LPAREN  "(("
-DBL_RPAREN  "))"
-
+LPAREN "("
+RPAREN ")"
+LT_SYM "<"
+GT_SYM ">"
+DOLLAR "$"
+QUOTE "\""
+ASSIGN "="
+PLUS "+"
+MINUS "-"
+MULT "\*"
+DIV "/"
+DOTDOT ".."
+DBL_LPAREN "(("
+DBL_RPAREN "))"
 /* Case-specific */
 DOUBLE_SEMI ";;"
-
 /* Variable assignment pattern (explicit to avoid subpattern issues) */
 VAR_ASSIGN [a-zA-Z_][a-zA-Z0-9_]*=
 /* Special for var=0 */
 VAR_ASSIGN_ZERO [a-zA-Z_][a-zA-Z0-9_]*=0
 /* Function definition: name() { (no spaces) */
 FUNC_DEF [a-zA-Z_][a-zA-Z0-9_]*\(\)
-
-/* Paths */
-PATH    "/?[a-zA-Z0-9_/.-]+"
-
 /* Options */
-OPTION  "-[a-z]+"
-
-/* Commands */
-COMMAND [a-zA-Z_][a-zA-Z0-9_-]*
-
+OPTION "-[a-z]+"
 /* Shebang */
 SHEBANG "#!/bin/bash"
 /* Comment */
@@ -108,105 +91,81 @@ NUMBER [0-9][0-9]*(\.[0-9]+)?([eE][+-]?[0-9]+)?
 /* String content (simple, non-escaped) */
 STR_CONTENT [^\n\"]+
 /* Other patterns: whitespace and identifiers/other chars */
-IDENT [a-zA-Z_][a-zA-Z0-9_]*
-WS [ \t\n\r\u00A0]+
+IDENT [a-zA-Z_\/][a-zA-Z0-9_\/.-]*
+WS [ \t\r\u00A0]+
 OTHER .
-
 %%
-
-{FUNC_DEF} { printf("TOKEN: FUNC_DEF (%s)\n", yytext); }
-{VAR_ASSIGN_ZERO} { printf("TOKEN: VAR_ASSIGN_ZERO (%s)\n", yytext); }
-{NUMBER} { printf("TOKEN: NUMBER (%s)\n", yytext); }
-{IF} { printf("TOKEN: IF\n"); }
-{THEN} { printf("TOKEN: THEN\n"); }
-{ELIF} { printf("TOKEN: ELIF\n"); }
-{ELSE} { printf("TOKEN: ELSE\n"); }
-{FI} { printf("TOKEN: FI\n"); }
-{TIME} { printf("TOKEN: TIME\n"); }
-{FOR} { printf("TOKEN: FOR\n"); }
-{IN} { printf("TOKEN: IN\n"); }
-{UNTIL} { printf("TOKEN: UNTIL\n"); }
-{WHILE} { printf("TOKEN: WHILE\n"); }
-{DO} { printf("TOKEN: DO\n"); }
-{DONE} { printf("TOKEN: DONE\n"); }
-{CASE} { printf("TOKEN: CASE\n"); }
-{ESAC} { printf("TOKEN: ESAC\n"); }
-{COPROC} { printf("TOKEN: COPROC\n"); }
-{SELECT} { printf("TOKEN: SELECT\n"); }
-{FUNCTION} { printf("TOKEN: FUNCTION\n"); }
-{READONLY} { printf("TOKEN: READONLY\n"); }
-{ECHO} { printf("TOKEN: ECHO\n"); }
-{LOCAL} { printf("TOKEN: LOCAL\n"); }
-{EXIT} { printf("TOKEN: EXIT\n"); }
-{READ} { printf("TOKEN: READ\n"); }
-{DOUBLE_SEMI} { printf("TOKEN: DOUBLE_SEMI\n"); }
-{GE} { printf("TOKEN: GE\n"); }
-{GT} { printf("TOKEN: GT\n"); }
-{LT} { printf("TOKEN: LT\n"); }
-{LS} { printf("TOKEN: LS\n"); }
-{PWD} { printf("TOKEN: PWD\n"); }
-{CD} { printf("TOKEN: CD\n"); }
-{MKDIR} { printf("TOKEN: MKDIR\n"); }
-{TOUCH} { printf("TOKEN: TOUCH\n"); }
-{CP} { printf("TOKEN: CP\n"); }
-{MV} { printf("TOKEN: MV\n"); }
-{RM} { printf("TOKEN: RM\n"); }
-{CAT} { printf("TOKEN: CAT\n"); }
-{LBRACE} { printf("TOKEN: LBRACE\n"); }
-{RBRACE} { printf("TOKEN: RBRACE\n"); }
-{LBRACK} { printf("TOKEN: LBRACK\n"); }
-{RBRACK} { printf("TOKEN: RBRACK\n"); }
-{DBL_LBRACK} { printf("TOKEN: DBL_LBRACK\n"); }
-{DBL_RBRACK} { printf("TOKEN: DBL_RBRACK\n"); }
-{BANG} { printf("TOKEN: BANG\n"); }
-{PIPE} { printf("TOKEN: PIPE\n"); }
-{AMPERSAND} { printf("TOKEN: AMPERSAND\n"); }
-{SEMICOLON} { printf("TOKEN: SEMICOLON\n"); }
-{LPAREN} { printf("TOKEN: LPAREN\n"); }
-{RPAREN} { printf("TOKEN: RPAREN\n"); }
-{LT_SYM} { printf("TOKEN: LT_SYM\n"); }
-{GT_SYM} { printf("TOKEN: GT_SYM\n"); }
-{DOLLAR} { printf("TOKEN: DOLLAR\n"); }
-{QUOTE} { BEGIN(STRING); printf("TOKEN: QUOTE\n"); }
-{ASSIGN} { printf("TOKEN: ASSIGN\n"); }
-{PLUS} { printf("TOKEN: PLUS\n"); }
-{MINUS} { printf("TOKEN: MINUS\n"); }
-{MULT} { printf("TOKEN: MULT\n"); }
-{DIV} { printf("TOKEN: DIV\n"); }
-{DOTDOT} { printf("TOKEN: DOTDOT\n"); }
-{DBL_LPAREN} { printf("TOKEN: DBL_LPAREN\n"); }
-{DBL_RPAREN} { printf("TOKEN: DBL_RPAREN\n"); }
-{VAR_ASSIGN} { printf("TOKEN: VAR_ASSIGN (%s)\n", yytext); }
-{SHEBANG} { printf("TOKEN: SHEBANG\n"); }
-{COMMENT} { printf("TOKEN: COMMENT (%s)\n", yytext); }
-<STRING>{QUOTE} { BEGIN(INITIAL); printf("TOKEN: QUOTE\n"); }
-<STRING>{STR_CONTENT} { printf("TOKEN: STRING_CONTENT (%s)\n", yytext); }
-<STRING>\n { printf("TOKEN: STRING_UNTERMINATED\n"); BEGIN(INITIAL); }
+{FUNC_DEF} { yylval.str = strdup(yytext); return FUNC_DEF; }
+{VAR_ASSIGN_ZERO} { yylval.str = strdup(yytext); return VAR_ASSIGN_ZERO; }
+{NUMBER} { yylval.str = strdup(yytext); return NUMBER; }
+{IF} { return IF; }
+{THEN} { return THEN; }
+{ELIF} { return ELIF; }
+{ELSE} { return ELSE; }
+{FI} { return FI; }
+{TIME} { return TIME; }
+{FOR} { return FOR; }
+{IN} { return IN; }
+{UNTIL} { return UNTIL; }
+{WHILE} { return WHILE; }
+{DO} { return DO; }
+{DONE} { return DONE; }
+{CASE} { return CASE; }
+{ESAC} { return ESAC; }
+{COPROC} { return COPROC; }
+{SELECT} { return SELECT; }
+{FUNCTION} { return FUNCTION; }
+{READONLY} { return READONLY; }
+{ECHO} { return ECHO; }
+{LOCAL} { return LOCAL; }
+{EXIT} { return EXIT; }
+{READ} { return READ; }
+{DOUBLE_SEMI} { return DOUBLE_SEMI; }
+{GE} { yylval.str = strdup(yytext); return GE; }
+{GT} { yylval.str = strdup(yytext); return GT; }
+{LT} { yylval.str = strdup(yytext); return LT; }
+{LS} { return LS; }
+{PWD} { return PWD; }
+{CD} { return CD; }
+{MKDIR} { return MKDIR; }
+{TOUCH} { return TOUCH; }
+{CP} { return CP; }
+{MV} { return MV; }
+{RM} { return RM; }
+{CAT} { return CAT; }
+{LBRACE} { return LBRACE; }
+{RBRACE} { return RBRACE; }
+{LBRACK} { return LBRACK; }
+{RBRACK} { return RBRACK; }
+{DBL_LBRACK} { return DBL_LBRACK; }
+{DBL_RBRACK} { return DBL_RBRACK; }
+{BANG} { return BANG; }
+{PIPE} { return PIPE; }
+{AMPERSAND} { return AMPERSAND; }
+{SEMICOLON} { return SEMICOLON; }
+{LPAREN} { return LPAREN; }
+{RPAREN} { return RPAREN; }
+{LT_SYM} { return LT_SYM; }
+{GT_SYM} { return GT_SYM; }
+{DOLLAR} { return DOLLAR; }
+{QUOTE} { BEGIN(STRING); return QUOTE; }
+{ASSIGN} { return ASSIGN; }
+{PLUS} { return PLUS; }
+{OPTION} { yylval.str = strdup(yytext); return OPTION; }
+{MINUS} { return MINUS; }
+{MULT} { return MULT; }
+{DIV} { return DIV; }
+{DOTDOT} { return DOTDOT; }
+{DBL_LPAREN} { return DBL_LPAREN; }
+{DBL_RPAREN} { return DBL_RPAREN; }
+{VAR_ASSIGN} { yylval.str = strdup(yytext); return VAR_ASSIGN; }
+{SHEBANG} { return SHEBANG; }
+{COMMENT} { /* игнорируем комментарии */ }
+<STRING>{QUOTE} { BEGIN(INITIAL); return QUOTE; }
+<STRING>{STR_CONTENT} { yylval.str = strdup(yytext); return STRING_CONTENT; }
+<STRING>\n { printf("STRING_UNTERMINATED\n"); BEGIN(INITIAL); return STRING_UNTERMINATED; }
+\n { return NEWLINE; }
 {WS} { /* ignore whitespace */ }
-{IDENT} { printf("TOKEN: IDENT (%s)\n", yytext); }
-{OTHER} { printf("TOKEN: OTHER (%s)\n", yytext); }
-{OPTION} { printf("TOKEN: OPTION (%s)\n", yytext); }
-{COMMAND} { printf("TOKEN: COMMAND (%s)\n", yytext); }
-{PATH} { printf("TOKEN: PATH (%s)\n", yytext); }
+{IDENT} { yylval.str = strdup(yytext); return IDENT; }
+{OTHER} { return OTHER; }
 %%
-int main(int argc, char **argv) {
-    if (argc != 2) {
-        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
-        exit(1);
-    }
-
-    FILE *input_file = fopen(argv[1], "r");
-    if (!input_file) {
-        perror("fopen");
-        exit(1);
-    }
-
-    yyin = input_file;
-    yylex();
-    fclose(input_file);
-    return 0;
-}
-
-void yyerror(char *s) {
-    fprintf(stderr, "Error: %s\n", s);
-}
