@@ -1622,7 +1622,7 @@ Polynomial* eval_ast(AST node) {
                 poly_free(base);
                 return NULL;
             }
-            if (exp_poly->degree != 0 || exp_poly->var != '\0') {
+            if (exp_poly->degree > 0) {
                 fprintf(stderr, "[SEM] Line %d: Exponent must be constant polynomial\n", node->line);
                 poly_free(base);
                 poly_free(exp_poly);
