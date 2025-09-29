@@ -39,6 +39,10 @@ RPAREN ")"
 {ID} { return ID; }
 
 = { return EQUAL; }
+"+" { return PLUS; }
+"-" { return MINUS; }
+"@" { return SOBAKA; }
+"\$#" { return DOLLAR_SHARP; }
 {DOLLAR} { return DOLLAR; }
 \$\{[^{}}]*\}    { return DOLLAR_BRACED; }
 {LBRACE} { return LBRACE; }

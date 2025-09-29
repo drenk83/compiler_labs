@@ -80,18 +80,22 @@ extern int yydebug;
     BANG = 281,                    /* BANG  */
     DOLLAR = 282,                  /* DOLLAR  */
     DOLLAR_BRACED = 283,           /* DOLLAR_BRACED  */
-    LBRACE = 284,                  /* LBRACE  */
-    RBRACE = 285,                  /* RBRACE  */
-    LPAREN = 286,                  /* LPAREN  */
-    RPAREN = 287,                  /* RPAREN  */
-    LDBRACKET = 288,               /* LDBRACKET  */
-    RDBRACKET = 289,               /* RDBRACKET  */
-    ID = 290,                      /* ID  */
-    STRING = 291,                  /* STRING  */
-    NUMBER = 292,                  /* NUMBER  */
-    SHEBANG = 293,                 /* SHEBANG  */
-    WS = 294,                      /* WS  */
-    NEWLINE = 295                  /* NEWLINE  */
+    PLUS = 284,                    /* PLUS  */
+    MINUS = 285,                   /* MINUS  */
+    LBRACE = 286,                  /* LBRACE  */
+    RBRACE = 287,                  /* RBRACE  */
+    LPAREN = 288,                  /* LPAREN  */
+    RPAREN = 289,                  /* RPAREN  */
+    LDBRACKET = 290,               /* LDBRACKET  */
+    RDBRACKET = 291,               /* RDBRACKET  */
+    ID = 292,                      /* ID  */
+    STRING = 293,                  /* STRING  */
+    NUMBER = 294,                  /* NUMBER  */
+    SHEBANG = 295,                 /* SHEBANG  */
+    SOBAKA = 296,                  /* SOBAKA  */
+    DOLLAR_SHARP = 297,            /* DOLLAR_SHARP  */
+    WS = 298,                      /* WS  */
+    NEWLINE = 299                  /* NEWLINE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -126,18 +130,22 @@ extern int yydebug;
 #define BANG 281
 #define DOLLAR 282
 #define DOLLAR_BRACED 283
-#define LBRACE 284
-#define RBRACE 285
-#define LPAREN 286
-#define RPAREN 287
-#define LDBRACKET 288
-#define RDBRACKET 289
-#define ID 290
-#define STRING 291
-#define NUMBER 292
-#define SHEBANG 293
-#define WS 294
-#define NEWLINE 295
+#define PLUS 284
+#define MINUS 285
+#define LBRACE 286
+#define RBRACE 287
+#define LPAREN 288
+#define RPAREN 289
+#define LDBRACKET 290
+#define RDBRACKET 291
+#define ID 292
+#define STRING 293
+#define NUMBER 294
+#define SHEBANG 295
+#define SOBAKA 296
+#define DOLLAR_SHARP 297
+#define WS 298
+#define NEWLINE 299
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
