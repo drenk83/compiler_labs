@@ -1,0 +1,47 @@
+%token IF THEN ELIF ELSE FI TIME FOR IN UNTIL WHILE DO DONE CASE ESAC COPROC SELECT FUNCTION
+%token EQUAL PIPE AMP SEMI LT GT BANG DOLLAR
+%token LBRACE RBRACE LPAREN RPAREN LDBRACKET RDBRACKET
+%token ID STRING NUMBER SHEBANG
+%token WS NEWLINE
+
+
+
+
+input: /* empty */
+    | shebang statements
+    ;
+shebang: SHEBANG end_of_line
+    ;
+statements: /* empty */
+    | statements line
+    ;
+line: end_of_line
+    | ws_list assignment end_of_line {printf("assignment\n");}
+    | ws_list command end_of_line {printf("echo\n");}
+    ;
+assignment: ID EQUAL arg
+            | ID EQUAL
+    ;
+command: ID ws_need arg_list
+    ;
+arg_list: arg_list ws_need arg
+        | arg
+        ;
+arg: ID
+    | var
+    | STRING
+    | NUMBER
+    ;
+var: DOLLAR ID
+    | DOLLAR LBRACE ID RBRACE
+    | DOLLAR LPAREN ID RPAREN
+    | DOLLAR LPAREN command RPAREN
+    ;
+ws_list: /* empty */
+        | ws_list WS
+        ;
+ws_need: ws_list WS
+    ;
+end_of_line: ws_list NEWLINE
+            | ws_list
+    ;

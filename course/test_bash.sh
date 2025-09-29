@@ -1,122 +1,87 @@
 #!/bin/bash
 
-# 1. Comments — everything after # is ignored
+# Это комментарий: Демонстрация основного синтаксиса Bash
 
-# 2. Variables
-name="Alice"
-age=30
-readonly PI=3
-your_name="$USER"  # use current user if not specified otherwise
+# Переменные
+script_name="demo_script"
+count=0
+array=(элемент1 элемент2 элемент3)  # Массив как пример переменной
 
-# 3. Output to screen
-echo "Hello, $name! You are $age years old."
-echo "Pi is approximately $PI"
-
-# 4. Conditional statements (if-else)
-if [ "$age" -ge 18 ]; then
-    echo "$name is an adult."
-elif [ "$age" -gt 0 ]; then
-    echo "$name is a minor."
-else
-    echo "Invalid age."
+# Параметры скрипта
+if [ $# -lt 2 ]; then
+    echo "Использование: $0 аргумент1 аргумент2"
+    exit 1
 fi
+arg1="$1"
+arg2="$2"
+echo "Аргументы: $arg1 и $arg2. Всего аргументов: $#"
 
-# 5. Case statement
-read -p "Enter command (start|stop|restart): " action
+# Командная подстановка
+current_date=$(date +%Y-%m-%d)
+echo "Текущая дата: $current_date"
 
-case $action in
-    start)
-        echo "Starting service..."
-        ;;
-    stop)
-        echo "Stopping service..."
-        ;;
-    restart)
-        echo "Restarting service..."
-        ;;
-    *)
-        echo "Unknown command. Use: start, stop, or restart."
-        ;;
-esac
-
-# 6. Loops
-
-# For loop over a range
-echo "Counting to 3:"
-for i in {1..3}; do
-    echo "  $i"
-done
-
-# While loop
-counter=0
-while [ $counter -lt 2 ]; do
-    echo "  while: iteration $((counter + 1))"
-    ((counter++))
-done
-
-# 7. Arrays
-fruits=("apple" "banana" "orange")
-echo "Fruits: ${fruits[0]}, ${fruits[1]}, ${fruits[2]}"
-echo "Total fruits: ${#fruits[@]}"
-
-# Print all array elements
-echo "All fruits: ${fruits[*]}"
-
-# 8. Functions
-greet() {
-    local user="$1"  # local variable
-    echo "Hello from function, $user!"
+# Функция
+function greet {
+    local name="$1"  # Локальная переменная
+    echo "Привет, $name!"
+    return 0
 }
-greet "$your_name"
 
-# 9. Arithmetic
-result=$(( 10 + 5 * 2 ))
-echo "10 + 5 * 2 = $result"
+# Вызов функции
+greet "$arg1"
 
-# 10. Check if file exists
-if [ -f "./demo.sh" ]; then
-    echo "File demo.sh exists."
+# Условные конструкции
+if [ "$arg1" == "test" ]; then
+    echo "Аргумент1 равен 'test'"
+elif [ "$arg1" == "hello" ]; then
+    echo "Аргумент1 равен 'hello'"
 else
-    echo "File demo.sh not found (possibly run from a different directory)."
+    echo "Аргумент1: $arg1 (не test и не hello)"
 fi
 
-# 11. Check if directory exists
-if [ -d "/tmp" ]; then
-    echo "Directory /tmp exists."
-fi
+# Циклы: for
+echo "Цикл for по массиву:"
+for item in "${array[@]}"; do
+    echo "$item"
+done
 
-# 12. Exit with status
-echo "Script completed successfully."
-exit 0
+# Цикл while
+echo "Цикл while:"
+while [ $count -lt 3 ]; do
+    echo "Счет: $count"
+    ((count++))
+done
 
-# Additional basic commands section
+# Цикл until
+count=0
+echo "Цикл until:"
+until [ $count -ge 3 ]; do
+    echo "Счет: $count"
+    ((count++))
+done
 
-# 1. List directory contents in long format
-ls -l
+# Перенаправление ввода/вывода
+echo "Запись в файл output.txt" > output.txt
+echo "Дозапись в файл" >> output.txt
+cat < output.txt  # Ввод из файла
 
-# 2. Print working directory
-pwd
+# Ошибки
+nonexistent_command 2> error.log || echo "Ошибка записана в error.log"
 
-# 4. Create a new directory
-mkdir -p test_dir
+# Пайпы и цепочки команд
+echo "Пайп: Список файлов | сортировка"
+ls | sort
 
-# 5. Create an empty file
-touch file.txt
+# Цепочки: Успех && или неудача ||
+true && echo "Успех: true выполнено"
+false || echo "Неудача: false, но || сработало"
 
-# 6. Copy a file
-cp file.txt file_copy.txt
+# Специальные символы и экранирование
+echo "Двойные кавычки: Разрешают \$VAR: $script_name"
+echo 'Одиночные кавычки: Не разрешают $VAR'
+echo "Экранирование: \$ буквальный доллар"
+echo "Подстановки: Файлы с расширением .txt: *.txt"
+echo "Один символ: Файлы с одним символом перед .txt: ?.txt"
 
-# 7. Rename a file
-mv file_copy.txt new_name.txt
-
-# 8. Remove original file
-rm file.txt
-
-# 9. Display system information
-cat /etc/os-release
-
-# 10. Print a message
-echo "Hello, World!"
-
-# Optional: clean up created files and directory
-# rm -rf test_dir new_name.txt
+# Завершение
+echo "Скрипт завершен. PID: $$"

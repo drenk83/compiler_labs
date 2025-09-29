@@ -54,77 +54,44 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    FUNC_DEF = 258,                /* FUNC_DEF  */
-    VAR_ASSIGN_ZERO = 259,         /* VAR_ASSIGN_ZERO  */
-    NUMBER = 260,                  /* NUMBER  */
-    OPTION = 261,                  /* OPTION  */
-    VAR_ASSIGN = 262,              /* VAR_ASSIGN  */
-    STRING_CONTENT = 263,          /* STRING_CONTENT  */
-    IDENT = 264,                   /* IDENT  */
-    GE = 265,                      /* GE  */
-    GT = 266,                      /* GT  */
-    LT = 267,                      /* LT  */
-    IF = 268,                      /* IF  */
-    THEN = 269,                    /* THEN  */
-    ELIF = 270,                    /* ELIF  */
-    ELSE = 271,                    /* ELSE  */
-    FI = 272,                      /* FI  */
-    TIME = 273,                    /* TIME  */
-    FOR = 274,                     /* FOR  */
-    IN = 275,                      /* IN  */
-    UNTIL = 276,                   /* UNTIL  */
-    WHILE = 277,                   /* WHILE  */
-    DO = 278,                      /* DO  */
-    DONE = 279,                    /* DONE  */
-    CASE = 280,                    /* CASE  */
-    ESAC = 281,                    /* ESAC  */
-    COPROC = 282,                  /* COPROC  */
-    SELECT = 283,                  /* SELECT  */
-    FUNCTION = 284,                /* FUNCTION  */
-    READONLY = 285,                /* READONLY  */
-    ECHO = 286,                    /* ECHO  */
-    LOCAL = 287,                   /* LOCAL  */
-    EXIT = 288,                    /* EXIT  */
-    READ = 289,                    /* READ  */
-    DOUBLE_SEMI = 290,             /* DOUBLE_SEMI  */
-    LS = 291,                      /* LS  */
-    PWD = 292,                     /* PWD  */
-    CD = 293,                      /* CD  */
-    MKDIR = 294,                   /* MKDIR  */
-    TOUCH = 295,                   /* TOUCH  */
-    CP = 296,                      /* CP  */
-    MV = 297,                      /* MV  */
-    RM = 298,                      /* RM  */
-    CAT = 299,                     /* CAT  */
-    LBRACE = 300,                  /* LBRACE  */
-    RBRACE = 301,                  /* RBRACE  */
-    LBRACK = 302,                  /* LBRACK  */
-    RBRACK = 303,                  /* RBRACK  */
-    DBL_LBRACK = 304,              /* DBL_LBRACK  */
-    DBL_RBRACK = 305,              /* DBL_RBRACK  */
-    BANG = 306,                    /* BANG  */
-    PIPE = 307,                    /* PIPE  */
-    AMPERSAND = 308,               /* AMPERSAND  */
-    SEMICOLON = 309,               /* SEMICOLON  */
-    LPAREN = 310,                  /* LPAREN  */
-    RPAREN = 311,                  /* RPAREN  */
-    LT_SYM = 312,                  /* LT_SYM  */
-    GT_SYM = 313,                  /* GT_SYM  */
-    DOLLAR = 314,                  /* DOLLAR  */
-    QUOTE = 315,                   /* QUOTE  */
-    ASSIGN = 316,                  /* ASSIGN  */
-    PLUS = 317,                    /* PLUS  */
-    MINUS = 318,                   /* MINUS  */
-    MULT = 319,                    /* MULT  */
-    DIV = 320,                     /* DIV  */
-    DOTDOT = 321,                  /* DOTDOT  */
-    DBL_LPAREN = 322,              /* DBL_LPAREN  */
-    DBL_RPAREN = 323,              /* DBL_RPAREN  */
-    SHEBANG = 324,                 /* SHEBANG  */
-    COMMENT = 325,                 /* COMMENT  */
-    STRING_UNTERMINATED = 326,     /* STRING_UNTERMINATED  */
-    OTHER = 327,                   /* OTHER  */
-    NEWLINE = 328                  /* NEWLINE  */
+    IF = 258,                      /* IF  */
+    THEN = 259,                    /* THEN  */
+    ELIF = 260,                    /* ELIF  */
+    ELSE = 261,                    /* ELSE  */
+    FI = 262,                      /* FI  */
+    TIME = 263,                    /* TIME  */
+    FOR = 264,                     /* FOR  */
+    IN = 265,                      /* IN  */
+    UNTIL = 266,                   /* UNTIL  */
+    WHILE = 267,                   /* WHILE  */
+    DO = 268,                      /* DO  */
+    DONE = 269,                    /* DONE  */
+    CASE = 270,                    /* CASE  */
+    ESAC = 271,                    /* ESAC  */
+    COPROC = 272,                  /* COPROC  */
+    SELECT = 273,                  /* SELECT  */
+    FUNCTION = 274,                /* FUNCTION  */
+    EQUAL = 275,                   /* EQUAL  */
+    PIPE = 276,                    /* PIPE  */
+    AMP = 277,                     /* AMP  */
+    SEMI = 278,                    /* SEMI  */
+    LT = 279,                      /* LT  */
+    GT = 280,                      /* GT  */
+    BANG = 281,                    /* BANG  */
+    DOLLAR = 282,                  /* DOLLAR  */
+    DOLLAR_BRACED = 283,           /* DOLLAR_BRACED  */
+    LBRACE = 284,                  /* LBRACE  */
+    RBRACE = 285,                  /* RBRACE  */
+    LPAREN = 286,                  /* LPAREN  */
+    RPAREN = 287,                  /* RPAREN  */
+    LDBRACKET = 288,               /* LDBRACKET  */
+    RDBRACKET = 289,               /* RDBRACKET  */
+    ID = 290,                      /* ID  */
+    STRING = 291,                  /* STRING  */
+    NUMBER = 292,                  /* NUMBER  */
+    SHEBANG = 293,                 /* SHEBANG  */
+    WS = 294,                      /* WS  */
+    NEWLINE = 295                  /* NEWLINE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -133,90 +100,48 @@ extern int yydebug;
 #define YYEOF 0
 #define YYerror 256
 #define YYUNDEF 257
-#define FUNC_DEF 258
-#define VAR_ASSIGN_ZERO 259
-#define NUMBER 260
-#define OPTION 261
-#define VAR_ASSIGN 262
-#define STRING_CONTENT 263
-#define IDENT 264
-#define GE 265
-#define GT 266
-#define LT 267
-#define IF 268
-#define THEN 269
-#define ELIF 270
-#define ELSE 271
-#define FI 272
-#define TIME 273
-#define FOR 274
-#define IN 275
-#define UNTIL 276
-#define WHILE 277
-#define DO 278
-#define DONE 279
-#define CASE 280
-#define ESAC 281
-#define COPROC 282
-#define SELECT 283
-#define FUNCTION 284
-#define READONLY 285
-#define ECHO 286
-#define LOCAL 287
-#define EXIT 288
-#define READ 289
-#define DOUBLE_SEMI 290
-#define LS 291
-#define PWD 292
-#define CD 293
-#define MKDIR 294
-#define TOUCH 295
-#define CP 296
-#define MV 297
-#define RM 298
-#define CAT 299
-#define LBRACE 300
-#define RBRACE 301
-#define LBRACK 302
-#define RBRACK 303
-#define DBL_LBRACK 304
-#define DBL_RBRACK 305
-#define BANG 306
-#define PIPE 307
-#define AMPERSAND 308
-#define SEMICOLON 309
-#define LPAREN 310
-#define RPAREN 311
-#define LT_SYM 312
-#define GT_SYM 313
-#define DOLLAR 314
-#define QUOTE 315
-#define ASSIGN 316
-#define PLUS 317
-#define MINUS 318
-#define MULT 319
-#define DIV 320
-#define DOTDOT 321
-#define DBL_LPAREN 322
-#define DBL_RPAREN 323
-#define SHEBANG 324
-#define COMMENT 325
-#define STRING_UNTERMINATED 326
-#define OTHER 327
-#define NEWLINE 328
+#define IF 258
+#define THEN 259
+#define ELIF 260
+#define ELSE 261
+#define FI 262
+#define TIME 263
+#define FOR 264
+#define IN 265
+#define UNTIL 266
+#define WHILE 267
+#define DO 268
+#define DONE 269
+#define CASE 270
+#define ESAC 271
+#define COPROC 272
+#define SELECT 273
+#define FUNCTION 274
+#define EQUAL 275
+#define PIPE 276
+#define AMP 277
+#define SEMI 278
+#define LT 279
+#define GT 280
+#define BANG 281
+#define DOLLAR 282
+#define DOLLAR_BRACED 283
+#define LBRACE 284
+#define RBRACE 285
+#define LPAREN 286
+#define RPAREN 287
+#define LDBRACKET 288
+#define RDBRACKET 289
+#define ID 290
+#define STRING 291
+#define NUMBER 292
+#define SHEBANG 293
+#define WS 294
+#define NEWLINE 295
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-union YYSTYPE
-{
-#line 9 "pars_bash.y"
-
-    char *str;
-
-#line 217 "y.tab.h"
-
-};
-typedef union YYSTYPE YYSTYPE;
+typedef int YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
