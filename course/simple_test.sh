@@ -8,7 +8,7 @@ _var=456
 arg=-f; flag=-v; option=-l   
 arg=--file
 flag=--verbose
-option=--long-format
+option=--long-form-at
 script_name=$0
 first_arg=$1
 arg_count=$@
@@ -18,5 +18,22 @@ test=$sdfs
 array=(1 2 3)
 count=${COUNT:-0}
 
+asd=$(command)
 
-readonly VAR="constant" VAR="constant" VAR="constant" VAR="constant"  
+echo "This is a test"; echo "This is another test"
+echo "This is a test"; echo "This is another test";
+
+echo "This is a test"; echo "This is another test"
+
+# dobavit apt-get
+sudo apt get install
+
+var=abcdefs
+rep='& '
+echo ${var/abc/\& }
+echo "${var/abc/\& }"
+echo ${var/abc/"& "}
+echo ${var/abc/"$rep"}
+
+asdas asdas
+readonly VAR="constant" VAR="constant" VAR="constant" VAR="constant"

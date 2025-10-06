@@ -32,7 +32,7 @@ command_group: simple_command
 opt_separator: /* empty */
     | separator
     ;
-separator: SEMI newline_list_opt
+separator: SEMI ws_list newline_list_opt
     | newline_list
     ;
 newline_list_opt: /* empty */
@@ -64,6 +64,7 @@ with_dollar: DOLLAR ID
     | DOLLAR SOBAKA
     | DOLLAR_SHARP
     | DOLLAR_BRACED
+    | DOLLAR LPAREN ws_list command ws_list RPAREN
     ;
 array: LPAREN ws_list RPAREN
     | LPAREN ws_list elements ws_list RPAREN
@@ -72,10 +73,10 @@ elements: arg
     | elements WS arg
     ;
 longid: ID
-    | ID MINUS ID
+    | longid MINUS ID
     ;
 
-command: ID arg_list
+command: longid arg_list
     ;
 arg_list: /* empty */
     | arg_list WS arg
