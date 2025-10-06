@@ -17,23 +17,21 @@ arg_count=$#
 test=$sdfs
 array=(1 2 3)
 count=${COUNT:-0}
-
 asd=$(command)
-
 echo "This is a test"; echo "This is another test"
 echo "This is a test"; echo "This is another test";
-
 echo "This is a test"; echo "This is another test"
-
-# dobavit apt-get
 sudo apt get install
-
 var=abcdefs
 rep='& '
 echo ${var/abc/\& }
 echo "${var/abc/\& }"
 echo ${var/abc/"& "}
 echo ${var/abc/"$rep"}
-
 asdas asdas
 readonly VAR="constant" VAR="constant" VAR="constant" VAR="constant"
+#echo "sdfsdf" | grep "sdsdfs"
+chmod +x a.out
+echo "sdfsdf" | cat | wc -w
+current_date=$(date)
+echo ": $current_date"

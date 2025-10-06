@@ -82,20 +82,21 @@ extern int yydebug;
     DOLLAR_BRACED = 283,           /* DOLLAR_BRACED  */
     PLUS = 284,                    /* PLUS  */
     MINUS = 285,                   /* MINUS  */
-    LBRACE = 286,                  /* LBRACE  */
-    RBRACE = 287,                  /* RBRACE  */
-    LPAREN = 288,                  /* LPAREN  */
-    RPAREN = 289,                  /* RPAREN  */
-    LDBRACKET = 290,               /* LDBRACKET  */
-    RDBRACKET = 291,               /* RDBRACKET  */
-    ID = 292,                      /* ID  */
-    STRING = 293,                  /* STRING  */
-    NUMBER = 294,                  /* NUMBER  */
-    SHEBANG = 295,                 /* SHEBANG  */
-    SOBAKA = 296,                  /* SOBAKA  */
-    DOLLAR_SHARP = 297,            /* DOLLAR_SHARP  */
-    WS = 298,                      /* WS  */
-    NEWLINE = 299                  /* NEWLINE  */
+    DOT = 286,                     /* DOT  */
+    LBRACE = 287,                  /* LBRACE  */
+    RBRACE = 288,                  /* RBRACE  */
+    LPAREN = 289,                  /* LPAREN  */
+    RPAREN = 290,                  /* RPAREN  */
+    LDBRACKET = 291,               /* LDBRACKET  */
+    RDBRACKET = 292,               /* RDBRACKET  */
+    ID = 293,                      /* ID  */
+    STRING = 294,                  /* STRING  */
+    NUMBER = 295,                  /* NUMBER  */
+    SHEBANG = 296,                 /* SHEBANG  */
+    SOBAKA = 297,                  /* SOBAKA  */
+    DOLLAR_SHARP = 298,            /* DOLLAR_SHARP  */
+    WS = 299,                      /* WS  */
+    NEWLINE = 300                  /* NEWLINE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -132,20 +133,21 @@ extern int yydebug;
 #define DOLLAR_BRACED 283
 #define PLUS 284
 #define MINUS 285
-#define LBRACE 286
-#define RBRACE 287
-#define LPAREN 288
-#define RPAREN 289
-#define LDBRACKET 290
-#define RDBRACKET 291
-#define ID 292
-#define STRING 293
-#define NUMBER 294
-#define SHEBANG 295
-#define SOBAKA 296
-#define DOLLAR_SHARP 297
-#define WS 298
-#define NEWLINE 299
+#define DOT 286
+#define LBRACE 287
+#define RBRACE 288
+#define LPAREN 289
+#define RPAREN 290
+#define LDBRACKET 291
+#define RDBRACKET 292
+#define ID 293
+#define STRING 294
+#define NUMBER 295
+#define SHEBANG 296
+#define SOBAKA 297
+#define DOLLAR_SHARP 298
+#define WS 299
+#define NEWLINE 300
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

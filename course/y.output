@@ -1,0 +1,1010 @@
+Terminals unused in grammar
+
+    IF
+    THEN
+    ELIF
+    ELSE
+    FI
+    TIME
+    FOR
+    IN
+    UNTIL
+    WHILE
+    DO
+    DONE
+    CASE
+    ESAC
+    COPROC
+    SELECT
+    FUNCTION
+    AMP
+    LT
+    GT
+    BANG
+    LBRACE
+    RBRACE
+    LDBRACKET
+    RDBRACKET
+
+
+State 0 conflicts: 1 shift/reduce
+State 1 conflicts: 1 shift/reduce
+State 6 conflicts: 1 shift/reduce
+State 11 conflicts: 1 shift/reduce
+State 14 conflicts: 1 shift/reduce
+State 16 conflicts: 1 shift/reduce
+State 20 conflicts: 1 shift/reduce
+State 23 conflicts: 1 shift/reduce
+State 28 conflicts: 1 shift/reduce
+State 42 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: script $end
+
+    1 script: SHEBANG statements
+    2       | statements
+
+    3 statements: newline_list_opt command_list newline_list_opt
+
+    4 command_list: ε
+    5             | command_group opt_separator
+
+    6 command_group: pipeline
+    7              | command_group separator ws_opt pipeline
+
+    8 opt_separator: ε
+    9              | separator
+
+   10 separator: SEMI ws_opt newline_list_opt
+   11          | newline_list
+
+   12 newline_list_opt: ε
+   13                 | newline_list
+
+   14 newline_list: NEWLINE
+   15             | newline_list NEWLINE
+
+   16 simple_command: assignment ws_opt
+   17               | command ws_opt
+
+   18 pipeline: simple_command
+   19         | pipeline ws_opt PIPE ws_opt simple_command
+
+   20 assignment: ID EQUAL
+   21           | ID EQUAL arg
+
+   22 arg: ID
+   23    | NUMBER
+   24    | MINUS NUMBER
+   25    | PLUS NUMBER
+   26    | MINUS ID
+   27    | PLUS ID
+   28    | MINUS MINUS longid
+   29    | ID DOT ID
+   30    | STRING
+   31    | with_dollar
+   32    | array
+
+   33 with_dollar: DOLLAR ID
+   34            | DOLLAR NUMBER
+   35            | DOLLAR DOLLAR
+   36            | DOLLAR SOBAKA
+   37            | DOLLAR_SHARP
+   38            | DOLLAR_BRACED
+   39            | DOLLAR LPAREN ws_opt command ws_opt RPAREN
+
+   40 array: LPAREN ws_opt RPAREN
+   41      | LPAREN ws_opt elements ws_opt RPAREN
+
+   42 elements: arg
+   43         | elements WS arg
+
+   44 longid: ID
+   45       | longid MINUS ID
+
+   46 command: longid arg_list
+
+   47 arg_list: ε
+   48         | arg_list WS arg
+   49         | arg_list WS assignment
+
+   50 ws_opt: ε
+   51       | WS
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256)
+    IF (258)
+    THEN (259)
+    ELIF (260)
+    ELSE (261)
+    FI (262)
+    TIME (263)
+    FOR (264)
+    IN (265)
+    UNTIL (266)
+    WHILE (267)
+    DO (268)
+    DONE (269)
+    CASE (270)
+    ESAC (271)
+    COPROC (272)
+    SELECT (273)
+    FUNCTION (274)
+    EQUAL (275) 20 21
+    PIPE (276) 19
+    AMP (277)
+    SEMI (278) 10
+    LT (279)
+    GT (280)
+    BANG (281)
+    DOLLAR (282) 33 34 35 36 39
+    DOLLAR_BRACED (283) 38
+    PLUS (284) 25 27
+    MINUS (285) 24 26 28 45
+    DOT (286) 29
+    LBRACE (287)
+    RBRACE (288)
+    LPAREN (289) 39 40 41
+    RPAREN (290) 39 40 41
+    LDBRACKET (291)
+    RDBRACKET (292)
+    ID (293) 20 21 22 26 27 29 33 44 45
+    STRING (294) 30
+    NUMBER (295) 23 24 25 34
+    SHEBANG (296) 1
+    SOBAKA (297) 36
+    DOLLAR_SHARP (298) 37
+    WS (299) 43 48 49 51
+    NEWLINE (300) 14 15
+
+
+Nonterminals, with rules where they appear
+
+    $accept (46)
+        on left: 0
+    script (47)
+        on left: 1 2
+        on right: 0
+    statements (48)
+        on left: 3
+        on right: 1 2
+    command_list (49)
+        on left: 4 5
+        on right: 3
+    command_group (50)
+        on left: 6 7
+        on right: 5 7
+    opt_separator (51)
+        on left: 8 9
+        on right: 5
+    separator (52)
+        on left: 10 11
+        on right: 7 9
+    newline_list_opt (53)
+        on left: 12 13
+        on right: 3 10
+    newline_list (54)
+        on left: 14 15
+        on right: 11 13 15
+    simple_command (55)
+        on left: 16 17
+        on right: 18 19
+    pipeline (56)
+        on left: 18 19
+        on right: 6 7 19
+    assignment (57)
+        on left: 20 21
+        on right: 16 49
+    arg (58)
+        on left: 22 23 24 25 26 27 28 29 30 31 32
+        on right: 21 42 43 48
+    with_dollar (59)
+        on left: 33 34 35 36 37 38 39
+        on right: 31
+    array (60)
+        on left: 40 41
+        on right: 32
+    elements (61)
+        on left: 42 43
+        on right: 41 43
+    longid (62)
+        on left: 44 45
+        on right: 28 45 46
+    command (63)
+        on left: 46
+        on right: 17 39
+    arg_list (64)
+        on left: 47 48 49
+        on right: 46 48 49
+    ws_opt (65)
+        on left: 50 51
+        on right: 7 10 16 17 19 39 40 41
+
+
+State 0
+
+    0 $accept: • script $end
+
+    SHEBANG  shift, and go to state 1
+    NEWLINE  shift, and go to state 2
+
+    NEWLINE   [reduce using rule 12 (newline_list_opt)]
+    $default  reduce using rule 12 (newline_list_opt)
+
+    script            go to state 3
+    statements        go to state 4
+    newline_list_opt  go to state 5
+    newline_list      go to state 6
+
+
+State 1
+
+    1 script: SHEBANG • statements
+
+    NEWLINE  shift, and go to state 2
+
+    NEWLINE   [reduce using rule 12 (newline_list_opt)]
+    $default  reduce using rule 12 (newline_list_opt)
+
+    statements        go to state 7
+    newline_list_opt  go to state 5
+    newline_list      go to state 6
+
+
+State 2
+
+   14 newline_list: NEWLINE •
+
+    $default  reduce using rule 14 (newline_list)
+
+
+State 3
+
+    0 $accept: script • $end
+
+    $end  shift, and go to state 8
+
+
+State 4
+
+    2 script: statements •
+
+    $default  reduce using rule 2 (script)
+
+
+State 5
+
+    3 statements: newline_list_opt • command_list newline_list_opt
+
+    ID  shift, and go to state 9
+
+    $default  reduce using rule 4 (command_list)
+
+    command_list    go to state 10
+    command_group   go to state 11
+    simple_command  go to state 12
+    pipeline        go to state 13
+    assignment      go to state 14
+    longid          go to state 15
+    command         go to state 16
+
+
+State 6
+
+   13 newline_list_opt: newline_list •
+   15 newline_list: newline_list • NEWLINE
+
+    NEWLINE  shift, and go to state 17
+
+    NEWLINE   [reduce using rule 13 (newline_list_opt)]
+    $default  reduce using rule 13 (newline_list_opt)
+
+
+State 7
+
+    1 script: SHEBANG statements •
+
+    $default  reduce using rule 1 (script)
+
+
+State 8
+
+    0 $accept: script $end •
+
+    $default  accept
+
+
+State 9
+
+   20 assignment: ID • EQUAL
+   21           | ID • EQUAL arg
+   44 longid: ID •
+
+    EQUAL  shift, and go to state 18
+
+    $default  reduce using rule 44 (longid)
+
+
+State 10
+
+    3 statements: newline_list_opt command_list • newline_list_opt
+
+    NEWLINE  shift, and go to state 2
+
+    $default  reduce using rule 12 (newline_list_opt)
+
+    newline_list_opt  go to state 19
+    newline_list      go to state 6
+
+
+State 11
+
+    5 command_list: command_group • opt_separator
+    7 command_group: command_group • separator ws_opt pipeline
+
+    SEMI     shift, and go to state 20
+    NEWLINE  shift, and go to state 2
+
+    NEWLINE   [reduce using rule 8 (opt_separator)]
+    $default  reduce using rule 8 (opt_separator)
+
+    opt_separator  go to state 21
+    separator      go to state 22
+    newline_list   go to state 23
+
+
+State 12
+
+   18 pipeline: simple_command •
+
+    $default  reduce using rule 18 (pipeline)
+
+
+State 13
+
+    6 command_group: pipeline •
+   19 pipeline: pipeline • ws_opt PIPE ws_opt simple_command
+
+    WS  shift, and go to state 24
+
+    PIPE      reduce using rule 50 (ws_opt)
+    $default  reduce using rule 6 (command_group)
+
+    ws_opt  go to state 25
+
+
+State 14
+
+   16 simple_command: assignment • ws_opt
+
+    WS  shift, and go to state 24
+
+    WS        [reduce using rule 50 (ws_opt)]
+    $default  reduce using rule 50 (ws_opt)
+
+    ws_opt  go to state 26
+
+
+State 15
+
+   45 longid: longid • MINUS ID
+   46 command: longid • arg_list
+
+    MINUS  shift, and go to state 27
+
+    $default  reduce using rule 47 (arg_list)
+
+    arg_list  go to state 28
+
+
+State 16
+
+   17 simple_command: command • ws_opt
+
+    WS  shift, and go to state 24
+
+    WS        [reduce using rule 50 (ws_opt)]
+    $default  reduce using rule 50 (ws_opt)
+
+    ws_opt  go to state 29
+
+
+State 17
+
+   15 newline_list: newline_list NEWLINE •
+
+    $default  reduce using rule 15 (newline_list)
+
+
+State 18
+
+   20 assignment: ID EQUAL •
+   21           | ID EQUAL • arg
+
+    DOLLAR         shift, and go to state 30
+    DOLLAR_BRACED  shift, and go to state 31
+    PLUS           shift, and go to state 32
+    MINUS          shift, and go to state 33
+    LPAREN         shift, and go to state 34
+    ID             shift, and go to state 35
+    STRING         shift, and go to state 36
+    NUMBER         shift, and go to state 37
+    DOLLAR_SHARP   shift, and go to state 38
+
+    $default  reduce using rule 20 (assignment)
+
+    arg          go to state 39
+    with_dollar  go to state 40
+    array        go to state 41
+
+
+State 19
+
+    3 statements: newline_list_opt command_list newline_list_opt •
+
+    $default  reduce using rule 3 (statements)
+
+
+State 20
+
+   10 separator: SEMI • ws_opt newline_list_opt
+
+    WS  shift, and go to state 24
+
+    WS        [reduce using rule 50 (ws_opt)]
+    $default  reduce using rule 50 (ws_opt)
+
+    ws_opt  go to state 42
+
+
+State 21
+
+    5 command_list: command_group opt_separator •
+
+    $default  reduce using rule 5 (command_list)
+
+
+State 22
+
+    7 command_group: command_group separator • ws_opt pipeline
+    9 opt_separator: separator •
+
+    WS  shift, and go to state 24
+
+    ID        reduce using rule 50 (ws_opt)
+    $default  reduce using rule 9 (opt_separator)
+
+    ws_opt  go to state 43
+
+
+State 23
+
+   11 separator: newline_list •
+   15 newline_list: newline_list • NEWLINE
+
+    NEWLINE  shift, and go to state 17
+
+    NEWLINE   [reduce using rule 11 (separator)]
+    $default  reduce using rule 11 (separator)
+
+
+State 24
+
+   51 ws_opt: WS •
+
+    $default  reduce using rule 51 (ws_opt)
+
+
+State 25
+
+   19 pipeline: pipeline ws_opt • PIPE ws_opt simple_command
+
+    PIPE  shift, and go to state 44
+
+
+State 26
+
+   16 simple_command: assignment ws_opt •
+
+    $default  reduce using rule 16 (simple_command)
+
+
+State 27
+
+   45 longid: longid MINUS • ID
+
+    ID  shift, and go to state 45
+
+
+State 28
+
+   46 command: longid arg_list •
+   48 arg_list: arg_list • WS arg
+   49         | arg_list • WS assignment
+
+    WS  shift, and go to state 46
+
+    WS        [reduce using rule 46 (command)]
+    $default  reduce using rule 46 (command)
+
+
+State 29
+
+   17 simple_command: command ws_opt •
+
+    $default  reduce using rule 17 (simple_command)
+
+
+State 30
+
+   33 with_dollar: DOLLAR • ID
+   34            | DOLLAR • NUMBER
+   35            | DOLLAR • DOLLAR
+   36            | DOLLAR • SOBAKA
+   39            | DOLLAR • LPAREN ws_opt command ws_opt RPAREN
+
+    DOLLAR  shift, and go to state 47
+    LPAREN  shift, and go to state 48
+    ID      shift, and go to state 49
+    NUMBER  shift, and go to state 50
+    SOBAKA  shift, and go to state 51
+
+
+State 31
+
+   38 with_dollar: DOLLAR_BRACED •
+
+    $default  reduce using rule 38 (with_dollar)
+
+
+State 32
+
+   25 arg: PLUS • NUMBER
+   27    | PLUS • ID
+
+    ID      shift, and go to state 52
+    NUMBER  shift, and go to state 53
+
+
+State 33
+
+   24 arg: MINUS • NUMBER
+   26    | MINUS • ID
+   28    | MINUS • MINUS longid
+
+    MINUS   shift, and go to state 54
+    ID      shift, and go to state 55
+    NUMBER  shift, and go to state 56
+
+
+State 34
+
+   40 array: LPAREN • ws_opt RPAREN
+   41      | LPAREN • ws_opt elements ws_opt RPAREN
+
+    WS  shift, and go to state 24
+
+    $default  reduce using rule 50 (ws_opt)
+
+    ws_opt  go to state 57
+
+
+State 35
+
+   22 arg: ID •
+   29    | ID • DOT ID
+
+    DOT  shift, and go to state 58
+
+    $default  reduce using rule 22 (arg)
+
+
+State 36
+
+   30 arg: STRING •
+
+    $default  reduce using rule 30 (arg)
+
+
+State 37
+
+   23 arg: NUMBER •
+
+    $default  reduce using rule 23 (arg)
+
+
+State 38
+
+   37 with_dollar: DOLLAR_SHARP •
+
+    $default  reduce using rule 37 (with_dollar)
+
+
+State 39
+
+   21 assignment: ID EQUAL arg •
+
+    $default  reduce using rule 21 (assignment)
+
+
+State 40
+
+   31 arg: with_dollar •
+
+    $default  reduce using rule 31 (arg)
+
+
+State 41
+
+   32 arg: array •
+
+    $default  reduce using rule 32 (arg)
+
+
+State 42
+
+   10 separator: SEMI ws_opt • newline_list_opt
+
+    NEWLINE  shift, and go to state 2
+
+    NEWLINE   [reduce using rule 12 (newline_list_opt)]
+    $default  reduce using rule 12 (newline_list_opt)
+
+    newline_list_opt  go to state 59
+    newline_list      go to state 6
+
+
+State 43
+
+    7 command_group: command_group separator ws_opt • pipeline
+
+    ID  shift, and go to state 9
+
+    simple_command  go to state 12
+    pipeline        go to state 60
+    assignment      go to state 14
+    longid          go to state 15
+    command         go to state 16
+
+
+State 44
+
+   19 pipeline: pipeline ws_opt PIPE • ws_opt simple_command
+
+    WS  shift, and go to state 24
+
+    $default  reduce using rule 50 (ws_opt)
+
+    ws_opt  go to state 61
+
+
+State 45
+
+   45 longid: longid MINUS ID •
+
+    $default  reduce using rule 45 (longid)
+
+
+State 46
+
+   48 arg_list: arg_list WS • arg
+   49         | arg_list WS • assignment
+
+    DOLLAR         shift, and go to state 30
+    DOLLAR_BRACED  shift, and go to state 31
+    PLUS           shift, and go to state 32
+    MINUS          shift, and go to state 33
+    LPAREN         shift, and go to state 34
+    ID             shift, and go to state 62
+    STRING         shift, and go to state 36
+    NUMBER         shift, and go to state 37
+    DOLLAR_SHARP   shift, and go to state 38
+
+    assignment   go to state 63
+    arg          go to state 64
+    with_dollar  go to state 40
+    array        go to state 41
+
+
+State 47
+
+   35 with_dollar: DOLLAR DOLLAR •
+
+    $default  reduce using rule 35 (with_dollar)
+
+
+State 48
+
+   39 with_dollar: DOLLAR LPAREN • ws_opt command ws_opt RPAREN
+
+    WS  shift, and go to state 24
+
+    $default  reduce using rule 50 (ws_opt)
+
+    ws_opt  go to state 65
+
+
+State 49
+
+   33 with_dollar: DOLLAR ID •
+
+    $default  reduce using rule 33 (with_dollar)
+
+
+State 50
+
+   34 with_dollar: DOLLAR NUMBER •
+
+    $default  reduce using rule 34 (with_dollar)
+
+
+State 51
+
+   36 with_dollar: DOLLAR SOBAKA •
+
+    $default  reduce using rule 36 (with_dollar)
+
+
+State 52
+
+   27 arg: PLUS ID •
+
+    $default  reduce using rule 27 (arg)
+
+
+State 53
+
+   25 arg: PLUS NUMBER •
+
+    $default  reduce using rule 25 (arg)
+
+
+State 54
+
+   28 arg: MINUS MINUS • longid
+
+    ID  shift, and go to state 66
+
+    longid  go to state 67
+
+
+State 55
+
+   26 arg: MINUS ID •
+
+    $default  reduce using rule 26 (arg)
+
+
+State 56
+
+   24 arg: MINUS NUMBER •
+
+    $default  reduce using rule 24 (arg)
+
+
+State 57
+
+   40 array: LPAREN ws_opt • RPAREN
+   41      | LPAREN ws_opt • elements ws_opt RPAREN
+
+    DOLLAR         shift, and go to state 30
+    DOLLAR_BRACED  shift, and go to state 31
+    PLUS           shift, and go to state 32
+    MINUS          shift, and go to state 33
+    LPAREN         shift, and go to state 34
+    RPAREN         shift, and go to state 68
+    ID             shift, and go to state 35
+    STRING         shift, and go to state 36
+    NUMBER         shift, and go to state 37
+    DOLLAR_SHARP   shift, and go to state 38
+
+    arg          go to state 69
+    with_dollar  go to state 40
+    array        go to state 41
+    elements     go to state 70
+
+
+State 58
+
+   29 arg: ID DOT • ID
+
+    ID  shift, and go to state 71
+
+
+State 59
+
+   10 separator: SEMI ws_opt newline_list_opt •
+
+    $default  reduce using rule 10 (separator)
+
+
+State 60
+
+    7 command_group: command_group separator ws_opt pipeline •
+   19 pipeline: pipeline • ws_opt PIPE ws_opt simple_command
+
+    WS  shift, and go to state 24
+
+    PIPE      reduce using rule 50 (ws_opt)
+    $default  reduce using rule 7 (command_group)
+
+    ws_opt  go to state 25
+
+
+State 61
+
+   19 pipeline: pipeline ws_opt PIPE ws_opt • simple_command
+
+    ID  shift, and go to state 9
+
+    simple_command  go to state 72
+    assignment      go to state 14
+    longid          go to state 15
+    command         go to state 16
+
+
+State 62
+
+   20 assignment: ID • EQUAL
+   21           | ID • EQUAL arg
+   22 arg: ID •
+   29    | ID • DOT ID
+
+    EQUAL  shift, and go to state 18
+    DOT    shift, and go to state 58
+
+    $default  reduce using rule 22 (arg)
+
+
+State 63
+
+   49 arg_list: arg_list WS assignment •
+
+    $default  reduce using rule 49 (arg_list)
+
+
+State 64
+
+   48 arg_list: arg_list WS arg •
+
+    $default  reduce using rule 48 (arg_list)
+
+
+State 65
+
+   39 with_dollar: DOLLAR LPAREN ws_opt • command ws_opt RPAREN
+
+    ID  shift, and go to state 66
+
+    longid   go to state 15
+    command  go to state 73
+
+
+State 66
+
+   44 longid: ID •
+
+    $default  reduce using rule 44 (longid)
+
+
+State 67
+
+   28 arg: MINUS MINUS longid •
+   45 longid: longid • MINUS ID
+
+    MINUS  shift, and go to state 27
+
+    $default  reduce using rule 28 (arg)
+
+
+State 68
+
+   40 array: LPAREN ws_opt RPAREN •
+
+    $default  reduce using rule 40 (array)
+
+
+State 69
+
+   42 elements: arg •
+
+    $default  reduce using rule 42 (elements)
+
+
+State 70
+
+   41 array: LPAREN ws_opt elements • ws_opt RPAREN
+   43 elements: elements • WS arg
+
+    WS  shift, and go to state 74
+
+    $default  reduce using rule 50 (ws_opt)
+
+    ws_opt  go to state 75
+
+
+State 71
+
+   29 arg: ID DOT ID •
+
+    $default  reduce using rule 29 (arg)
+
+
+State 72
+
+   19 pipeline: pipeline ws_opt PIPE ws_opt simple_command •
+
+    $default  reduce using rule 19 (pipeline)
+
+
+State 73
+
+   39 with_dollar: DOLLAR LPAREN ws_opt command • ws_opt RPAREN
+
+    WS  shift, and go to state 24
+
+    $default  reduce using rule 50 (ws_opt)
+
+    ws_opt  go to state 76
+
+
+State 74
+
+   43 elements: elements WS • arg
+   51 ws_opt: WS •
+
+    DOLLAR         shift, and go to state 30
+    DOLLAR_BRACED  shift, and go to state 31
+    PLUS           shift, and go to state 32
+    MINUS          shift, and go to state 33
+    LPAREN         shift, and go to state 34
+    ID             shift, and go to state 35
+    STRING         shift, and go to state 36
+    NUMBER         shift, and go to state 37
+    DOLLAR_SHARP   shift, and go to state 38
+
+    $default  reduce using rule 51 (ws_opt)
+
+    arg          go to state 77
+    with_dollar  go to state 40
+    array        go to state 41
+
+
+State 75
+
+   41 array: LPAREN ws_opt elements ws_opt • RPAREN
+
+    RPAREN  shift, and go to state 78
+
+
+State 76
+
+   39 with_dollar: DOLLAR LPAREN ws_opt command ws_opt • RPAREN
+
+    RPAREN  shift, and go to state 79
+
+
+State 77
+
+   43 elements: elements WS arg •
+
+    $default  reduce using rule 43 (elements)
+
+
+State 78
+
+   41 array: LPAREN ws_opt elements ws_opt RPAREN •
+
+    $default  reduce using rule 41 (array)
+
+
+State 79
+
+   39 with_dollar: DOLLAR LPAREN ws_opt command ws_opt RPAREN •
+
+    $default  reduce using rule 39 (with_dollar)

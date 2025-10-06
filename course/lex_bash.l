@@ -49,6 +49,7 @@ RPAREN ")"
 {RBRACE} { return RBRACE; }
 {LPAREN} { return LPAREN; }
 {RPAREN} { return RPAREN; }
+"." { return DOT; }
 "|" { return PIPE; }
 "&" { return AMP; }
 ";" { return SEMI; }
