@@ -45,3 +45,13 @@ ws_need: ws_list WS
 end_of_line: ws_list NEWLINE
             | ws_list
     ;
+
+
+
+
+ifelsefi: ifthen
+
+ifthen: IF WS LDBRACKET WS arg_list WS RDBRACKET SEMI WS THEN
+    | IF WS LDBRACKET LDBRACKET WS arg_list WS RDBRACKET RDBRACKET SEMI WS THEN
+    | IF WS LPAREN LPAREN WS arg_list WS RPAREN RPAREN SEMI WS THEN
+

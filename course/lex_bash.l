@@ -56,8 +56,8 @@ RPAREN ")"
 "<" { return LT; }
 ">" { return GT; }
 "!" { return BANG; }
-"\[\[" { return LDBRACKET; }
-"\]\]" { return RDBRACKET; }
+"\[" { return LDBRACKET; }
+"\]" { return RDBRACKET; }
 
 {STRING} { return STRING; }
 {NUMBER} { return NUMBER; }

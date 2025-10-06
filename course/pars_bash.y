@@ -14,37 +14,30 @@ void yyerror(char *s) {
 %token ID STRING NUMBER SHEBANG SOBAKA DOLLAR_SHARP
 %token WS NEWLINE
 
-%left PIPE
-
 %start script
 
 %%
-script: SHEBANG statements
+script: SHEBANG statements { printf("script \n"); }
     | statements
     ;
-statements: newline_list_opt command_list newline_list_opt
+statements: newline_list_opt command_list newline_list_opt { printf("statements \n"); }
     ;
 
 command_list: /* empty */
-    | command_group opt_separator
+    | command_group separator_opt { printf("command_list \n"); }
     ;
-command_group: pipeline
-    | command_group separator ws_opt pipeline
+command_group: pipeline { printf("command_group: pipeline \n"); }
+    | command_group separator ws_opt pipeline { printf("command_group separator ws_opt pipeline \n"); }
     ;
-opt_separator: /* empty */
-    | separator
-    ;
-separator: SEMI ws_opt newline_list_opt
-    | newline_list
-    ;
-newline_list_opt: /* empty */
+separator: SEMI ws_opt newline_list_opt { printf("separator \n"); }
     | newline_list
     ;
 newline_list: NEWLINE
     | newline_list NEWLINE
     ;
-simple_command: assignment ws_opt
-    | command ws_opt
+simple_command: assignment ws_opt { printf("assignment ws_opt \n"); }
+    | command ws_opt { printf("command ws_opt \n"); }
+    | ifelsefi ws_opt { printf("ifelsefi ws_opt \n"); }
     ;
 pipeline: simple_command
     | pipeline ws_opt PIPE ws_opt simple_command
@@ -87,9 +80,17 @@ arg_list: /* empty */
     | arg_list WS arg
     | arg_list WS assignment
 ;
+
+/* opt functions */
+separator_opt: /* empty */
+    | separator
+    ;
+newline_list_opt: /* empty */
+    | newline_list
+    ;
 ws_opt: /* empty */
-        | WS
-        ;
+    | WS
+    ;
 %%
 int main(int argc, char **argv) {
     FILE *input = NULL;
