@@ -6,6 +6,7 @@ extern YYSTYPE yylval;
 %}
 %option yylineno
 NUMBER [0-9]+
+ID [a-zA-Z_][a-zA-Z0-9_]*
 STRING (\"[^"]*\"|'[^']*')
 WS [ \t]+
 DOLLAR "\$"
@@ -13,17 +14,6 @@ LBRACE "\{"
 RBRACE "\}"
 LPAREN "("
 RPAREN ")"
-
-/* Names of variables and commands */
-ID          [a-zA-Z_][a-zA-Z0-9_]*
-COMMAND     [a-zA-Z_][a-zA-Z0-9_\.\+\-]*
-NUM_COMMAND [0-9]+[a-zA-Z][a-zA-Z0-9_\.\+\-]*
-PATH        [a-zA-Z0-9_~\.\-]*\/[a-zA-Z0-9_\.\-\/~]*
-
-EXPANSION   \$[#?!@$*0-9a-zA-Z_][#?!@$*0-9a-zA-Z_]*
-
-SHORT_FLAG  -[a-zA-Z][a-zA-Z0-9]*
-LONG_FLAG   --[a-zA-Z][a-zA-Z0-9_\-]*
 
 %%
 "#!/bin/bash"[ \t]*	{ return SHEBANG; }
@@ -46,11 +36,13 @@ LONG_FLAG   --[a-zA-Z][a-zA-Z0-9_\-]*
 "coproc" { return COPROC; }
 "select" { return SELECT; }
 "function" { return FUNCTION; }
+{ID} { return ID; }
 
 = { return EQUAL; }
 "+" { return PLUS; }
 "-" { return MINUS; }
 "@" { return SOBAKA; }
+"\$#" { return DOLLAR_SHARP; }
 {DOLLAR} { return DOLLAR; }
 \$\{[^{}}]*\}    { return DOLLAR_BRACED; }
 {LBRACE} { return LBRACE; }
@@ -66,24 +58,6 @@ LONG_FLAG   --[a-zA-Z][a-zA-Z0-9_\-]*
 "!" { return BANG; }
 "\[" { return LDBRACKET; }
 "\]" { return RDBRACKET; }
-
-"&&" { return LOGIC_OP; }
-"||" { return LOGIC_OP; }
-
-">>" { return REDIR_OP; }
-"<<" { return REDIR_OP; }
-">&" { return REDIR_OP; }
-"<&" { return REDIR_OP; }
-
-{EXPANSION} { return EXPANSION; }
-
-{LONG_FLAG}  { return FLAG; }
-{SHORT_FLAG} { return FLAG; }
-
-{ID}          { return ID; }
-{PATH}        { return PATH; }
-{NUM_COMMAND} { return COMMAND; }
-{COMMAND}     { return COMMAND; }
 
 {STRING} { return STRING; }
 {NUMBER} { return NUMBER; }
