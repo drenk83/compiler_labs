@@ -1,110 +1,246 @@
 %{
 #include <stdio.h>
-#include "y.tab.h"
-extern int yylex(void);
+#include <stdlib.h>
+
+int yylex(void);
 extern int yylineno;
 extern FILE *yyin;
-void yyerror(char *s) {
-    fprintf(stderr, "Syntax error: %s (line %d)\n", s, yylineno);
+
+void error_line(int line)
+{
+    fprintf(stderr, "Error: line %d\n", line);
+}
+
+void yyerror(char *msg)
+{
+    (void)msg;
+    error_line(yylineno);
 }
 %}
-%token IF THEN ELIF ELSE FI TIME FOR IN UNTIL WHILE DO DONE CASE ESAC COPROC SELECT FUNCTION
-%token EQUAL PIPE AMP SEMI LT GT BANG DOLLAR DOLLAR_BRACED PLUS MINUS DOT
-%token LBRACE RBRACE LPAREN RPAREN LDBRACKET RDBRACKET
-%token ID STRING NUMBER SHEBANG SOBAKA DOLLAR_SHARP
-%token WS NEWLINE
 
-%start script
+%token SHEBANG
+%token IF THEN ELIF ELSE FI
+%token WHILE UNTIL DO DONE
+%token FOR IN CASE ESAC FUNCTION LOCAL
+%token ID WORD STRING ASSIGN
+%token DOLLAR_ID DOLLAR_NUM DOLLAR_SPECIAL DOLLAR_BRACE DOLLAR_LPAREN
+%token LBRACK RBRACK LBRACE RBRACE LPAREN RPAREN
+%token PIPE AND OR AMP SEMI DSEMI NL
+%token LT GT DGREAT REDIR_ERR REDIR_ERR_OUT
+
+%start program
 
 %%
-script: SHEBANG statements { printf("script \n"); }
-    | statements
-    ;
-statements: newline_list_opt command_list newline_list_opt { printf("statements \n"); }
+
+program:
+    SHEBANG list
     ;
 
-command_list: /* empty */
-    | command_group separator_opt { printf("command_list \n"); }
+list:
+    nl_opt
+    | nl_opt stmt_seq
+    | nl_opt stmt_seq separator
     ;
-command_group: pipeline { printf("command_group: pipeline \n"); }
-    | command_group separator ws_opt pipeline { printf("command_group separator ws_opt pipeline \n"); }
+
+stmt_seq:
+    and_or
+    | stmt_seq separator and_or
     ;
-separator: SEMI ws_opt newline_list_opt { printf("separator \n"); }
-    | newline_list
+
+separator:
+    SEMI nl_opt
+    | AMP nl_opt
+    | NL nl_opt
     ;
-newline_list: NEWLINE
-    | newline_list NEWLINE
+
+nl_opt:
+    /* empty */
+    | nl_opt NL
     ;
-simple_command: assignment ws_opt { printf("assignment ws_opt \n"); }
-    | command ws_opt { printf("command ws_opt \n"); }
-    | ifelsefi ws_opt { printf("ifelsefi ws_opt \n"); }
+
+and_or:
+    pipeline
+    | and_or AND nl_opt pipeline
+    | and_or OR nl_opt pipeline
     ;
-pipeline: simple_command
-    | pipeline ws_opt PIPE ws_opt simple_command
+
+pipeline:
+    command
+    | pipeline PIPE nl_opt command
     ;
-assignment: ID EQUAL
-    | ID EQUAL arg
+
+command:
+    simple_command
+    | assignment
+    | test_command
+    | if_clause
+    | while_clause
+    | until_clause
+    | for_clause
+    | case_clause
+    | function_def
+    | local_stmt
     ;
-arg: ID
-    | NUMBER
-    | MINUS NUMBER
-    | PLUS NUMBER
-    | MINUS ID
-    | PLUS ID
-    | MINUS MINUS longid
-    | ID DOT ID
+
+assignment:
+    ASSIGN
+    | ASSIGN word
+    ;
+
+simple_command:
+    cmd_name arg_list redir_list
+    ;
+
+cmd_name:
+    ID
+    | WORD
+    ;
+
+arg_list:
+    /* empty */
+    | arg_list arg
+    ;
+
+arg:
+    word
+    | ASSIGN
+    ;
+
+word:
+    ID
+    | WORD
     | STRING
-    | with_dollar
-    | array
+    | expansion
     ;
-with_dollar: DOLLAR ID
-    | DOLLAR NUMBER
-    | DOLLAR DOLLAR
-    | DOLLAR SOBAKA
-    | DOLLAR_SHARP
-    | DOLLAR_BRACED
-    | DOLLAR LPAREN ws_opt command ws_opt RPAREN
-    ;
-array: LPAREN ws_opt RPAREN
-    | LPAREN ws_opt elements ws_opt RPAREN
-    ;
-elements: arg
-    | elements WS arg
-    ;
-longid: ID
-    | longid MINUS ID
-    ;
-command: longid arg_list
-    ;
-arg_list: /* empty */
-    | arg_list WS arg
-    | arg_list WS assignment
-;
 
-/* opt functions */
-separator_opt: /* empty */
-    | separator
+expansion:
+    DOLLAR_ID
+    | DOLLAR_NUM
+    | DOLLAR_SPECIAL
+    | DOLLAR_BRACE
+    | cmdsubst
     ;
-newline_list_opt: /* empty */
-    | newline_list
+
+cmdsubst:
+    DOLLAR_LPAREN list RPAREN
     ;
-ws_opt: /* empty */
-    | WS
+
+redir_list:
+    /* empty */
+    | redir_list redir
     ;
+
+redir:
+    GT redir_target
+    | DGREAT redir_target
+    | LT redir_target
+    | REDIR_ERR redir_target
+    | REDIR_ERR_OUT
+    ;
+
+redir_target:
+    ID
+    | WORD
+    ;
+
+test_command:
+    LBRACK arg_list RBRACK
+    ;
+
+if_clause:
+    IF test_command sep THEN list FI
+    | IF test_command sep THEN list elif_parts FI
+    | IF test_command sep THEN list ELSE list FI
+    | IF test_command sep THEN list elif_parts ELSE list FI
+    ;
+
+elif_parts:
+    ELIF test_command sep THEN list
+    | elif_parts ELIF test_command sep THEN list
+    ;
+
+while_clause:
+    WHILE test_command sep DO list DONE
+    ;
+
+until_clause:
+    UNTIL test_command sep DO list DONE
+    ;
+
+for_clause:
+    FOR ID IN arg_list sep DO list DONE
+    ;
+
+sep:
+    SEMI nl_opt
+    | NL nl_opt
+    ;
+
+case_clause:
+    CASE arg IN nl_opt case_items ESAC
+    ;
+
+case_items:
+    /* empty */
+    | case_items case_item
+    ;
+
+case_item:
+    patterns RPAREN list DSEMI nl_opt
+    ;
+
+patterns:
+    pattern
+    | patterns PIPE pattern
+    ;
+
+pattern:
+    ID
+    | WORD
+    | STRING
+    ;
+
+function_def:
+    ID LPAREN RPAREN nl_opt brace_group
+    | FUNCTION ID nl_opt brace_group
+    | FUNCTION ID LPAREN RPAREN nl_opt brace_group
+    ;
+
+brace_group:
+    LBRACE nl_opt RBRACE
+    | LBRACE nl_opt stmt_seq separator RBRACE
+    ;
+
+local_stmt:
+    LOCAL local_names
+    ;
+
+local_names:
+    local_item
+    | local_names local_item
+    ;
+
+local_item:
+    ID
+    | ASSIGN
+    | ASSIGN word
+    ;
+
 %%
-int main(int argc, char **argv) {
-    FILE *input = NULL;
+
+int main(int argc, char **argv)
+{
+    int result;
+
     if (argc > 1) {
-        input = fopen(argv[1], "r");
-        if (!input) {
-            perror("Error opening file");
+        yyin = fopen(argv[1], "r");
+        if (!yyin) {
+            perror(argv[1]);
             return 1;
         }
-        yyin = input;
     }
-    int result = yyparse();
-    if (input) {
-        fclose(input);
-    }
+    result = yyparse();
+    if (argc > 1)
+        fclose(yyin);
     return result;
 }

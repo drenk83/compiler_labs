@@ -54,49 +54,49 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    IF = 258,                      /* IF  */
-    THEN = 259,                    /* THEN  */
-    ELIF = 260,                    /* ELIF  */
-    ELSE = 261,                    /* ELSE  */
-    FI = 262,                      /* FI  */
-    TIME = 263,                    /* TIME  */
-    FOR = 264,                     /* FOR  */
-    IN = 265,                      /* IN  */
-    UNTIL = 266,                   /* UNTIL  */
-    WHILE = 267,                   /* WHILE  */
-    DO = 268,                      /* DO  */
-    DONE = 269,                    /* DONE  */
+    SHEBANG = 258,                 /* SHEBANG  */
+    IF = 259,                      /* IF  */
+    THEN = 260,                    /* THEN  */
+    ELIF = 261,                    /* ELIF  */
+    ELSE = 262,                    /* ELSE  */
+    FI = 263,                      /* FI  */
+    WHILE = 264,                   /* WHILE  */
+    UNTIL = 265,                   /* UNTIL  */
+    DO = 266,                      /* DO  */
+    DONE = 267,                    /* DONE  */
+    FOR = 268,                     /* FOR  */
+    IN = 269,                      /* IN  */
     CASE = 270,                    /* CASE  */
     ESAC = 271,                    /* ESAC  */
-    COPROC = 272,                  /* COPROC  */
-    SELECT = 273,                  /* SELECT  */
-    FUNCTION = 274,                /* FUNCTION  */
-    EQUAL = 275,                   /* EQUAL  */
-    PIPE = 276,                    /* PIPE  */
-    AMP = 277,                     /* AMP  */
-    SEMI = 278,                    /* SEMI  */
-    LT = 279,                      /* LT  */
-    GT = 280,                      /* GT  */
-    BANG = 281,                    /* BANG  */
-    DOLLAR = 282,                  /* DOLLAR  */
-    DOLLAR_BRACED = 283,           /* DOLLAR_BRACED  */
-    PLUS = 284,                    /* PLUS  */
-    MINUS = 285,                   /* MINUS  */
-    DOT = 286,                     /* DOT  */
-    LBRACE = 287,                  /* LBRACE  */
-    RBRACE = 288,                  /* RBRACE  */
-    LPAREN = 289,                  /* LPAREN  */
-    RPAREN = 290,                  /* RPAREN  */
-    LDBRACKET = 291,               /* LDBRACKET  */
-    RDBRACKET = 292,               /* RDBRACKET  */
-    ID = 293,                      /* ID  */
-    STRING = 294,                  /* STRING  */
-    NUMBER = 295,                  /* NUMBER  */
-    SHEBANG = 296,                 /* SHEBANG  */
-    SOBAKA = 297,                  /* SOBAKA  */
-    DOLLAR_SHARP = 298,            /* DOLLAR_SHARP  */
-    WS = 299,                      /* WS  */
-    NEWLINE = 300                  /* NEWLINE  */
+    FUNCTION = 272,                /* FUNCTION  */
+    LOCAL = 273,                   /* LOCAL  */
+    ID = 274,                      /* ID  */
+    WORD = 275,                    /* WORD  */
+    STRING = 276,                  /* STRING  */
+    ASSIGN = 277,                  /* ASSIGN  */
+    DOLLAR_ID = 278,               /* DOLLAR_ID  */
+    DOLLAR_NUM = 279,              /* DOLLAR_NUM  */
+    DOLLAR_SPECIAL = 280,          /* DOLLAR_SPECIAL  */
+    DOLLAR_BRACE = 281,            /* DOLLAR_BRACE  */
+    DOLLAR_LPAREN = 282,           /* DOLLAR_LPAREN  */
+    LBRACK = 283,                  /* LBRACK  */
+    RBRACK = 284,                  /* RBRACK  */
+    LBRACE = 285,                  /* LBRACE  */
+    RBRACE = 286,                  /* RBRACE  */
+    LPAREN = 287,                  /* LPAREN  */
+    RPAREN = 288,                  /* RPAREN  */
+    PIPE = 289,                    /* PIPE  */
+    AND = 290,                     /* AND  */
+    OR = 291,                      /* OR  */
+    AMP = 292,                     /* AMP  */
+    SEMI = 293,                    /* SEMI  */
+    DSEMI = 294,                   /* DSEMI  */
+    NL = 295,                      /* NL  */
+    LT = 296,                      /* LT  */
+    GT = 297,                      /* GT  */
+    DGREAT = 298,                  /* DGREAT  */
+    REDIR_ERR = 299,               /* REDIR_ERR  */
+    REDIR_ERR_OUT = 300            /* REDIR_ERR_OUT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -105,49 +105,49 @@ extern int yydebug;
 #define YYEOF 0
 #define YYerror 256
 #define YYUNDEF 257
-#define IF 258
-#define THEN 259
-#define ELIF 260
-#define ELSE 261
-#define FI 262
-#define TIME 263
-#define FOR 264
-#define IN 265
-#define UNTIL 266
-#define WHILE 267
-#define DO 268
-#define DONE 269
+#define SHEBANG 258
+#define IF 259
+#define THEN 260
+#define ELIF 261
+#define ELSE 262
+#define FI 263
+#define WHILE 264
+#define UNTIL 265
+#define DO 266
+#define DONE 267
+#define FOR 268
+#define IN 269
 #define CASE 270
 #define ESAC 271
-#define COPROC 272
-#define SELECT 273
-#define FUNCTION 274
-#define EQUAL 275
-#define PIPE 276
-#define AMP 277
-#define SEMI 278
-#define LT 279
-#define GT 280
-#define BANG 281
-#define DOLLAR 282
-#define DOLLAR_BRACED 283
-#define PLUS 284
-#define MINUS 285
-#define DOT 286
-#define LBRACE 287
-#define RBRACE 288
-#define LPAREN 289
-#define RPAREN 290
-#define LDBRACKET 291
-#define RDBRACKET 292
-#define ID 293
-#define STRING 294
-#define NUMBER 295
-#define SHEBANG 296
-#define SOBAKA 297
-#define DOLLAR_SHARP 298
-#define WS 299
-#define NEWLINE 300
+#define FUNCTION 272
+#define LOCAL 273
+#define ID 274
+#define WORD 275
+#define STRING 276
+#define ASSIGN 277
+#define DOLLAR_ID 278
+#define DOLLAR_NUM 279
+#define DOLLAR_SPECIAL 280
+#define DOLLAR_BRACE 281
+#define DOLLAR_LPAREN 282
+#define LBRACK 283
+#define RBRACK 284
+#define LBRACE 285
+#define RBRACE 286
+#define LPAREN 287
+#define RPAREN 288
+#define PIPE 289
+#define AND 290
+#define OR 291
+#define AMP 292
+#define SEMI 293
+#define DSEMI 294
+#define NL 295
+#define LT 296
+#define GT 297
+#define DGREAT 298
+#define REDIR_ERR 299
+#define REDIR_ERR_OUT 300
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

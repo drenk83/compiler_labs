@@ -2,99 +2,132 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "y.tab.h"
-extern YYSTYPE yylval;
+
+extern void error_line(int line);
+
+static int read_single_quote(void);
+static int read_double_quote(void);
 %}
-%option yylineno
-NUMBER [0-9]+
-STRING (\"[^"]*\"|'[^']*')
-WS [ \t]+
-DOLLAR "\$"
-LBRACE "\{"
-RBRACE "\}"
-LPAREN "("
-RPAREN ")"
 
-/* Names of variables and commands */
-ID          [a-zA-Z_][a-zA-Z0-9_]*
-COMMAND     [a-zA-Z_][a-zA-Z0-9_\.\+\-]*
-NUM_COMMAND [0-9]+[a-zA-Z][a-zA-Z0-9_\.\+\-]*
-PATH        [a-zA-Z0-9_~\.\-]*\/[a-zA-Z0-9_\.\-\/~]*
+%option yylineno noyywrap nounput
+%x BODY
 
-EXPANSION   \$[#?!@$*0-9a-zA-Z_][#?!@$*0-9a-zA-Z_]*
-
-SHORT_FLAG  -[a-zA-Z][a-zA-Z0-9]*
-LONG_FLAG   --[a-zA-Z][a-zA-Z0-9_\-]*
+ID      [A-Za-z_][A-Za-z0-9_]*
+WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 
 %%
-"#!/bin/bash"[ \t]*	{ return SHEBANG; }
-#.* { }
 
-"if" { return IF; }
-"then" { return THEN; }
-"elif" { return ELIF; }
-"else" { return ELSE; }
-"fi" { return FI; }
-"time" { return TIME; }
-"for" { return FOR; }
-"in" { return IN; }
-"until" { return UNTIL; }
-"while" { return WHILE; }
-"do" { return DO; }
-"done" { return DONE; }
-"case" { return CASE; }
-"esac" { return ESAC; }
-"coproc" { return COPROC; }
-"select" { return SELECT; }
-"function" { return FUNCTION; }
+<INITIAL>"#!/bin/bash"[ \t]*\n  { BEGIN(BODY); return SHEBANG; }
+<INITIAL>"#!/bin/bash"[ \t]*    { BEGIN(BODY); return SHEBANG; }
+<INITIAL>"#!/bin/bash".*        { error_line(1); exit(1); }
+<INITIAL>.                      { error_line(1); exit(1); }
+<INITIAL>\n                     { error_line(1); exit(1); }
 
-= { return EQUAL; }
-"+" { return PLUS; }
-"-" { return MINUS; }
-"@" { return SOBAKA; }
-{DOLLAR} { return DOLLAR; }
-\$\{[^{}}]*\}    { return DOLLAR_BRACED; }
-{LBRACE} { return LBRACE; }
-{RBRACE} { return RBRACE; }
-{LPAREN} { return LPAREN; }
-{RPAREN} { return RPAREN; }
-"." { return DOT; }
-"|" { return PIPE; }
-"&" { return AMP; }
-";" { return SEMI; }
-"<" { return LT; }
-">" { return GT; }
-"!" { return BANG; }
-"\[" { return LDBRACKET; }
-"\]" { return RDBRACKET; }
+<BODY>[ \t]+                    { }
+<BODY>#.*                       { }
 
-"&&" { return LOGIC_OP; }
-"||" { return LOGIC_OP; }
+<BODY>"if"                      { return IF; }
+<BODY>"then"                    { return THEN; }
+<BODY>"elif"                    { return ELIF; }
+<BODY>"else"                    { return ELSE; }
+<BODY>"fi"                      { return FI; }
+<BODY>"while"                   { return WHILE; }
+<BODY>"until"                   { return UNTIL; }
+<BODY>"do"                      { return DO; }
+<BODY>"done"                    { return DONE; }
+<BODY>"for"                     { return FOR; }
+<BODY>"in"                      { return IN; }
+<BODY>"case"                    { return CASE; }
+<BODY>"esac"                    { return ESAC; }
+<BODY>"function"                { return FUNCTION; }
+<BODY>"local"                   { return LOCAL; }
 
-">>" { return REDIR_OP; }
-"<<" { return REDIR_OP; }
-">&" { return REDIR_OP; }
-"<&" { return REDIR_OP; }
+<BODY>"2>&1"                    { return REDIR_ERR_OUT; }
+<BODY>"2>"                      { return REDIR_ERR; }
+<BODY>">>"                      { return DGREAT; }
+<BODY>"&&"                      { return AND; }
+<BODY>"||"                      { return OR; }
+<BODY>";;"                      { return DSEMI; }
 
-{EXPANSION} { return EXPANSION; }
+<BODY>"|"                       { return PIPE; }
+<BODY>"&"                       { return AMP; }
+<BODY>";"                       { return SEMI; }
+<BODY>"<"                       { return LT; }
+<BODY>">"                       { return GT; }
+<BODY>"("                       { return LPAREN; }
+<BODY>")"                       { return RPAREN; }
+<BODY>"{"                       { return LBRACE; }
+<BODY>"}"                       { return RBRACE; }
+<BODY>"["                       { return LBRACK; }
+<BODY>"]"                       { return RBRACK; }
 
-{LONG_FLAG}  { return FLAG; }
-{SHORT_FLAG} { return FLAG; }
+<BODY>"$("                      { return DOLLAR_LPAREN; }
+<BODY>"${"{ID}"}"               { return DOLLAR_BRACE; }
+<BODY>"${"                      { error_line(yylineno); exit(1); }
+<BODY>"$#"|"$@"|"$*"|"$$"|"$?"  { return DOLLAR_SPECIAL; }
+<BODY>"$"{ID}                   { return DOLLAR_ID; }
+<BODY>"$"[0-9]+                 { return DOLLAR_NUM; }
+<BODY>"$"                       { error_line(yylineno); exit(1); }
 
-{ID}          { return ID; }
-{PATH}        { return PATH; }
-{NUM_COMMAND} { return COMMAND; }
-{COMMAND}     { return COMMAND; }
+<BODY>{ID}={WORD}               { return ASSIGN; }
+<BODY>{ID}=                     { return ASSIGN; }
+<BODY>{ID}                      { return ID; }
+<BODY>{WORD}                    { return WORD; }
 
-{STRING} { return STRING; }
-{NUMBER} { return NUMBER; }
+<BODY>'                         { return read_single_quote(); }
+<BODY>\"                        { return read_double_quote(); }
 
-{WS} { return WS; }
-\n { return NEWLINE; }
+<BODY>\n                        { return NL; }
 
-. {
-    fprintf(stderr, "Неожиданный символ: %s (строка %d)\n", yytext, yylineno);
+<BODY>.                         { error_line(yylineno); exit(1); }
+
+%%
+
+static int read_single_quote(void)
+{
+    int line = yylineno;
+    int c;
+
+    while ((c = input()) != 0) {
+        if (c == '\'')
+            return STRING;
+        if (c == '\n') {
+            error_line(line);
+            exit(1);
+        }
+    }
+    error_line(line);
+    exit(1);
 }
-%%
-int yywrap() {
-    return 1;
+
+static int read_double_quote(void)
+{
+    int line = yylineno;
+    int c;
+    int escaped = 0;
+
+    while ((c = input()) != 0) {
+        if (c == '\n') {
+            if (!escaped) {
+                error_line(line);
+                exit(1);
+            }
+            line++;
+            yylineno++;
+            escaped = 0;
+            continue;
+        }
+        if (escaped) {
+            escaped = 0;
+            continue;
+        }
+        if (c == '\\') {
+            escaped = 1;
+            continue;
+        }
+        if (c == '"')
+            return STRING;
+    }
+    error_line(line);
+    exit(1);
 }
