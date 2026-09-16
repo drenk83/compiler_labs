@@ -1,1 +1,8 @@
 info/
+
+lex.yy.c
+y.tab.c
+y.tab.h
+y.output
+bash_parser
+lex_bash
