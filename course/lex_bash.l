@@ -17,11 +17,11 @@ WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 
 %%
 
-<INITIAL>"#!/bin/bash"[ \t]*\n  { BEGIN(BODY); return SHEBANG; }
-<INITIAL>"#!/bin/bash"[ \t]*    { BEGIN(BODY); return SHEBANG; }
-<INITIAL>"#!/bin/bash".*        { error_line(1); exit(1); }
-<INITIAL>.                      { error_line(1); exit(1); }
-<INITIAL>\n                     { error_line(1); exit(1); }
+"#!/bin/bash"[ \t]*\n  { BEGIN(BODY); return SHEBANG; }
+"#!/bin/bash"[ \t]*    { BEGIN(BODY); return SHEBANG; }
+"#!/bin/bash".*        { error_line(1); exit(1); }
+.                      { error_line(1); exit(1); }
+\n                     { error_line(1); exit(1); }
 
 <BODY>[ \t]+                    { }
 <BODY>#.*                       { }
