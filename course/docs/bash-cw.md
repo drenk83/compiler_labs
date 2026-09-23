@@ -38,7 +38,7 @@ body        ::= { NL | comment NL | complete_command }
 Пробел и таб разделяют токены и иначе незначимы.
 
 **Ключевые слова** (только целиком, не часть слова):  
-`if` `then` `elif` `else` `fi` `while` `until` `do` `done` `for` `in` `case` `esac` `function` `local`
+`if` `then` `elif` `else` `fi` `while` `until` `do` `done` `for` `select` `in` `case` `esac` `function` `local`
 
 **Операторы:**  
 `|` `||` `&` `&&` `;` `<` `>` `>>` `2>` `2>&1` `(` `)` `{` `}` `[` `]`
@@ -83,6 +83,7 @@ command          ::= simple_command
                    | while_clause
                    | until_clause
                    | for_clause
+                   | select_clause
                    | case_clause
                    | function_def
                    | local_stmt
@@ -146,6 +147,14 @@ fi
 for_clause ::= FOR ID IN { argument } ( ';' | NL ) DO [ NL ] body DONE
 ```
 
+### select
+
+Та же форма, что у `for`. Переменная `REPLY` и меню — семантика оболочки, распознаватель их не проверяет.
+
+```
+select_clause ::= SELECT ID IN { argument } ( ';' | NL ) DO [ NL ] body DONE
+```
+
 ### case
 
 Каждый пункт, включая последний, заканчивается `;;`.
@@ -171,7 +180,7 @@ local_stmt   ::= LOCAL { ID | ASSIGN }
 
 ## Вне языка
 
-В том числе: `#!/usr/bin/env bash`; here-doc `<<`; `<( )`; `` `...` ``; `[[ ]]`; `(( ))` `$(( ))`; `${var:-x}` `${var/pat/repl}`; массивы `a=(...)` `${a[@]}`; `source` / `.`; `coproc`; `select`; группы `{ ...; }` и подшелл `( ... )` как команды (скобки только у функций, `$(...)`, `[...]`, `case`); префикс `VAR=val cmd`; байты вне ASCII.
+В том числе: `#!/usr/bin/env bash`; here-doc `<<`; `<( )`; `` `...` ``; `[[ ]]`; `(( ))` `$(( ))`; `${var:-x}` `${var/pat/repl}`; массивы `a=(...)` `${a[@]}`; `source` / `.`; `coproc`; группы `{ ...; }` и подшелл `( ... )` как команды (скобки только у функций, `$(...)`, `[...]`, `case`); префикс `VAR=val cmd`; байты вне ASCII.
 
 Ключевые слова распознаются в любой позиции (`echo done`, `echo in`). Вне кавычек отвергается `\`. Символы `[ ] { }` не входят в слово (`ls [abc]*`, `echo {a,b}`). Не принимаются `if ! [ ... ]`, перенаправление после составной команды (`done < f`) и шебанг с `\r` (CRLF даёт `extra text in shebang`).
 

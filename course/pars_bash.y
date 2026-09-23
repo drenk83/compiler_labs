@@ -24,7 +24,7 @@ void yyerror(char *msg)
 %token SHEBANG
 %token IF THEN ELIF ELSE FI
 %token WHILE UNTIL DO DONE
-%token FOR IN CASE ESAC FUNCTION LOCAL
+%token FOR SELECT IN CASE ESAC FUNCTION LOCAL
 %token ID WORD STRING ASSIGN
 %token DOLLAR_ID DOLLAR_NUM DOLLAR_SPECIAL DOLLAR_BRACE DOLLAR_LPAREN
 %token LBRACK RBRACK LBRACE RBRACE LPAREN RPAREN
@@ -80,6 +80,7 @@ command:
     | while_clause
     | until_clause
     | for_clause
+    | select_clause
     | case_clause
     | function_def
     | local_stmt
@@ -194,6 +195,10 @@ bad_condition:
 
 for_clause:
     FOR ID IN arg_list sep DO list DONE
+    ;
+
+select_clause:
+    SELECT ID IN arg_list sep DO list DONE
     ;
 
 sep:

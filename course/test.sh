@@ -180,6 +180,16 @@ for item in; do
   echo empty
 done
 
+# select
+select item in a b c; do
+  echo $item
+done
+
+select item in a b c
+do
+  echo $item
+done
+
 # case
 case $item in
 a|b)

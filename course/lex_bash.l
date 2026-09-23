@@ -37,6 +37,7 @@ WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 <BODY>"do"                      { return DO; }
 <BODY>"done"                    { return DONE; }
 <BODY>"for"                     { return FOR; }
+<BODY>"select"                  { return SELECT; }
 <BODY>"in"                      { return IN; }
 <BODY>"case"                    { return CASE; }
 <BODY>"esac"                    { return ESAC; }
