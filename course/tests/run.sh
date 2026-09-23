@@ -60,6 +60,10 @@ for f in "$REJECT"/*.sh; do
     continue
   fi
   expected="Error: line $(tr -d ' \t\n' <"$linef")"
+  msgf="${f%.sh}.msg"
+  if [ -f "$msgf" ]; then
+    expected="$expected: $(tr -d '\n' <"$msgf")"
+  fi
   run_parser "$f"
   got=$(sed -n '1p' "$stderr")
   if [ "$st" -eq 0 ]; then

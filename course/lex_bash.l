@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "y.tab.h"
 
-extern void error_line(int line);
+extern void error_line(int line, const char *msg);
 
 static int read_single_quote(void);
 static int read_double_quote(void);
@@ -19,9 +19,10 @@ WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 
 "#!/bin/bash"[ \t]*\n  { BEGIN(BODY); return SHEBANG; }
 "#!/bin/bash"[ \t]*    { BEGIN(BODY); return SHEBANG; }
-"#!/bin/bash".*        { error_line(1); exit(1); }
-.                      { error_line(1); exit(1); }
-\n                     { error_line(1); exit(1); }
+"#!/bin/bash".*        { error_line(1, "extra text in shebang"); exit(1); }
+.                      { error_line(1, "missing shebang"); exit(1); }
+\n                     { error_line(1, "missing shebang"); exit(1); }
+<INITIAL><<EOF>>       { error_line(1, "missing shebang"); exit(1); }
 
 <BODY>[ \t]+                    { }
 <BODY>#.*                       { }
@@ -63,11 +64,11 @@ WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 
 <BODY>"$("                      { return DOLLAR_LPAREN; }
 <BODY>"${"{ID}"}"               { return DOLLAR_BRACE; }
-<BODY>"${"                      { error_line(yylineno); exit(1); }
+<BODY>"${"                      { error_line(yylineno, NULL); exit(1); }
 <BODY>"$#"|"$@"|"$*"|"$$"|"$?"  { return DOLLAR_SPECIAL; }
 <BODY>"$"{ID}                   { return DOLLAR_ID; }
 <BODY>"$"[0-9]+                 { return DOLLAR_NUM; }
-<BODY>"$"                       { error_line(yylineno); exit(1); }
+<BODY>"$"                       { error_line(yylineno, NULL); exit(1); }
 
 <BODY>{ID}={WORD}               { return ASSIGN; }
 <BODY>{ID}=                     { return ASSIGN; }
@@ -79,7 +80,7 @@ WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 
 <BODY>\n                        { return NL; }
 
-<BODY>.                         { error_line(yylineno); exit(1); }
+<BODY>.                         { error_line(yylineno, NULL); exit(1); }
 
 %%
 
@@ -92,11 +93,11 @@ static int read_single_quote(void)
         if (c == '\'')
             return STRING;
         if (c == '\n') {
-            error_line(line);
+            error_line(line, NULL);
             exit(1);
         }
     }
-    error_line(line);
+    error_line(line, NULL);
     exit(1);
 }
 
@@ -109,11 +110,10 @@ static int read_double_quote(void)
     while ((c = input()) != 0) {
         if (c == '\n') {
             if (!escaped) {
-                error_line(line);
+                error_line(line, NULL);
                 exit(1);
             }
             line++;
-            yylineno++;
             escaped = 0;
             continue;
         }
@@ -128,6 +128,6 @@ static int read_double_quote(void)
         if (c == '"')
             return STRING;
     }
-    error_line(line);
+    error_line(line, NULL);
     exit(1);
 }

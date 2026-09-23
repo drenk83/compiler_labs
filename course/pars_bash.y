@@ -6,15 +6,18 @@ int yylex(void);
 extern int yylineno;
 extern FILE *yyin;
 
-void error_line(int line)
+void error_line(int line, const char *msg)
 {
-    fprintf(stderr, "Error: line %d\n", line);
+    if (msg)
+        fprintf(stderr, "Error: line %d: %s\n", line, msg);
+    else
+        fprintf(stderr, "Error: line %d\n", line);
 }
 
 void yyerror(char *msg)
 {
     (void)msg;
-    error_line(yylineno);
+    error_line(yylineno, NULL);
 }
 %}
 
@@ -134,6 +137,10 @@ redir:
     GT redir_target
     | DGREAT redir_target
     | LT redir_target
+    | LT LT {
+        error_line(yylineno, "here-document is not supported");
+        exit(1);
+    }
     | REDIR_ERR redir_target
     | REDIR_ERR_OUT
     ;
@@ -152,6 +159,10 @@ if_clause:
     | IF test_command sep THEN list elif_parts FI
     | IF test_command sep THEN list ELSE list FI
     | IF test_command sep THEN list elif_parts ELSE list FI
+    | IF bad_condition {
+        error_line(yylineno, "if condition must be [ ... ]");
+        exit(1);
+    }
     ;
 
 elif_parts:
@@ -161,10 +172,24 @@ elif_parts:
 
 while_clause:
     WHILE test_command sep DO list DONE
+    | WHILE bad_condition {
+        error_line(yylineno, "while condition must be [ ... ]");
+        exit(1);
+    }
     ;
 
 until_clause:
     UNTIL test_command sep DO list DONE
+    | UNTIL bad_condition {
+        error_line(yylineno, "until condition must be [ ... ]");
+        exit(1);
+    }
+    ;
+
+/* Условие if/while/until без '[': одно слово и разделитель. */
+bad_condition:
+    word SEMI
+    | word NL
     ;
 
 for_clause:
