@@ -76,14 +76,32 @@ command:
     simple_command
     | assignment
     | test_command
-    | if_clause
+    | compound_command
+    | function_def
+    | local_stmt
+    ;
+
+/* if, while, until, for, select, case, группа и подшелл.
+   Перенаправлений в конце может не быть: fi и fi > out. */
+compound_command:
+    compound_head redir_list
+    ;
+
+compound_head:
+    if_clause
     | while_clause
     | until_clause
     | for_clause
     | select_clause
     | case_clause
-    | function_def
-    | local_stmt
+    | brace_group
+    | subshell
+    ;
+
+/* Пробел между скобками сканер выбрасывает, поэтому ((cmd))
+   и ( ( cmd ) ) — один и тот же вложенный подшелл. */
+subshell:
+    LPAREN list RPAREN
     ;
 
 assignment:
@@ -95,9 +113,9 @@ simple_command:
     cmd_name arg_list redir_list
     ;
 
+/* То же слово, что и аргумент: echo, "echo", $cmd, $(echo echo). */
 cmd_name:
-    ID
-    | WORD
+    word
     ;
 
 arg_list:
@@ -146,13 +164,14 @@ redir:
     | REDIR_ERR_OUT
     ;
 
+/* Имя, обычное слово, строка или подстановка. Присваивание FOO=1 целью не бывает. */
 redir_target:
-    ID
-    | WORD
+    word
     ;
 
+/* redir_list может быть пустым. То же правило стоит в условии if, while и until. */
 test_command:
-    LBRACK arg_list RBRACK
+    LBRACK arg_list RBRACK redir_list
     ;
 
 if_clause:
@@ -193,12 +212,16 @@ bad_condition:
     | word NL
     ;
 
+/* Вторая форма — for name; do ... done, без списка in. */
 for_clause:
     FOR ID IN arg_list sep DO list DONE
+    | FOR ID sep DO list DONE
     ;
 
+/* Та же пара форм, что у for. */
 select_clause:
     SELECT ID IN arg_list sep DO list DONE
+    | SELECT ID sep DO list DONE
     ;
 
 sep:

@@ -79,14 +79,13 @@ pipeline         ::= command
 command          ::= simple_command
                    | assignment
                    | test_command
-                   | if_clause
-                   | while_clause
-                   | until_clause
-                   | for_clause
-                   | select_clause
-                   | case_clause
+                   | compound_command { redir }
                    | function_def
                    | local_stmt
+
+compound_command ::= if_clause | while_clause | until_clause
+                   | for_clause | select_clause | case_clause
+                   | brace_group | subshell
 ```
 
 После `then` `do` `else` `elif` `{` `in` `|` `&&` `||` перевод строки только пропускается: пустая команда из него не возникает. Между командами NL заканчивает команду (как `;`). Несколько пустых строк подряд допустимы. Пустая команда из `; ;` в язык не входит.
@@ -96,13 +95,16 @@ command          ::= simple_command
 ### Простая команда и присваивание
 
 ```
-simple_command ::= WORD { argument } { redir }
-argument       ::= WORD | STRING | ASSIGN | expansion
+simple_command ::= word { argument } { redir }
+argument       ::= word | ASSIGN
+word           ::= имя | WORD | STRING | expansion
 assignment     ::= ASSIGN
-redir          ::= '>' WORD | '>>' WORD | '<' WORD | '2>' WORD | '2>&1'
+redir          ::= '>' word | '>>' word | '<' word | '2>' word | '2>&1'
 ```
 
-Редиректы — только в конце простой команды.
+Имя команды — то же `word`, что аргумент без присваивания: `echo`, `"echo"`, `$cmd`, `$(echo echo)`.
+
+Редиректы стоят в конце простой команды, проверки `[ ... ]` и составной команды: `if`, `while`, `until`, `for`, `select`, `case`, группа и подшелл. После присваивания, функции и `local` их нет. Цель `>`, `>>`, `<` и `2>` — `word`: имя, обычное слово, строка или подстановка (`> "$file"`, `> $name`, `> $(echo /tmp/f)`). Конструкция `FOO=1` целью не бывает.
 
 `ASSIGN` в начале команды как единственный элемент — присваивание: `FOO=1`.  
 `ASSIGN` среди аргументов — обычный аргумент: `echo FOO=1`.  
@@ -111,10 +113,15 @@ redir          ::= '>' WORD | '>>' WORD | '<' WORD | '2>' WORD | '2>&1'
 ### `[ ... ]`
 
 ```
-test_command ::= '[' { argument } ']'
+test_command ::= '[' { argument } ']' { redir }
 ```
 
-Операторы теста (`-lt`, `=`, `-f`, …) не проверяются: это слова. `[[` в язык не входит.
+Операторы теста (`-lt`, `=`, `-f`, …) не проверяются: это слова. `[[` в язык не входит. Хвостовой редирект необязателен, в том числе когда проверка стоит в условии.
+
+```
+[ -f "$file" ] > /tmp/out
+if [ -f "$file" ] 2> /tmp/err; then echo ok; fi
+```
 
 ### if / while / until
 
@@ -145,14 +152,45 @@ fi
 
 ```
 for_clause ::= FOR ID IN { argument } ( ';' | NL ) DO [ NL ] body DONE
+             | FOR ID ( ';' | NL ) DO [ NL ] body DONE
+```
+
+Вторая форма — цикл без `in`. По списку слов распознаватель не ходит.
+
+```
+for name; do
+  echo "$name"
+done
 ```
 
 ### select
 
-Та же форма, что у `for`. Переменная `REPLY` и меню — семантика оболочки, распознаватель их не проверяет.
+Та же пара форм, что у `for`. Переменная `REPLY` и меню — семантика оболочки, распознаватель их не проверяет.
 
 ```
 select_clause ::= SELECT ID IN { argument } ( ';' | NL ) DO [ NL ] body DONE
+                | SELECT ID ( ';' | NL ) DO [ NL ] body DONE
+```
+
+### Группа и подшелл
+
+Группа использует то же тело, что функция.
+
+```
+brace_group ::= '{' [ NL ] body '}'
+subshell    ::= '(' body ')'
+```
+
+Перед `}` в непустой группе нужны `;` или перевод строки: `{ echo x; }`, а `{ echo x }` в язык не входит. Пустые `{ }` и `( )` допустимы.
+
+Подшелл — список команд в круглых скобках, в том числе вложенный. Пробел между скобками сканер выбрасывает, поэтому `((echo z))` — два подшелла. Выражение в этих скобках не вычисляется.
+
+```
+{ echo x; }
+( echo y )
+((echo z))
+{ echo x; } > out
+( echo y ) | cat
 ```
 
 ### case
@@ -170,19 +208,20 @@ pattern     ::= WORD | STRING
 ```
 function_def ::= ID '(' ')' [ NL ] brace_group
                | FUNCTION ID [ '(' ')' ] [ NL ] brace_group
-brace_group  ::= '{' [ NL ] body '}'
 local_stmt   ::= LOCAL { ID | ASSIGN }
 ```
 
-Перед `}` нужен `;` или NL (`name() { echo x; }`, не `name() { echo x }`).
+Тело функции — та же `brace_group`, что у группы. Перед `}` нужен `;` или NL (`name() { echo x; }`, не `name() { echo x }`).
 
 Область `local` (только внутри функции) не проверяется.
 
 ## Вне языка
 
-В том числе: `#!/usr/bin/env bash`; here-doc `<<`; `<( )`; `` `...` ``; `[[ ]]`; `(( ))` `$(( ))`; `${var:-x}` `${var/pat/repl}`; массивы `a=(...)` `${a[@]}`; `source` / `.`; `coproc`; группы `{ ...; }` и подшелл `( ... )` как команды (скобки только у функций, `$(...)`, `[...]`, `case`); префикс `VAR=val cmd`; байты вне ASCII.
+В том числе: `#!/usr/bin/env bash`; here-doc `<<`; `<( )`; `` `...` ``; `[[ ]]`; арифметический цикл `for (( ... ))`; `${var:-x}` `${var/pat/repl}`; массивы `a=(...)` `${a[@]}`; `source` / `.`; `coproc`; префикс `VAR=val cmd`; байты вне ASCII. Скобки команды — у функции, группы, подшелла, `$(...)`, `[...]` и `case`.
 
-Ключевые слова распознаются в любой позиции (`echo done`, `echo in`). Вне кавычек отвергается `\`. Символы `[ ] { }` не входят в слово (`ls [abc]*`, `echo {a,b}`). Не принимаются `if ! [ ... ]`, перенаправление после составной команды (`done < f`) и шебанг с `\r` (CRLF даёт `extra text in shebang`).
+`$((count + 1))` на месте команды — команда, имя которой подстановка. Значение не вычисляется. В аргументе та же запись читается как `$( ( count + 1 ) )`: `echo $((count + 1))`.
+
+Ключевые слова распознаются в любой позиции (`echo done`, `echo in`). Вне кавычек отвергается `\`. Символы `[ ] { }` не входят в слово (`ls [abc]*`, `echo {a,b}`). Не принимаются `if ! [ ... ]` и шебанг с `\r` (CRLF даёт `extra text in shebang`).
 
 ## Примеры
 
