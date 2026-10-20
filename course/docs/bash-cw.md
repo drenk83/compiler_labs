@@ -11,7 +11,7 @@
 | текст ∈ bash-cw | пусто | пусто | 0 |
 | иначе | пусто | `Error: line N` или `Error: line N: text` | 1 |
 
-`N` — номер строки (с 1), на которой обнаружена ошибка. Дальше разбор не идёт. Для токена перевода строки flex увеличивает счётчик при чтении этого символа, поэтому ошибка на таком токене относится к следующей строке. Пояснение `text` есть только у трёх отказов: `missing shebang`, `extra text in shebang`, `here-document is not supported`, а также `if` / `while` / `until condition must be [ ... ]`.
+`N` — номер строки (с 1), на которой обнаружена ошибка. Дальше разбор не идёт. Для токена перевода строки flex увеличивает счётчик при чтении этого символа, поэтому ошибка на таком токене относится к следующей строке. Пояснение `text` есть у трёх отказов: `missing shebang`, `extra text in shebang`, `here-document is not supported`.
 
 Строка шебанга — строка 1. Пустой файл — `Error: line 1: missing shebang`.
 
@@ -125,27 +125,26 @@ if [ -f "$file" ] 2> /tmp/err; then echo ok; fi
 
 ### if / while / until
 
-Условие — только `test_command`, не любая команда и не `[[`.
+Условие — один `and_or`: простая команда, `[ ... ]`, конвейер или цепочка `&&` / `||`. Перед `then` и `do` нужны `;` или перевод строки. Две команды через `;` в условие не входят. `[[` в язык не входит.
 
 ```
-if_clause    ::= IF test_command ( ';' | NL ) THEN [ NL ] body
-                 { ELIF test_command ( ';' | NL ) THEN [ NL ] body }
+if_clause    ::= IF and_or ( ';' | NL ) THEN [ NL ] body
+                 { ELIF and_or ( ';' | NL ) THEN [ NL ] body }
                  [ ELSE [ NL ] body ]
                  FI
 
-while_clause ::= WHILE test_command ( ';' | NL ) DO [ NL ] body DONE
-until_clause ::= UNTIL test_command ( ';' | NL ) DO [ NL ] body DONE
+while_clause ::= WHILE and_or ( ';' | NL ) DO [ NL ] body DONE
+until_clause ::= UNTIL and_or ( ';' | NL ) DO [ NL ] body DONE
 ```
 
 `body` здесь — последовательность `complete_command` (вложенность составных команд можно).
 
-Оба варианта:
-
 ```
 if [ "$1" = a ]; then echo x; fi
-if [ "$1" = a ]
-then echo x
-fi
+if true; then echo x; fi
+if grep -q x "$file"; then echo found; fi
+if echo a | grep a; then echo ok; fi
+while true; do echo x; done
 ```
 
 ### for
@@ -242,11 +241,11 @@ fi
 echo hello
 ```
 
-Отказ (`if` без `[`) — `Error: line 2: if condition must be [ ... ]`:
+Отказ (в условии две команды) — `Error: line 2`:
 
 ```
 #!/bin/bash
-if true; then echo x; fi
+if true; false; then echo x; fi
 ```
 
 Исполняемые примеры: `tests/accept/`, `tests/reject/` (`*.line` — ожидаемый `N`, необязательный `*.msg` — пояснение). Запуск: `tests/run.sh`.

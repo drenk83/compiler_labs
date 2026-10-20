@@ -174,42 +174,25 @@ test_command:
     LBRACK arg_list RBRACK redir_list
     ;
 
+/* Условие — один and_or. Перед then и do нужен sep: точка с запятой или перевод строки. */
 if_clause:
-    IF test_command sep THEN list FI
-    | IF test_command sep THEN list elif_parts FI
-    | IF test_command sep THEN list ELSE list FI
-    | IF test_command sep THEN list elif_parts ELSE list FI
-    | IF bad_condition {
-        error_line(yylineno, "if condition must be [ ... ]");
-        exit(1);
-    }
+    IF and_or sep THEN list FI
+    | IF and_or sep THEN list elif_parts FI
+    | IF and_or sep THEN list ELSE list FI
+    | IF and_or sep THEN list elif_parts ELSE list FI
     ;
 
 elif_parts:
-    ELIF test_command sep THEN list
-    | elif_parts ELIF test_command sep THEN list
+    ELIF and_or sep THEN list
+    | elif_parts ELIF and_or sep THEN list
     ;
 
 while_clause:
-    WHILE test_command sep DO list DONE
-    | WHILE bad_condition {
-        error_line(yylineno, "while condition must be [ ... ]");
-        exit(1);
-    }
+    WHILE and_or sep DO list DONE
     ;
 
 until_clause:
-    UNTIL test_command sep DO list DONE
-    | UNTIL bad_condition {
-        error_line(yylineno, "until condition must be [ ... ]");
-        exit(1);
-    }
-    ;
-
-/* Условие if/while/until без '[': одно слово и разделитель. */
-bad_condition:
-    word SEMI
-    | word NL
+    UNTIL and_or sep DO list DONE
     ;
 
 /* Вторая форма — for name; do ... done, без списка in. */
