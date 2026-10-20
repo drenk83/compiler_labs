@@ -57,7 +57,6 @@ separator:
     ;
 
 nl_opt:
-    /* empty */
     | nl_opt NL
     ;
 
@@ -77,14 +76,11 @@ command:
     | assignment
     | test_command
     | compound_command
-    /* Хвост может быть пустым: name() { echo; } и name() { echo; } > out. */
     | function_def redir_list
     | local_stmt
     | stray_keyword
     ;
 
-/* if, while, until, for, select, case, группа и подшелл.
-   Перенаправлений в конце может не быть: fi и fi > out. */
 compound_command:
     compound_head redir_list
     ;
@@ -100,8 +96,6 @@ compound_head:
     | subshell
     ;
 
-/* Пробел между скобками сканер выбрасывает, поэтому ((cmd))
-   и ( ( cmd ) ) — один и тот же вложенный подшелл. */
 subshell:
     LPAREN list RPAREN
     ;
@@ -115,13 +109,11 @@ simple_command:
     cmd_name arg_list redir_list
     ;
 
-/* То же слово, что и аргумент: echo, "echo", $cmd, $(echo echo). */
 cmd_name:
     word
     ;
 
 arg_list:
-    /* empty */
     | arg_list arg
     ;
 
@@ -150,7 +142,6 @@ cmdsubst:
     ;
 
 redir_list:
-    /* empty */
     | redir_list redir
     ;
 
@@ -166,13 +157,10 @@ redir:
     | REDIR_ERR_OUT
     ;
 
-/* Имя, обычное слово, строка или подстановка. Присваивание FOO=1 целью не бывает. */
 redir_target:
     word
     ;
 
-/* redir_list может быть пустым. То же правило стоит в условии if, while и until.
-   Вторая альтернатива — [[. Пробел между скобками сканер выбрасывает. */
 test_command:
     LBRACK arg_list RBRACK redir_list
     | LBRACK LBRACK {
@@ -181,8 +169,6 @@ test_command:
     }
     ;
 
-/* Условие — один and_or. Перед then и do нужен sep: точка с запятой или перевод строки.
-   Последняя альтернатива ловит склейку if true then. Перевод строки уже входит в sep. */
 if_clause:
     IF and_or sep THEN list FI
     | IF and_or sep THEN list elif_parts FI
@@ -219,8 +205,6 @@ until_clause:
     }
     ;
 
-/* Вторая форма — for name; do ... done, без списка in.
-   Две последние альтернативы — та же склейка без sep, что у while. */
 for_clause:
     FOR ID IN arg_list sep DO list DONE
     | FOR ID sep DO list DONE
@@ -234,7 +218,6 @@ for_clause:
     }
     ;
 
-/* Та же пара форм, что у for, и те же отказы без sep. */
 select_clause:
     SELECT ID IN arg_list sep DO list DONE
     | SELECT ID sep DO list DONE
@@ -253,8 +236,6 @@ sep:
     | NL nl_opt
     ;
 
-/* Без in это не case. Точка с запятой и перевод строки написаны отдельно:
-   общий sep глотает перевод строки и спорит сам с собой. */
 case_clause:
     CASE arg IN nl_opt case_items ESAC
     | CASE arg ESAC {
@@ -272,11 +253,9 @@ case_clause:
     ;
 
 case_items:
-    /* empty */
     | case_items case_item
     ;
 
-/* Последний пункт тоже заканчивается на ;;. Иначе у esac нет своего места. */
 case_item:
     patterns RPAREN list DSEMI nl_opt
     | patterns RPAREN list ESAC {
@@ -302,7 +281,6 @@ function_def:
     | FUNCTION ID LPAREN RPAREN nl_opt brace_group
     ;
 
-/* Пустая группа { } принимается. Непустая без ';' или перевода строки — нет. */
 brace_group:
     LBRACE nl_opt RBRACE
     | LBRACE nl_opt stmt_seq separator RBRACE
@@ -312,10 +290,6 @@ brace_group:
     }
     ;
 
-/* Слово, которым нельзя начинать команду.
-   fi, done, else, elif и esac сюда не входят: они закрывают тело или case,
-   а тело может быть пустым. Иначе автомат не выберет между сдвигом этого
-   слова и свёрткой пустого списка. */
 stray_keyword:
     THEN {
         error_line(yylineno, "unexpected then");
