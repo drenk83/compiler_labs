@@ -77,8 +77,10 @@ command:
     | assignment
     | test_command
     | compound_command
-    | function_def
+    /* Хвост может быть пустым: name() { echo; } и name() { echo; } > out. */
+    | function_def redir_list
     | local_stmt
+    | stray_keyword
     ;
 
 /* if, while, until, for, select, case, группа и подшелл.
@@ -169,42 +171,81 @@ redir_target:
     word
     ;
 
-/* redir_list может быть пустым. То же правило стоит в условии if, while и until. */
+/* redir_list может быть пустым. То же правило стоит в условии if, while и until.
+   Вторая альтернатива — [[. Пробел между скобками сканер выбрасывает. */
 test_command:
     LBRACK arg_list RBRACK redir_list
+    | LBRACK LBRACK {
+        error_line(yylineno, "[[ is not supported");
+        exit(1);
+    }
     ;
 
-/* Условие — один and_or. Перед then и do нужен sep: точка с запятой или перевод строки. */
+/* Условие — один and_or. Перед then и do нужен sep: точка с запятой или перевод строки.
+   Последняя альтернатива ловит склейку if true then. Перевод строки уже входит в sep. */
 if_clause:
     IF and_or sep THEN list FI
     | IF and_or sep THEN list elif_parts FI
     | IF and_or sep THEN list ELSE list FI
     | IF and_or sep THEN list elif_parts ELSE list FI
+    | IF and_or THEN {
+        error_line(yylineno, "missing ';' or newline before then");
+        exit(1);
+    }
     ;
 
 elif_parts:
     ELIF and_or sep THEN list
     | elif_parts ELIF and_or sep THEN list
+    | ELIF and_or THEN {
+        error_line(yylineno, "missing ';' or newline before then");
+        exit(1);
+    }
     ;
 
 while_clause:
     WHILE and_or sep DO list DONE
+    | WHILE and_or DO {
+        error_line(yylineno, "missing ';' or newline before do");
+        exit(1);
+    }
     ;
 
 until_clause:
     UNTIL and_or sep DO list DONE
+    | UNTIL and_or DO {
+        error_line(yylineno, "missing ';' or newline before do");
+        exit(1);
+    }
     ;
 
-/* Вторая форма — for name; do ... done, без списка in. */
+/* Вторая форма — for name; do ... done, без списка in.
+   Две последние альтернативы — та же склейка без sep, что у while. */
 for_clause:
     FOR ID IN arg_list sep DO list DONE
     | FOR ID sep DO list DONE
+    | FOR ID IN arg_list DO {
+        error_line(yylineno, "missing ';' or newline before do");
+        exit(1);
+    }
+    | FOR ID DO {
+        error_line(yylineno, "missing ';' or newline before do");
+        exit(1);
+    }
     ;
 
-/* Та же пара форм, что у for. */
+/* Та же пара форм, что у for, и те же отказы без sep. */
 select_clause:
     SELECT ID IN arg_list sep DO list DONE
     | SELECT ID sep DO list DONE
+    | SELECT ID IN arg_list DO {
+        error_line(yylineno, "missing ';' or newline before do");
+        exit(1);
+    }
+    | SELECT ID DO {
+        error_line(yylineno, "missing ';' or newline before do");
+        exit(1);
+    }
     ;
 
 sep:
@@ -212,8 +253,22 @@ sep:
     | NL nl_opt
     ;
 
+/* Без in это не case. Точка с запятой и перевод строки написаны отдельно:
+   общий sep глотает перевод строки и спорит сам с собой. */
 case_clause:
     CASE arg IN nl_opt case_items ESAC
+    | CASE arg ESAC {
+        error_line(yylineno, "case requires in");
+        exit(1);
+    }
+    | CASE arg SEMI {
+        error_line(yylineno, "case requires in");
+        exit(1);
+    }
+    | CASE arg NL {
+        error_line(yylineno, "case requires in");
+        exit(1);
+    }
     ;
 
 case_items:
@@ -221,8 +276,13 @@ case_items:
     | case_items case_item
     ;
 
+/* Последний пункт тоже заканчивается на ;;. Иначе у esac нет своего места. */
 case_item:
     patterns RPAREN list DSEMI nl_opt
+    | patterns RPAREN list ESAC {
+        error_line(yylineno, "case item must end with ;;");
+        exit(1);
+    }
     ;
 
 patterns:
@@ -242,9 +302,29 @@ function_def:
     | FUNCTION ID LPAREN RPAREN nl_opt brace_group
     ;
 
+/* Пустая группа { } принимается. Непустая без ';' или перевода строки — нет. */
 brace_group:
     LBRACE nl_opt RBRACE
     | LBRACE nl_opt stmt_seq separator RBRACE
+    | LBRACE nl_opt stmt_seq RBRACE {
+        error_line(yylineno, "missing ';' or newline before '}'");
+        exit(1);
+    }
+    ;
+
+/* Слово, которым нельзя начинать команду.
+   fi, done, else, elif и esac сюда не входят: они закрывают тело или case,
+   а тело может быть пустым. Иначе автомат не выберет между сдвигом этого
+   слова и свёрткой пустого списка. */
+stray_keyword:
+    THEN {
+        error_line(yylineno, "unexpected then");
+        exit(1);
+    }
+    | DO {
+        error_line(yylineno, "unexpected do");
+        exit(1);
+    }
     ;
 
 local_stmt:
