@@ -34,43 +34,50 @@ void yyerror(char *msg)
 %start program
 
 %%
-
+/* шебанг и команды */
 program:
     SHEBANG list
     ;
 
+/* тело: файл, then, do; можно пустое */
 list:
     nl_opt
     | nl_opt stmt_seq
     | nl_opt stmt_seq separator
     ;
 
+/* команды через separator */
 stmt_seq:
     and_or
     | stmt_seq separator and_or
     ;
 
+/* ;, & или перевод строки */
 separator:
     SEMI nl_opt
     | AMP nl_opt
     | NL nl_opt
     ;
 
+/* лишние переводы строки */
 nl_opt:
     | nl_opt NL
     ;
 
+/* && и ||; ещё условие if, while, until */
 and_or:
     pipeline
     | and_or AND nl_opt pipeline
     | and_or OR nl_opt pipeline
     ;
 
+/* конвейер | */
 pipeline:
     command
     | pipeline PIPE nl_opt command
     ;
 
+/* одна команда */
 command:
     simple_command
     | assignment
@@ -81,10 +88,12 @@ command:
     | stray_keyword
     ;
 
+/* составная команда и редиректы */
 compound_command:
     compound_head redir_list
     ;
 
+/* if, циклы, case, группа, подшелл */
 compound_head:
     if_clause
     | while_clause
@@ -96,32 +105,39 @@ compound_head:
     | subshell
     ;
 
+/* ( команды ) */
 subshell:
     LPAREN list RPAREN
     ;
 
+/* NAME= или NAME=слово */
 assignment:
     ASSIGN
     | ASSIGN word
     ;
 
+/* имя, аргументы, редиректы */
 simple_command:
     cmd_name arg_list redir_list
     ;
 
+/* имя команды */
 cmd_name:
     word
     ;
 
+/* аргументы, можно пусто */
 arg_list:
     | arg_list arg
     ;
 
+/* слово или NAME=value */
 arg:
     word
     | ASSIGN
     ;
 
+/* имя, слово, строка, подстановка */
 word:
     ID
     | WORD
@@ -129,6 +145,7 @@ word:
     | expansion
     ;
 
+/* $имя, $1, ${имя}, $# $@ $* $$ $? */
 expansion:
     DOLLAR_ID
     | DOLLAR_NUM
@@ -137,14 +154,17 @@ expansion:
     | cmdsubst
     ;
 
+/* $(...) */
 cmdsubst:
     DOLLAR_LPAREN list RPAREN
     ;
 
+/* редиректы */
 redir_list:
     | redir_list redir
     ;
 
+/* > >> < 2> 2>&1; << нельзя */
 redir:
     GT redir_target
     | DGREAT redir_target
@@ -161,6 +181,7 @@ redir_target:
     word
     ;
 
+/* [ слова ]; [[ нельзя */
 test_command:
     LBRACK arg_list RBRACK redir_list
     | LBRACK LBRACK {
@@ -169,6 +190,7 @@ test_command:
     }
     ;
 
+/* if; перед then — ; или перевод строки */
 if_clause:
     IF and_or sep THEN list FI
     | IF and_or sep THEN list elif_parts FI
@@ -180,6 +202,7 @@ if_clause:
     }
     ;
 
+/* ветки elif */
 elif_parts:
     ELIF and_or sep THEN list
     | elif_parts ELIF and_or sep THEN list
@@ -189,6 +212,7 @@ elif_parts:
     }
     ;
 
+/* while do ... done */
 while_clause:
     WHILE and_or sep DO list DONE
     | WHILE and_or DO {
@@ -197,6 +221,7 @@ while_clause:
     }
     ;
 
+/* until, как while */
 until_clause:
     UNTIL and_or sep DO list DONE
     | UNTIL and_or DO {
@@ -205,6 +230,7 @@ until_clause:
     }
     ;
 
+/* for со списком in и без */
 for_clause:
     FOR ID IN arg_list sep DO list DONE
     | FOR ID sep DO list DONE
@@ -218,6 +244,7 @@ for_clause:
     }
     ;
 
+/* select, как for */
 select_clause:
     SELECT ID IN arg_list sep DO list DONE
     | SELECT ID sep DO list DONE
@@ -236,6 +263,7 @@ sep:
     | NL nl_opt
     ;
 
+/* case; нужно in */
 case_clause:
     CASE arg IN nl_opt case_items ESAC
     | CASE arg ESAC {
@@ -256,6 +284,7 @@ case_items:
     | case_items case_item
     ;
 
+/* образец ) тело ;; */
 case_item:
     patterns RPAREN list DSEMI nl_opt
     | patterns RPAREN list ESAC {
@@ -264,23 +293,27 @@ case_item:
     }
     ;
 
+/* несколько образцов через | */
 patterns:
     pattern
     | patterns PIPE pattern
     ;
 
+/* имя, слово или строка */
 pattern:
     ID
     | WORD
     | STRING
     ;
 
+/* name(), function name, function name() */
 function_def:
     ID LPAREN RPAREN nl_opt brace_group
     | FUNCTION ID nl_opt brace_group
     | FUNCTION ID LPAREN RPAREN nl_opt brace_group
     ;
 
+/* { }; перед } нужен ; или перевод строки */
 brace_group:
     LBRACE nl_opt RBRACE
     | LBRACE nl_opt stmt_seq separator RBRACE
@@ -290,6 +323,7 @@ brace_group:
     }
     ;
 
+/* then или do не на месте */
 stray_keyword:
     THEN {
         error_line(yylineno, "unexpected then");
@@ -301,6 +335,7 @@ stray_keyword:
     }
     ;
 
+/* local */
 local_stmt:
     LOCAL local_names
     ;
