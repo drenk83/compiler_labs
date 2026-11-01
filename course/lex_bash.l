@@ -13,6 +13,7 @@ static int read_double_quote(void);
 %x BODY
 
 ID      [A-Za-z_][A-Za-z0-9_]*
+NUM     [0-9]+
 WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 
 %%
@@ -64,8 +65,11 @@ WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 <BODY>"]"                       { return RBRACK; }
 
 <BODY>"$("                      { return DOLLAR_LPAREN; }
-<BODY>"${"{ID}"}"               { return DOLLAR_BRACE; }
-<BODY>"${"                      { error_line(yylineno, NULL); exit(1); }
+<BODY>"${"{ID}"}"                      { return DOLLAR_BRACE; }
+<BODY>"${"{ID}"["{NUM}"]}"             { return DOLLAR_BRACE; }
+<BODY>"${"{ID}"["{ID}"]}"              { return DOLLAR_BRACE; }
+<BODY>"${"{ID}"["[@*]"]}"              { return DOLLAR_BRACE; }
+<BODY>"${"                             { error_line(yylineno, NULL); exit(1); }
 <BODY>"$#"|"$@"|"$*"|"$$"|"$?"  { return DOLLAR_SPECIAL; }
 <BODY>"$"{ID}                   { return DOLLAR_ID; }
 <BODY>"$"[0-9]+                 { return DOLLAR_NUM; }
