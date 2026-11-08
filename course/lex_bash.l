@@ -9,7 +9,7 @@ static int read_single_quote(void);
 static int read_double_quote(void);
 %}
 
-%option yylineno noyywrap nounput
+%option yylineno noyywrap
 %x BODY
 
 ID      [A-Za-z_][A-Za-z0-9_]*
@@ -17,7 +17,6 @@ NUM     [0-9]+
 WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 
 %%
-
 "#!/bin/bash"[ \t]*\n  { BEGIN(BODY); return SHEBANG; }
 "#!/bin/bash"[ \t]*    { BEGIN(BODY); return SHEBANG; }
 "#!/bin/bash".*        { error_line(1, "extra text in shebang"); exit(1); }
@@ -64,12 +63,15 @@ WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 <BODY>"["                       { return LBRACK; }
 <BODY>"]"                       { return RBRACK; }
 
+<BODY>"$(("[0-9A-Za-z+\-*/%<>=!&|^ ]+"))"  { return ARITH; }
+
 <BODY>"$("                      { return DOLLAR_LPAREN; }
-<BODY>"${"{ID}"}"                      { return DOLLAR_BRACE; }
-<BODY>"${"{ID}"["{NUM}"]}"             { return DOLLAR_BRACE; }
-<BODY>"${"{ID}"["{ID}"]}"              { return DOLLAR_BRACE; }
-<BODY>"${"{ID}"["[@*]"]}"              { return DOLLAR_BRACE; }
-<BODY>"${"                             { error_line(yylineno, NULL); exit(1); }
+<BODY>"${"{ID}"}"               { return DOLLAR_BRACE; }
+<BODY>"${!"{ID}"}"              { return DOLLAR_BRACE; }
+<BODY>"${"{ID}"["{NUM}"]}"      { return DOLLAR_BRACE; }
+<BODY>"${"{ID}"["{ID}"]}"       { return DOLLAR_BRACE; }
+<BODY>"${"{ID}"["[@*]"]}"       { return DOLLAR_BRACE; }
+<BODY>"${"                      { error_line(yylineno, NULL); exit(1); }
 <BODY>"$#"|"$@"|"$*"|"$$"|"$?"  { return DOLLAR_SPECIAL; }
 <BODY>"$"{ID}                   { return DOLLAR_ID; }
 <BODY>"$"[0-9]+                 { return DOLLAR_NUM; }
@@ -91,37 +93,25 @@ WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 
 static int read_single_quote(void)
 {
-    int line = yylineno;
+    int start_line = yylineno;
     int c;
 
     while ((c = input()) != 0) {
         if (c == '\'')
             return STRING;
-        if (c == '\n') {
-            error_line(line, NULL);
-            exit(1);
-        }
     }
-    error_line(line, NULL);
+
+    error_line(start_line, "unterminated single quote");
     exit(1);
 }
 
 static int read_double_quote(void)
 {
-    int line = yylineno;
+    int start_line = yylineno;
     int c;
     int escaped = 0;
 
     while ((c = input()) != 0) {
-        if (c == '\n') {
-            if (!escaped) {
-                error_line(line, NULL);
-                exit(1);
-            }
-            line++;
-            escaped = 0;
-            continue;
-        }
         if (escaped) {
             escaped = 0;
             continue;
@@ -133,6 +123,7 @@ static int read_double_quote(void)
         if (c == '"')
             return STRING;
     }
-    error_line(line, NULL);
+
+    error_line(start_line, "unterminated double quote");
     exit(1);
 }
