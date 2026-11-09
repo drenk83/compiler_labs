@@ -322,13 +322,14 @@ local_names:
 
 local_item:
     ID
+    | WORD
     | ASSIGN
     | ASSIGN local_value
+    | ASSIGN LPAREN arg_list RPAREN
     ;
 
 local_value:
-    WORD
-    | STRING
+    STRING
     | expansion
     ;
 %%

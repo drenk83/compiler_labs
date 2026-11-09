@@ -1,5 +1,15 @@
 #!/bin/bash    
 
-local a b c             # три пустые локальные
-local a=1 b=2 c=3       # три со значениями
-local a=1 b c=3         # смешанно — валидно
+process() {
+    local file=$1
+    local -a lines=()
+    local line
+
+    [[ -f $file ]] || return 1
+
+    while IFS= read -r line; do
+        lines+=("$line")
+    done < "$file"
+
+    printf '%s\n' "${lines[@]}"
+}
