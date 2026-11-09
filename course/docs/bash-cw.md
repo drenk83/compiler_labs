@@ -11,7 +11,7 @@
 | текст ∈ bash-cw | пусто | пусто | 0 |
 | иначе | пусто | `Error: line N` или `Error: line N: text` | 1 |
 
-`N` — номер строки (с 1), на которой обнаружена ошибка. Дальше разбор не идёт. Для токена перевода строки flex увеличивает счётчик при чтении этого символа, поэтому ошибка на таком токене относится к следующей строке. Пояснение `text` есть у шебанга (`missing shebang`, `extra text in shebang`), у here-документа (`here-document is not supported`), у байта без токена (`unexpected character`), у незакрытой строки (`unterminated single quote`, `unterminated double quote` — номер строки открывающей кавычки) и у псевдоправил: `[[ is not supported`, `missing ';' or newline before then`, `missing ';' or newline before do`, `missing ';' or newline before '}'`, `unexpected then`, `unexpected do`, `case requires in`, `case item must end with ;;`.
+`N` — номер строки (с 1), на которой обнаружена ошибка. Дальше разбор не идёт. Для токена перевода строки flex увеличивает счётчик при чтении этого символа, поэтому ошибка на таком токене относится к следующей строке. Пояснение `text` есть у шебанга (`missing shebang`, `extra text in shebang`), у here-документа (`here-document is not supported`), у байта без токена (`unexpected character`), у незакрытой строки (`unterminated single quote`, `unterminated double quote` — номер строки открывающей кавычки) и у псевдоправил: `[[ ... ]] is not supported`, `missing ';' or newline before then`, `missing ';' or newline before do`, `missing ';' or newline before '}'`, `unexpected then`, `unexpected do`, `case requires in`, `case item must end with ;;`.
 
 Строка шебанга — строка 1. Пустой файл — `Error: line 1: missing shebang`.
 
@@ -122,7 +122,7 @@ redir          ::= '>' word | '>>' word | '<' word | '2>' word | '2>&1'
 test_command ::= '[' { argument } ']' { redir }
 ```
 
-Операторы теста (`-lt`, `=`, `-f`, …) не проверяются: это слова. `[[` даёт `Error: line N: [[ is not supported`. Пробел между скобками сканер выбрасывает, поэтому `[ [` — тот же отказ. Хвостовой редирект необязателен, в том числе когда проверка стоит в условии.
+Операторы теста (`-lt`, `=`, `-f`, …) не проверяются: это слова. `[[` даёт `Error: line N: [[ ... ]] is not supported`. Пробел между скобками сканер выбрасывает, поэтому `[ [` — тот же отказ. Хвостовой редирект необязателен, в том числе когда проверка стоит в условии.
 
 ```
 [ -f "$file" ] > /tmp/out

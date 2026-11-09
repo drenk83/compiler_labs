@@ -199,7 +199,6 @@ elif_parts:
     }
     ;
 
-/* while do ... done */
 while_clause:
     WHILE nl_opt and_or sep DO list DONE
     | WHILE nl_opt and_or DO {
@@ -208,7 +207,6 @@ while_clause:
     }
     ;
 
-/* until, как while */
 until_clause:
     UNTIL nl_opt and_or sep DO list DONE
     | UNTIL nl_opt and_or DO {
@@ -217,29 +215,21 @@ until_clause:
     }
     ;
 
-/* for со списком in и без */
 for_clause:
     FOR ID IN arg_list sep DO list DONE
     | FOR ID sep DO list DONE
+    | FOR ID DO list DONE
     | FOR ID IN arg_list DO {
-        error_line(yylineno, "missing ';' or newline before do");
-        exit(1);
-    }
-    | FOR ID DO {
         error_line(yylineno, "missing ';' or newline before do");
         exit(1);
     }
     ;
 
-/* select, как for */
 select_clause:
     SELECT ID IN arg_list sep DO list DONE
     | SELECT ID sep DO list DONE
+    | SELECT ID DO list DONE
     | SELECT ID IN arg_list DO {
-        error_line(yylineno, "missing ';' or newline before do");
-        exit(1);
-    }
-    | SELECT ID DO {
         error_line(yylineno, "missing ';' or newline before do");
         exit(1);
     }
@@ -250,7 +240,6 @@ sep:
     | NL nl_opt
     ;
 
-/* case; нужно in */
 case_clause:
     CASE arg IN nl_opt case_items ESAC
     | CASE arg ESAC {
@@ -271,7 +260,7 @@ case_items:
     | case_items case_item
     ;
 
-/* образец ) тело ;; */
+/* a|b|c) echo x ;; */
 case_item:
     patterns RPAREN list DSEMI nl_opt
     | patterns RPAREN list ESAC {
@@ -280,13 +269,12 @@ case_item:
     }
     ;
 
-/* несколько образцов через | */
+/* a|b|c */
 patterns:
     pattern
     | patterns PIPE pattern
     ;
 
-/* имя, слово или строка */
 pattern:
     ID
     | WORD
@@ -335,9 +323,14 @@ local_names:
 local_item:
     ID
     | ASSIGN
-    | ASSIGN word
+    | ASSIGN local_value
     ;
 
+local_value:
+    WORD
+    | STRING
+    | expansion
+    ;
 %%
 
 int main(int argc, char **argv)

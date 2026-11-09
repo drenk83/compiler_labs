@@ -1,1 +1,1 @@
-[[ is not supported
+[[ ... ]] is not supported
