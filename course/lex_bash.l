@@ -86,8 +86,7 @@ WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 <BODY>\"                        { return read_double_quote(); }
 
 <BODY>\n                        { return NL; }
-
-<BODY>.                         { error_line(yylineno, NULL); exit(1); }
+<BODY>.                         { error_line(yylineno, "unexpected character"); exit(1); }
 
 %%
 

@@ -4,3 +4,5 @@ echo ''
 echo "a b"
 echo 'a b'
 echo "quote \""
+echo "hello
+world"
