@@ -101,23 +101,26 @@ compound_command:
     compound_head redir_list
     ;
 
-assign_list:
+assign_part:
     ASSIGN
-    | assign_list ASSIGN
+    | ASSIGN LPAREN arg_list RPAREN
     ;
 
-/* аргументы, можно пусто */
+assign_list:
+    assign_part
+    | assign_list assign_part
+    ;
+
 arg_list:
     | arg_list arg
     ;
 
-/* слово или NAME=value */
 arg:
     word
-    | ASSIGN
+    | assign_part
+    | LBRACE WORD RBRACE
     ;
 
-/* if, циклы, case, группа, подшелл */
 compound_head:
     if_clause
     | while_clause
@@ -134,7 +137,6 @@ subshell:
     LPAREN list RPAREN
     ;
 
-/* имя, слово, строка, подстановка */
 word:
     ID
     | WORD
@@ -157,12 +159,11 @@ cmdsubst:
     DOLLAR_LPAREN list RPAREN
     ;
 
-/* редиректы */
 redir_list:
     | redir_list redir
     ;
 
-/* > >> < 2> 2>&1; << нельзя */
+/* > >> < 2> 2>&1; << нельзя here-документ */
 redir:
     GT redir_target
     | DGREAT redir_target
@@ -219,10 +220,27 @@ for_clause:
     FOR ID IN arg_list sep DO list DONE
     | FOR ID sep DO list DONE
     | FOR ID DO list DONE
+    | FOR LPAREN LPAREN for_c_style RPAREN RPAREN sep DO list DONE
+    | FOR LPAREN LPAREN for_c_style RPAREN RPAREN DO list DONE
     | FOR ID IN arg_list DO {
         error_line(yylineno, "missing ';' or newline before do");
         exit(1);
     }
+    ;
+
+/* i=0; i<10; i++ */
+for_c_style:
+    | for_c_style for_part
+    ;
+
+for_part:
+    ID
+    | WORD
+    | ASSIGN
+    | SEMI
+    | DSEMI
+    | LT
+    | GT
     ;
 
 select_clause:

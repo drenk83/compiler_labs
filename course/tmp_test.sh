@@ -1,15 +1,7 @@
 #!/bin/bash    
 
-process() {
-    local file=$1
-    local -a lines=()
-    local line
+echo {1..100}
 
-    [[ -f $file ]] || return 1
-
-    while IFS= read -r line; do
-        lines+=("$line")
-    done < "$file"
-
-    printf '%s\n' "${lines[@]}"
-}
+for i in {1..100}; do
+    echo $i
+done

@@ -77,6 +77,12 @@ WORD    [^ \t\n|&;<>(){}[\]"'`$\\]+
 <BODY>"$"[0-9]+                 { return DOLLAR_NUM; }
 <BODY>"$"                       { error_line(yylineno, NULL); exit(1); }
 
+<BODY>{ID}\+={WORD}             { return ASSIGN; }
+<BODY>{ID}\+=                   { return ASSIGN; }
+<BODY>{ID}\[{ID}\]={WORD}       { return ASSIGN; }
+<BODY>{ID}\[{NUM}\]={WORD}      { return ASSIGN; }
+<BODY>{ID}\[{ID}\]=             { return ASSIGN; }
+<BODY>{ID}\[{NUM}\]=            { return ASSIGN; }
 <BODY>{ID}={WORD}               { return ASSIGN; }
 <BODY>{ID}=                     { return ASSIGN; }
 <BODY>{ID}                      { return ID; }
