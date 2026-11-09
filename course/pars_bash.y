@@ -34,37 +34,32 @@ void yyerror(char *msg)
 %start program
 
 %%
-/* шебанг и команды */
 program:
     SHEBANG list
     ;
 
-/* тело: файл, then, do; можно пустое */
 list:
     nl_opt
     | nl_opt stmt_seq
     | nl_opt stmt_seq separator
     ;
 
-/* команды через separator */
+/* последовательность команд */
 stmt_seq:
     and_or
     | stmt_seq separator and_or
     ;
 
-/* ;, & или перевод строки */
 separator:
     SEMI nl_opt
     | AMP nl_opt
     | NL nl_opt
     ;
 
-/* лишние переводы строки */
 nl_opt:
     | nl_opt NL
     ;
 
-/* && и ||; ещё условие if, while, until */
 and_or:
     pipeline
     | and_or AND nl_opt pipeline
@@ -77,10 +72,8 @@ pipeline:
     | pipeline PIPE nl_opt command
     ;
 
-/* одна команда */
 command:
     simple_command
-    | assignment
     | test_command
     | compound_command
     | function_def redir_list
@@ -88,9 +81,40 @@ command:
     | stray_keyword
     ;
 
+simple_command:
+    assign_list
+    | assign_list word arg_list redir_list
+    | word arg_list redir_list
+    ;
+
+/* [ ... ]; [[ ... ]] - нельзя */
+test_command:
+    LBRACK arg_list RBRACK redir_list
+    | LBRACK LBRACK {
+        error_line(yylineno, "[[ ... ]] is not supported");
+        exit(1);
+    }
+    ;
+
 /* составная команда и редиректы */
 compound_command:
     compound_head redir_list
+    ;
+
+assign_list:
+    ASSIGN
+    | assign_list ASSIGN
+    ;
+
+/* аргументы, можно пусто */
+arg_list:
+    | arg_list arg
+    ;
+
+/* слово или NAME=value */
+arg:
+    word
+    | ASSIGN
     ;
 
 /* if, циклы, case, группа, подшелл */
@@ -108,33 +132,6 @@ compound_head:
 /* ( команды ) */
 subshell:
     LPAREN list RPAREN
-    ;
-
-/* NAME= или NAME=слово */
-assignment:
-    ASSIGN
-    | ASSIGN word
-    ;
-
-/* имя, аргументы, редиректы */
-simple_command:
-    cmd_name arg_list redir_list
-    ;
-
-/* имя команды */
-cmd_name:
-    word
-    ;
-
-/* аргументы, можно пусто */
-arg_list:
-    | arg_list arg
-    ;
-
-/* слово или NAME=value */
-arg:
-    word
-    | ASSIGN
     ;
 
 /* имя, слово, строка, подстановка */
@@ -182,32 +179,21 @@ redir_target:
     word
     ;
 
-/* [ слова ]; [[ нельзя */
-test_command:
-    LBRACK arg_list RBRACK redir_list
-    | LBRACK LBRACK {
-        error_line(yylineno, "[[ is not supported");
-        exit(1);
-    }
-    ;
-
-/* if; перед then — ; или перевод строки */
 if_clause:
-    IF and_or sep THEN list FI
-    | IF and_or sep THEN list elif_parts FI
-    | IF and_or sep THEN list ELSE list FI
-    | IF and_or sep THEN list elif_parts ELSE list FI
-    | IF and_or THEN {
+    IF nl_opt and_or sep THEN list FI
+    | IF nl_opt and_or sep THEN list elif_parts FI
+    | IF nl_opt and_or sep THEN list ELSE list FI
+    | IF nl_opt and_or sep THEN list elif_parts ELSE list FI
+    | IF nl_opt and_or THEN {
         error_line(yylineno, "missing ';' or newline before then");
         exit(1);
     }
     ;
 
-/* ветки elif */
 elif_parts:
-    ELIF and_or sep THEN list
-    | elif_parts ELIF and_or sep THEN list
-    | ELIF and_or THEN {
+    ELIF nl_opt and_or sep THEN list
+    | elif_parts ELIF nl_opt and_or sep THEN list
+    | ELIF nl_opt and_or THEN {
         error_line(yylineno, "missing ';' or newline before then");
         exit(1);
     }
@@ -215,8 +201,8 @@ elif_parts:
 
 /* while do ... done */
 while_clause:
-    WHILE and_or sep DO list DONE
-    | WHILE and_or DO {
+    WHILE nl_opt and_or sep DO list DONE
+    | WHILE nl_opt and_or DO {
         error_line(yylineno, "missing ';' or newline before do");
         exit(1);
     }
@@ -224,8 +210,8 @@ while_clause:
 
 /* until, как while */
 until_clause:
-    UNTIL and_or sep DO list DONE
-    | UNTIL and_or DO {
+    UNTIL nl_opt and_or sep DO list DONE
+    | UNTIL nl_opt and_or DO {
         error_line(yylineno, "missing ';' or newline before do");
         exit(1);
     }
